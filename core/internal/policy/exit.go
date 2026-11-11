@@ -39,11 +39,11 @@ type exitState struct {
 // SetExitStore 设置出口选择的保存位置并读入（daemon 启动时调用）。
 func (e *Engine) SetExitStore(path string) {
 	e.exitPath = path
-	e.exit = ExitWireGuard
+	e.exit.Store(ExitWireGuard)
 	if data, err := os.ReadFile(path); err == nil {
 		var s exitState
 		if json.Unmarshal(data, &s) == nil && s.Exit == ExitMihomo {
-			e.exit = s.Exit
+			e.exit.Store(s.Exit)
 		}
 	}
 }
@@ -51,18 +51,15 @@ func (e *Engine) SetExitStore(path string) {
 // SetMihomoExit 接上内置 mihomo 出口。
 func (e *Engine) SetMihomoExit(b ExitBackend) { e.mihomoExit = b }
 
-// Exit 返回当前出口。
-func (e *Engine) Exit() string {
-	e.opMu.Lock()
-	defer e.opMu.Unlock()
-	return e.exitLocked()
-}
+// Exit 返回当前出口。无锁读取：出站拦截在策略巡检持有 opMu 时也会来问出口，
+// 这里若再拿 opMu 就是自己等自己（v42 预览版切换 mihomo 时整个引擎卡死的原因）。
+func (e *Engine) Exit() string { return e.exitLocked() }
 
 func (e *Engine) exitLocked() string {
-	if e.exit == "" {
-		return ExitWireGuard
+	if v, _ := e.exit.Load().(string); v != "" {
+		return v
 	}
-	return e.exit
+	return ExitWireGuard
 }
 
 // SetExit 手动切换出口：先拆旧出口，再起新出口。
@@ -98,7 +95,7 @@ func (e *Engine) SetExit(exit string) error {
 		return err
 	}
 	prev := e.exitLocked()
-	e.exit = exit
+	e.exit.Store(exit)
 	e.Logf("切换出口: %s → %s", prev, exit)
 
 	switch exit {

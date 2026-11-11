@@ -4,6 +4,7 @@ import (
 	"errors"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/wgsense/core/internal/config"
 	"github.com/wgsense/core/internal/tunnel"
@@ -136,4 +137,22 @@ func TestSwitchToWireGuardSucceedsEvenIfConnectFails(t *testing.T) {
 	if e.Exit() != ExitWireGuard || ex.running {
 		t.Fatal("exit should be WireGuard with mihomo stopped")
 	}
+}
+
+// 回归：出站拦截在策略巡检持有 opMu 时回调 Exit()，不能死锁。
+func TestExitReadableWhileEngineLocked(t *testing.T) {
+	e, _, _, _ := newExitEngine(t, false)
+	done := make(chan string, 1)
+	e.opMu.Lock()
+	go func() { done <- e.Exit() }()
+	select {
+	case got := <-done:
+		if got != ExitWireGuard {
+			t.Fatalf("got %s", got)
+		}
+	case <-time.After(2 * time.Second):
+		e.opMu.Unlock()
+		t.Fatal("Exit() blocked on opMu: deadlock with firewall sync during policy ticks")
+	}
+	e.opMu.Unlock()
 }

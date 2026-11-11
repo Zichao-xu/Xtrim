@@ -9,6 +9,7 @@ import (
 	"log"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/wgsense/core/internal/config"
@@ -68,7 +69,7 @@ type Engine struct {
 	nextAutoAttempt time.Time
 	configPath      string
 	exitPath        string
-	exit            string
+	exit            atomic.Value // string，见 exit.go：必须能在持有 opMu 时读
 	mihomoExit      ExitBackend
 	ipv6Path        string
 	networkSnapshot func() string
