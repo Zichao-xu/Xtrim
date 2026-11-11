@@ -214,6 +214,7 @@ extension RuleCacheStore {
 
     private func editCustom(_ mode: String, _ change: (inout CustomRuleDocument) throws -> Void) async throws {
         guard let backend = MihomoBackendStore.shared.active else { throw CustomRuleError.invalid("未配置后端") }
+        guard !backend.isLocal else { throw CustomRuleError.invalid(MihomoBackendStore.localReadOnlyNote) }
         if snapshot == nil { await sync() }
         guard let path = customPath(mode), !path.isEmpty else { throw CustomRuleError.invalid("未检测到规则源，请先更新规则缓存") }
         let ssh = OpenWrtSSH(backend: backend)
@@ -245,6 +246,14 @@ extension RuleCacheStore {
     /// 重启代理（OpenClash / Nikki 服务），让写入的规则生效。
     func restartPlugin() async throws {
         guard let backend = MihomoBackendStore.shared.active else { return }
+        if backend.isLocal {
+            // 本机内核：交给网络服务停了再起（不走 SSH）
+            let api = DaemonControlAPIClient()
+            _ = try await api.mihomo(action: "stop")
+            _ = try await api.mihomo(action: "start")
+            pendingRestart = false
+            return
+        }
         let service = snapshot?.plugin == "nikki" ? "/etc/init.d/nikki" : "/etc/init.d/openclash"
         _ = try await OpenWrtSSH(backend: backend).run("[ -x \(service) ] || { echo 'service missing' >&2; exit 1; }\n\(service) restart >/dev/null 2>&1 &\n", timeout: 30)
         pendingRestart = false

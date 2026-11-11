@@ -126,6 +126,18 @@ func (m *Manager) statePath() string  { return filepath.Join(m.dir, "state.json"
 func (m *Manager) ConfigPath() string { return filepath.Join(m.dir, "config.yaml") }
 func (m *Manager) dataDir() string    { return filepath.Join(m.dir, "data") }
 
+// Controller 返回控制接口地址与密钥（只给本机 App 的「面板」用；密钥首次需要时生成）。
+func (m *Manager) Controller() (string, string, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.st.Secret == "" {
+		if err := m.prepareLocked(); err != nil {
+			return "", "", err
+		}
+	}
+	return DefaultController, m.st.Secret, nil
+}
+
 // Bundled 报告这份 daemon 是否带了内核。
 func (m *Manager) Bundled() bool { return len(m.binary) > 0 }
 

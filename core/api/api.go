@@ -80,6 +80,7 @@ func (s *Server) Serve(listener net.Listener) error {
 	mux.HandleFunc("/api/mihomo", s.handleMihomo)
 	mux.HandleFunc("/api/exit", s.handleExit)
 	mux.HandleFunc("/api/mihomo/import", s.handleMihomoImport)
+	mux.HandleFunc("/api/mihomo/controller", s.handleMihomoController)
 	mux.HandleFunc("/api/logs", s.handleLogs)
 	mux.HandleFunc("/api/traffic", s.handleTraffic)
 	mux.HandleFunc("/api/shutdown", s.handleShutdown)
@@ -426,6 +427,25 @@ func (s *Server) handleMihomoImport(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, s.mihomo.Status())
+}
+
+// handleMihomoController GET 返回本机内核控制接口地址与密钥，供 App 的「面板」接到本机内核。
+// 只监听 127.0.0.1，和其余接口同一信任边界。
+func (s *Server) handleMihomoController(w http.ResponseWriter, r *http.Request) {
+	if s.mihomo == nil {
+		http.Error(w, "这份网络服务没有接入内置代理内核", http.StatusConflict)
+		return
+	}
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	addr, secret, err := s.mihomo.Controller()
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+	writeJSON(w, map[string]string{"address": addr, "secret": secret})
 }
 
 // handleExit GET 返回当前出口；POST {"exit":"wireguard"|"mihomo"} 手动切换（三者互斥）。

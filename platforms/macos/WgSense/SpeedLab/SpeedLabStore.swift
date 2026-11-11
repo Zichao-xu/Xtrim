@@ -193,7 +193,7 @@ final class SpeedLabStore: ObservableObject {
 
     private var discoverCandidates: [SLEndpoint] {
         var list = [SLEndpoint.local(hostname: "")]
-        for backend in MihomoBackendStore.shared.backends {
+        for backend in MihomoBackendStore.shared.backends where !backend.isLocal {   // 本机内核没有 SSH
             let host = backend.effectiveSSHHost
             guard !host.isEmpty else { continue }
             let e = SLEndpoint.ssh(host: host, port: backend.sshPort, user: backend.sshUser, via: "代理后端 \(backend.host)")

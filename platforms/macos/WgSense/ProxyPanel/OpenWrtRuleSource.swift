@@ -431,6 +431,8 @@ final class RuleCacheStore: ObservableObject {
 
     func sync() async {
         guard !syncing, let backend = MihomoBackendStore.shared.active else { return }
+        // 本机内核没有路由器上的规则源文件可读；规则改动在 op 上做
+        guard !backend.isLocal else { lastError = MihomoBackendStore.localReadOnlyNote; return }
         syncing = true
         lastError = nil
         progress = "正在检测规则源…"

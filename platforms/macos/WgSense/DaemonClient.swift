@@ -241,12 +241,32 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         await fetchTraffic()
     }
 
+    private var followedExit: String?
+
+    /// 面板跟随出口：出口变化时把「面板」切到本机内核或路由器。
+    private func followPanelBackend() async {
+        let exit = status?.exit ?? "wireguard"
+        guard exit != followedExit else { return }
+        if exit == "mihomo" {
+            guard let ctl = try? await api.decode(MihomoController.self, path: "api/mihomo/controller", timeout: 5) else { return }
+            MihomoBackendStore.shared.ensureLocal(address: ctl.address, secret: ctl.secret)
+        }
+        followedExit = exit
+        MihomoBackendStore.shared.follow(exitIsMihomo: exit == "mihomo")
+    }
+
+    private struct MihomoController: Decodable {
+        var address: String
+        var secret: String
+    }
+
     // 只有数据真的变了才赋值：@Published 每次赋值都会让所有订阅视图重算，
     // 轮询拿回同样的数据时不应触发重绘；@AppStorage 同理还会写磁盘。
     func fetchStatus() async {
         do {
             let next = try await controlAPI.status()
             if status != next { status = next }
+            await followPanelBackend()
             linkMonitor.ingest(handshake: next.last_handshake, handshakeAge: next.last_handshake_age_seconds,
                                tx: next.peer_tx_bytes, rx: next.peer_rx_bytes, rebinds: next.bind_rebinds, tunnelUp: isTunnelUp)
             let wantVPN = next.desired_vpn_enabled ?? (next.state == "Connected")
@@ -1043,15 +1063,15 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         await fetchMihomo()
     }
 
-    /// 运行中的网络服务没有配置导入接口（旧版）：新版对 GET 回 405，旧版回 404。
+    /// 运行中的网络服务和 App 自带的不是同一份（哈希不同）：切到 mihomo 前要先升级，
+    /// 否则新加的接口（配置导入、控制接口等）在旧服务上不存在。
     private func serviceLacksMihomoImport() async -> Bool {
-        do {
-            _ = try await api.request("api/mihomo/import", method: "GET", timeout: 5)
-            return false
-        } catch {
-            let message = error.localizedDescription.lowercased()
-            return message.contains("404") || message.contains("not found") || status?.exit == nil
-        }
+        guard let path = Bundle.main.path(forResource: "wgsense-daemon", ofType: nil, inDirectory: "libexec"),
+              let bytes = try? Data(contentsOf: URL(fileURLWithPath: path)) else { return false }
+        let bundled = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
+        struct Identity: Decodable { var binary_sha256: String }
+        guard let running = try? await api.decode(Identity.self, path: "api/service", timeout: 5) else { return true }
+        return running.binary_sha256.lowercased() != bundled
     }
 
     /// 切换中途失败、WireGuard 已被断开时把它连回去。

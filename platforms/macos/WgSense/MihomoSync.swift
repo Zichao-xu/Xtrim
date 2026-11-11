@@ -24,7 +24,7 @@ enum MihomoSync {
     /// 只拉取打包到本机缓存，不导入（切换出口时要先趁隧道还连着把配置拿到手）。
     @MainActor
     static func fetch(includeGeo: Bool) async throws -> (bundle: URL, origin: String) {
-        guard let backend = MihomoBackendStore.shared.active else {
+        guard let backend = MihomoBackendStore.shared.remote else {
             throw Failure(message: "「面板」还没有配置路由器后端，不知道从哪里同步")
         }
         let ssh = OpenWrtSSH(backend: backend)
