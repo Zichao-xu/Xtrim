@@ -1114,10 +1114,10 @@ struct SidebarView: View {
             return ModuleInfo(symbol: kind.icon, tint: kind.activeColor, isOn: tile.running,
                               status: tile.text.map { Text(verbatim: $0) } ?? Text("世界航线"))
         case .purity:
-            // 状态行只说现在生效的规则；没开或出口在线却没锁定时着警示色
+            // 状态行只给结论（成立 / N 项不成立），与页面第一层同源；不成立时着警示色
             let purity = PurityPresentation(status: client.status, tunnelUp: client.isTunnelUp)
             return ModuleInfo(symbol: kind.icon, tint: WgInk.warn, isOn: purity.mode == .on || purity.mode == .domestic,
-                              status: Text(purity.tileStatus), highlight: purity.needsAttention)
+                              status: Text(purity.verdict), highlight: purity.needsAttention)
         case .vpn, .connection, .speedtest:
             return ModuleInfo(symbol: kind.icon, tint: kind.activeColor, isOn: false, status: Text(""))
         }
@@ -1183,7 +1183,7 @@ struct SidebarView: View {
             }
         case .purity:
             let purity = PurityPresentation(status: client.status, tunnelUp: client.isTunnelUp)
-            detailLine("状态", purity.code)
+            detailLine("处境", purity.code)
             detailLine("已拦", "\(purity.blocked) 包")
             if tile.size == .large { detailLine("放行名单", "\(purity.allowCount) 项") }
         default:
