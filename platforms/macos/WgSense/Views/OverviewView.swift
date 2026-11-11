@@ -334,7 +334,7 @@ struct OverviewView: View {
 
 /// 状态块：同心方框收束到一枚实心方块（取自图纸的层层等高线）。
 /// 已连接 = 克莱因蓝；在家 = 实墨（安全、无需 VPN）；其余只剩线框。
-private struct StatusOrb: View {
+struct StatusOrb: View {
     var symbol: String
     var tint: Color
     var isActive: Bool
@@ -375,7 +375,7 @@ private struct StatusOrb: View {
     }
 }
 
-private struct InfoCard<Accessory: View>: View {
+struct InfoCard<Accessory: View>: View {
     var symbol: String
     var tint: Color
     var title: LocalizedStringKey
