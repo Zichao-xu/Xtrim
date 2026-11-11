@@ -171,3 +171,36 @@ rules:
 		t.Fatalf("emptied group must reject, got %v", cfg.Groups[1].Proxies)
 	}
 }
+
+func TestSeedMissingFillsGeoWithoutOverwriting(t *testing.T) {
+	src, dst := t.TempDir(), t.TempDir()
+	for _, f := range []string{"Country.mmdb", "GeoIP.dat", "GeoSite.dat", "cache.db", "source.yaml"} {
+		_ = os.WriteFile(filepath.Join(src, f), []byte("old-"+f), 0644)
+	}
+	_ = os.MkdirAll(filepath.Join(src, "rule_provider", "Google "), 0755)
+	_ = os.WriteFile(filepath.Join(src, "rule_provider", "Google ", " IP"), []byte("old"), 0644)
+	_ = os.WriteFile(filepath.Join(dst, "GeoIP.dat"), []byte("new"), 0644)
+	if err := seedMissing(src, dst); err != nil {
+		t.Fatal(err)
+	}
+	if b, _ := os.ReadFile(filepath.Join(dst, "GeoIP.dat")); string(b) != "new" {
+		t.Fatal("must not overwrite files from the bundle")
+	}
+	if len(missingGeo(dst)) != 0 {
+		t.Fatalf("geo not seeded: %v", missingGeo(dst))
+	}
+	if _, err := os.Stat(filepath.Join(dst, "rule_provider", "Google ", " IP")); err != nil {
+		t.Fatal("rule provider cache not seeded")
+	}
+	for _, f := range []string{"cache.db", "source.yaml"} {
+		if _, err := os.Stat(filepath.Join(dst, f)); err == nil {
+			t.Fatalf("%s must not be seeded", f)
+		}
+	}
+}
+
+func TestMissingGeoReported(t *testing.T) {
+	if got := missingGeo(t.TempDir()); len(got) != 3 {
+		t.Fatalf("want all three missing, got %v", got)
+	}
+}

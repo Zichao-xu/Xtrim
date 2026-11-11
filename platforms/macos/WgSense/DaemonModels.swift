@@ -137,6 +137,8 @@ struct MihomoStatus: Codable, Equatable {
     var synced_at: String?
     /// 同步时剔除的、只能在路由器上用的节点。
     var dropped: [String]?
+    /// GEO 数据库齐全（旧版网络服务不报 = 当作不齐）。
+    var geo_ready: Bool?
     /// 正在被接管 DNS 的网络服务（如 Wi-Fi）。
     var dns_service: String?
 }

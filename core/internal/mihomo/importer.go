@@ -86,6 +86,14 @@ func (m *Manager) Import(bundle, origin string, selections map[string]string) er
 	if err := os.Rename(filepath.Join(stageData, "config.yaml"), filepath.Join(stageData, "source.yaml")); err != nil {
 		return err
 	}
+	// 包里没带的数据文件（GEO 库、规则源缓存）从现有数据目录补进临时目录：
+	// 校验只看本地文件，不能因为缺文件让内核去联网下载（下载失败就误判配置无效）。
+	if err := seedMissing(m.dataDir(), stageData); err != nil {
+		return fmt.Errorf("准备校验目录失败: %w", err)
+	}
+	if missing := missingGeo(stageData); len(missing) > 0 {
+		return fmt.Errorf("缺少 GEO 数据库 %s：需要从 op 完整同步一次（带 GEO 库）", strings.Join(missing, "、"))
+	}
 	if err := m.testConfig(stageData, stageConfig); err != nil {
 		return err
 	}
@@ -355,6 +363,69 @@ func extractBundle(bundle, dest string) error {
 			return err
 		}
 	}
+}
+
+// GEO 数据库：规则与 DNS 用到 GEOIP / GEOSITE，缺了内核会去联网下载。
+var geoFiles = []string{"Country.mmdb", "GeoIP.dat", "GeoSite.dat"}
+
+func missingGeo(dir string) []string {
+	var out []string
+	for _, f := range geoFiles {
+		if _, err := os.Stat(filepath.Join(dir, f)); err != nil {
+			out = append(out, f)
+		}
+	}
+	return out
+}
+
+// seedMissing 把 src 里有、dst 里没有的数据文件复制过去（GEO 库与规则源缓存），不覆盖 dst 已有的。
+func seedMissing(src, dst string) error {
+	if _, err := os.Stat(src); err != nil {
+		return nil
+	}
+	return filepath.Walk(src, func(p string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		rel, _ := filepath.Rel(src, p)
+		if rel == "." {
+			return nil
+		}
+		if info.IsDir() {
+			if rel != "rule_provider" && !strings.HasPrefix(rel, "rule_provider"+string(filepath.Separator)) {
+				return filepath.SkipDir
+			}
+			return os.MkdirAll(filepath.Join(dst, rel), 0755)
+		}
+		if !allowedEntry(filepath.ToSlash(rel)) || rel == "config.yaml" || rel == "airport.yaml" {
+			return nil
+		}
+		target := filepath.Join(dst, rel)
+		if _, err := os.Stat(target); err == nil {
+			return nil
+		}
+		return copyFile(p, target)
+	})
+}
+
+func copyFile(src, dst string) error {
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
+		return err
+	}
+	out, err := os.OpenFile(dst, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	if err != nil {
+		return err
+	}
+	if _, err := io.Copy(out, in); err != nil {
+		out.Close()
+		return err
+	}
+	return out.Close()
 }
 
 func allowedEntry(name string) bool {

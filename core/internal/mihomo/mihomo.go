@@ -64,6 +64,8 @@ type Status struct {
 	SyncedAt string `json:"synced_at,omitempty"`
 	// Dropped 同步时剔除的、只能在路由器上用的节点。
 	Dropped []string `json:"dropped,omitempty"`
+	// GeoReady GEO 数据库齐全；不齐时同步要带上 GEO 库。
+	GeoReady bool `json:"geo_ready"`
 	// DNSService 正在被接管 DNS 的网络服务（如 Wi-Fi）。
 	DNSService string `json:"dns_service,omitempty"`
 	Error      string `json:"error,omitempty"`
@@ -227,6 +229,7 @@ func (m *Manager) Status() Status {
 		Source:     m.st.Source,
 		SyncedAt:   m.st.SyncedAt,
 		Dropped:    m.st.Dropped,
+		GeoReady:   len(missingGeo(m.dataDir())) == 0,
 		DNSService: m.dnsService,
 	}
 	if m.dropPrivileges {

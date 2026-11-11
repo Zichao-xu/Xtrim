@@ -988,7 +988,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         syncingMihomo = true
         defer { syncingMihomo = false }
         do {
-            _ = try await MihomoSync.run(client: self, includeGeo: mihomo?.source == nil)
+            _ = try await MihomoSync.run(client: self, includeGeo: mihomo?.geo_ready != true)
             return true
         } catch {
             if showError { alertMsg = error.localizedDescription }
@@ -1024,18 +1024,20 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         switchingExit = exit
         defer { switchingExit = nil; exitProgress = nil }
         if exit == .mihomo {
+            // 先判断要不要升级服务：升级后内核目录可能换了、GEO 库可能不在，这时一律带上 GEO 库
+            let outdated = await serviceLacksMihomoImport()
             // ① 趁 WireGuard 还连着（在外也能到路由器）先把 op 的配置拉到本机
             exitProgress = "正在从 op 拉取配置"
             var fetched: (bundle: URL, origin: String, selections: [String: String])?
             var fetchError: String?
             do {
-                fetched = try await MihomoSync.fetch(includeGeo: mihomo?.source == nil)
+                fetched = try await MihomoSync.fetch(includeGeo: outdated || mihomo?.geo_ready != true)
             } catch {
                 fetchError = error.localizedDescription
             }
             defer { if let fetched { try? FileManager.default.removeItem(at: fetched.bundle) } }
-            // ② 运行中的网络服务太旧（没有出口切换或配置导入）就先升级：升级要求先断开 WireGuard
-            if await serviceLacksMihomoImport() {
+            // ② 运行中的网络服务和 App 自带的不是同一份就先升级：升级要求先断开 WireGuard
+            if outdated {
                 guard await upgradeServiceForExit() else { return }
             }
             // ③ 导入刚拉到的配置；拉不到但已有上次同步的配置就沿用
