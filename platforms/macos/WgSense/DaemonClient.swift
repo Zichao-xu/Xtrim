@@ -605,6 +605,17 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         }
     }
 
+    /// 只在 App 内弹一条轻提示（不发系统通知），3 秒后收起。
+    func showInAppToast(title: String, detail: String, symbol: String) {
+        let toast = ActionToast(id: UUID(), title: title, detail: detail, symbol: symbol, tint: .gray)
+        withAnimation(.snappy(duration: 0.32, extraBounce: 0.16)) { actionToast = toast }
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(3))
+            guard self?.actionToast?.id == toast.id else { return }
+            withAnimation(.snappy(duration: 0.24, extraBounce: 0.05)) { self?.actionToast = nil }
+        }
+    }
+
     private func showActionNotification(title: String, detail: String, category: String, symbol: String, tint: Color) {
         let toast = ActionToast(id: UUID(), title: title, detail: detail, symbol: symbol, tint: tint)
         withAnimation(.snappy(duration: 0.32, extraBounce: 0.16)) {
@@ -947,7 +958,8 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
     func exitAvailable(_ exit: WgExit) -> Bool {
         switch exit {
         case .wireguard: return true
-        case .tailscale: return false
+        // Tailscale 开发中：按钮可点，点了只提示，不灰显
+        case .tailscale: return true
         // 运行中的服务还不认识出口时也可以点：点了就是要切，切换流程会先把服务升级到 App 自带的版本
         case .mihomo: return status?.exit == nil || mihomo?.bundled == true
         }

@@ -82,19 +82,25 @@ struct WgExitSwitch: View {
         let available = client.exitAvailable(exit)
         let shape = ChamferShape(tr: WgInk.cutControl)
         return Button {
+            if exit == .tailscale {
+                // Tailscale 还在开发：正常可点，只给一条提示，不灰显
+                client.showInAppToast(title: "Tailscale 开发中", detail: "暂不能切换到 Tailscale 出口", symbol: "hammer")
+                return
+            }
             Task { await client.setExit(exit) }
         } label: {
             // 紧凑形态只放标识；常规形态标识 + 全名
             HStack(spacing: WgSpace.s) {
-                WgExitLogo(exit: exit, size: compact ? 16 : 18)
+                WgExitLogo(exit: exit, size: compact ? 22 : 22)
                 if !compact {
                     Text(verbatim: exit.title)
-                        .font(.system(size: WgType.body, weight: selected ? .semibold : .medium))
+                        .font(.system(size: WgType.title, weight: selected ? .semibold : .medium))
                 }
             }
-            .foregroundStyle(selected ? WgInk.ink : (available ? WgInk.ink2 : WgInk.ink4))
+            // 当前出口墨色，其余淡一档：一眼看出哪个在用
+            .foregroundStyle(selected ? WgInk.ink : (available ? WgInk.ink3 : WgInk.ink4))
             .frame(maxWidth: .infinity)
-            .frame(height: compact ? 24 : 30)
+            .frame(height: compact ? 38 : 48)
             .background {
                 if selected {
                     Color.clear.wgGlassAccent(shape)
@@ -111,14 +117,14 @@ struct WgExitSwitch: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .disabled(!isEnabled || selected || !available || client.switchingExit != nil)
+        .disabled(!isEnabled || selected || !available || (client.switchingExit != nil && exit != .tailscale))
         .help(help(exit, selected: selected, available: available))
     }
 
     private func help(_ exit: WgExit, selected: Bool, available: Bool) -> String {
         if selected { return "当前出口：\(exit.title)" }
         switch exit {
-        case .tailscale: return "Tailscale 尚未接入"
+        case .tailscale: return "Tailscale 开发中"
         case .mihomo where !available:
             return "这份网络服务没有内置 mihomo 内核"
         case .mihomo where client.status?.exit == nil:

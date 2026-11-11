@@ -1277,7 +1277,7 @@ struct SidebarView: View {
                 if tile.size == .medium {
                     // 一行高：出口切换放得下就放切换，放不下退回守护 / 暂停两个图标
                     ViewThatFits(in: .horizontal) {
-                        WgExitSwitch(compact: true, isEnabled: !isEditMode).frame(width: 132)
+                        WgExitSwitch(compact: true, isEnabled: !isEditMode).frame(width: 160)
                         wgGuardPauseIcons.disabled(exit != .wireguard)
                     }
                     .disabled(isEditMode)
@@ -1285,13 +1285,8 @@ struct SidebarView: View {
             }
 
             if tile.size == .large {
+                // 切换放大后，详情一行让位（状态已在标题下，细节在 VPN 板块），保证底部操作不被裁掉
                 WgExitSwitch(compact: true, isEnabled: !isEditMode)
-                    .wgPadding(.top, .m)
-                (exit == .mihomo ? Text(verbatim: mihomoTileDetail(mh)) : Text(vpn.detail))
-                    .font(.system(size: WgType.body))
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
                     .wgPadding(.top, .m)
                 Spacer(minLength: 8)
                 vpnActions
