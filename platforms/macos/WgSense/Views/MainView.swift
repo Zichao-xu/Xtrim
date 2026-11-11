@@ -1127,23 +1127,39 @@ struct SidebarView: View {
         // 磁贴：左上白色短竖条 + 右上等宽代号 + 标题 / 状态 + 右下放大淡出的图标（只做辨识度）。
         let info = moduleInfo(tile.kind)
         let compact = tile.size == .small
-        return VStack(alignment: .leading, spacing: WgSpace.m) {
-            VStack(alignment: .leading, spacing: WgSpace.xs) {
-                Text(tile.kind.title)
-                    .font(.system(size: WgType.title, weight: .bold))
-                    .lineLimit(1)
-                info.status
-                    .font(.system(size: WgType.body, weight: .medium))
-                    .foregroundStyle(info.highlight ? info.tint : WgInk.ink3)
-                    .lineLimit(1)
-            }
-            if !compact {
-                moduleDetail(tile)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        // 中号磁贴只有一行高：详情排在标题右侧；排在下方放不下，会把标题顶出磁贴。
+        let wide = tile.size == .medium
+        let heading = VStack(alignment: .leading, spacing: WgSpace.xs) {
+            Text(tile.kind.title)
+                .font(.system(size: WgType.title, weight: .bold))
+                .lineLimit(1)
+            info.status
+                .font(.system(size: WgType.body, weight: .medium))
+                .foregroundStyle(info.highlight ? info.tint : WgInk.ink3)
+                .lineLimit(1)
+        }
+        return Group {
+            if wide {
+                HStack(alignment: .center, spacing: WgSpace.l) {
+                    heading
+                    Spacer(minLength: 0)
+                    // 右侧留出水印图标的位置，读数不压在图标上
+                    VStack(alignment: .leading, spacing: WgSpace.xs) { moduleDetail(tile) }
+                        .frame(maxWidth: 150)
+                        .wgInset(.trailing, 52)
+                }
+            } else {
+                VStack(alignment: .leading, spacing: WgSpace.m) {
+                    heading
+                    if !compact {
+                        moduleDetail(tile)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    }
+                }
             }
         }
-        .wgPadding(.leading, .l).wgPadding(.trailing, .m).wgPadding(.vertical, compact ? .m : .l)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: compact ? .leading : .topLeading)
+        .wgPadding(.leading, .l).wgPadding(.trailing, wide ? .l : .m).wgPadding(.vertical, compact || wide ? .m : .l)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: compact || wide ? .leading : .topLeading)
         .background(alignment: .bottomTrailing) {
             WgGhostSymbol(symbol: info.symbol, size: compact ? 58 : 72, opacity: info.isOn ? 0.2 : 0.12)
                 .offset(x: 12, y: 16)
@@ -1184,8 +1200,10 @@ struct SidebarView: View {
         case .purity:
             let purity = PurityPresentation(status: client.status, tunnelUp: client.isTunnelUp)
             detailLine("处境", purity.code)
-            detailLine("已拦", "\(purity.blocked) 包")
-            if tile.size == .large { detailLine("放行名单", "\(purity.allowCount) 项") }
+            detailLine("已拒绝", "\(purity.blocked) 包")
+            if tile.size == .large {
+                detailLine("网卡", client.status?.firewall?.interfaces?.joined(separator: " ") ?? "—")
+            }
         default:
             EmptyView()
         }
