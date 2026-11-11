@@ -1257,7 +1257,8 @@ struct SidebarView: View {
                     )
                 }
                 .buttonStyle(.plain)
-                .disabled(isEditMode)
+                // 切换出口进行中：不允许并行开关出口
+                .disabled(isEditMode || switching)
                 .help(vpnToggleHelp(vpn))
 
                 VStack(alignment: .leading, spacing: 1) {

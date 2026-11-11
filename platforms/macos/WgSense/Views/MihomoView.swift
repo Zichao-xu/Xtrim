@@ -116,9 +116,9 @@ struct MihomoView: View {
     private func hero(_ m: MihomoPresentation) -> some View {
         HStack(spacing: WgSpace.m) {
             StatusOrb(symbol: "globe", tint: m.phase == .crashed ? .orange : .green,
-                      isActive: m.phase == .running, isBusy: busy, logo: .mihomo)
+                      isActive: m.phase == .running, isBusy: busy || client.switchingExit == .mihomo, logo: .mihomo)
             VStack(alignment: .leading, spacing: WgSpace.xs) {
-                Text(m.title)
+                (client.switchingExit == .mihomo ? Text("切换中") : Text(m.title))
                     .font(.system(size: WgType.readout, weight: .semibold))
                     .foregroundStyle(m.phase == .crashed ? WgInk.warn : WgInk.ink)
                     .contentTransition(.opacity)
@@ -129,17 +129,23 @@ struct MihomoView: View {
                     .textSelection(.enabled)
             }
             Spacer(minLength: 12)
-            switch m.phase {
-            case .running:
-                Button("停止") { toggle(false) }
-                    .buttonStyle(WgCapsuleButtonStyle(tint: .red, prominent: false))
-                    .disabled(busy)
-            case .stopped, .crashed:
-                Button(m.phase == .crashed ? "重新启动" : "启动") { toggle(true) }
-                    .buttonStyle(WgCapsuleButtonStyle(tint: m.phase == .crashed ? .orange : .green))
-                    .disabled(busy)
-            case .unsupported, .notBundled:
+            // 内核的启停只属于「出口已经是 mihomo」的情况：出口还不是它、或正在切换时，
+            // 不提供单独启动——那会绕开切换流程（同步配置、升级服务、拆旧出口），切换只走上面的切换条。
+            if client.switchingExit != nil {
                 EmptyView()
+            } else if client.currentExit == .mihomo {
+                switch m.phase {
+                case .running:
+                    Button("停止") { toggle(false) }
+                        .buttonStyle(WgCapsuleButtonStyle(tint: .red, prominent: false))
+                        .disabled(busy)
+                case .stopped, .crashed:
+                    Button(m.phase == .crashed ? "重新启动" : "启动") { toggle(true) }
+                        .buttonStyle(WgCapsuleButtonStyle(tint: m.phase == .crashed ? .orange : .green))
+                        .disabled(busy)
+                case .unsupported, .notBundled:
+                    EmptyView()
+                }
             }
         }
         .wgPadding(.m)
@@ -155,6 +161,9 @@ struct MihomoView: View {
     }
 
     private func heroDetail(_ m: MihomoPresentation) -> String {
+        if client.switchingExit == .mihomo {
+            return (client.exitProgress ?? "正在切换到 mihomo") + "…"
+        }
         switch m.phase {
         case .unsupported:
             return "运行中的网络服务还不支持内置内核，更新网络服务后可用"

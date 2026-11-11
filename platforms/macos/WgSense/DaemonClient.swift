@@ -1027,7 +1027,8 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             // 先判断要不要升级服务：升级后内核目录可能换了、GEO 库可能不在，这时一律带上 GEO 库
             let outdated = await serviceLacksMihomoImport()
             // ① 趁 WireGuard 还连着（在外也能到路由器）先把 op 的配置拉到本机
-            exitProgress = "正在从 op 拉取配置"
+            exitProgress = outdated || mihomo?.geo_ready != true
+                ? "正在从 op 拉取配置（含 GEO 库，约 13 MB）" : "正在从 op 拉取配置"
             var fetched: (bundle: URL, origin: String, selections: [String: String])?
             var fetchError: String?
             do {
