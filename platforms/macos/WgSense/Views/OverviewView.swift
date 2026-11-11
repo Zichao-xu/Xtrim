@@ -320,7 +320,7 @@ struct OverviewView: View {
                 )
                 RowDivider()
                 ModuleRow(
-                    symbol: "globe", tint: .purple, name: "代理",
+                    symbol: "rectangle.3.group", tint: .purple, name: "面板",
                     status: Text(client.proxyRunning ? "控制器已连接" : (client.proxyServiceRunning ? "等待认证" : "未连接")),
                     isOn: client.proxyRunning
                 )

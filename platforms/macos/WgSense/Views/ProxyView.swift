@@ -167,9 +167,9 @@ private struct ProxyPageHeader: View {
     let section: ProxySection
 
     var body: some View {
-        WgPageHeader(title: "代理",
+        WgPageHeader(title: "面板",
                      subtitleText: client.proxyAddress.isEmpty ? "MIHOMO" : "MIHOMO · \(client.proxyAddress)",
-                     word: "PROXY") {
+                     word: "PANEL") {
             // 节点信息块：左上斜切的黑色弱玻璃，等宽两列。
             Grid(alignment: .leading, horizontalSpacing: 14, verticalSpacing: 3) {
                 GridRow {

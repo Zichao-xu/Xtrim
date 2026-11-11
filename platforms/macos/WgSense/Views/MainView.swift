@@ -508,6 +508,7 @@ private struct MainPageArea: View {
                     case .speedtest: SpeedLabView()
                     case .trace: TraceView()
                     case .purity: PurityView()
+                    case .mihomo: MihomoView()
                     case .proxy, .logs: EmptyView()
                     }
                 }
@@ -607,14 +608,14 @@ private final class SidebarResizeHandleView: NSView {
 // MARK: - Tab 枚举
 
 enum SidebarTab: String, CaseIterable, Identifiable {
-    case dashboard, wireguard, proxy, profile, transferReceive, transferSend, settings, logs, about, speedtest, trace, purity
+    case dashboard, wireguard, proxy, profile, transferReceive, transferSend, settings, logs, about, speedtest, trace, purity, mihomo
     var id: String { rawValue }
 
     var label: LocalizedStringKey {
         switch self {
         case .dashboard: return "概览"
         case .wireguard: return "WireGuard"
-        case .proxy: return "代理"
+        case .proxy: return "面板"
         case .profile: return "配置"
         case .transferReceive: return "接收"
         case .transferSend: return "发送"
@@ -624,6 +625,7 @@ enum SidebarTab: String, CaseIterable, Identifiable {
         case .speedtest: return "测速"
         case .trace: return "路由追踪"
         case .purity: return "纯良"
+        case .mihomo: return "代理"
         }
     }
 }
@@ -631,7 +633,7 @@ enum SidebarTab: String, CaseIterable, Identifiable {
 // MARK: - 磁贴数据模型
 
 enum TileKind: String, CaseIterable, Identifiable, Codable {
-    case vpn, pause, stop, transferReceive, transferSend, proxy, profile, logs, about, connection, speedtest, trace, purity
+    case vpn, pause, stop, transferReceive, transferSend, proxy, profile, logs, about, connection, speedtest, trace, purity, mihomo
     var id: String { rawValue }
 
     var isAddable: Bool {
@@ -645,7 +647,7 @@ enum TileKind: String, CaseIterable, Identifiable, Codable {
         case .stop: return "停止"
         case .transferReceive: return "接收"
         case .transferSend: return "发送"
-        case .proxy: return "代理"
+        case .proxy: return "面板"
         case .profile: return "配置"
         case .logs: return "日志"
         case .about: return "关于"
@@ -653,6 +655,7 @@ enum TileKind: String, CaseIterable, Identifiable, Codable {
         case .speedtest: return "测速"
         case .trace: return "路由追踪"
         case .purity: return "纯良"
+        case .mihomo: return "代理"
         }
     }
 
@@ -663,7 +666,7 @@ enum TileKind: String, CaseIterable, Identifiable, Codable {
         case .stop: return "stop.fill"
         case .transferReceive: return "arrow.down"
         case .transferSend: return "arrow.up"
-        case .proxy: return "globe"
+        case .proxy: return "rectangle.3.group"
         case .profile: return "doc.text.fill"
         case .logs: return "text.alignleft"
         case .about: return "info"
@@ -671,6 +674,7 @@ enum TileKind: String, CaseIterable, Identifiable, Codable {
         case .speedtest: return "gauge.with.dots.needle.67percent"
         case .trace: return "point.3.connected.trianglepath.dotted"
         case .purity: return "hand.raised.fill"
+        case .mihomo: return "globe"
         }
     }
 
@@ -682,7 +686,7 @@ enum TileKind: String, CaseIterable, Identifiable, Codable {
         case .stop: return "ST"
         case .transferReceive: return "RX"
         case .transferSend: return "TX"
-        case .proxy: return "PX"
+        case .proxy: return "PNL"
         case .profile: return "CF"
         case .logs: return "LG"
         case .about: return "AB"
@@ -690,6 +694,7 @@ enum TileKind: String, CaseIterable, Identifiable, Codable {
         case .speedtest: return "SPD"
         case .trace: return "TRC"
         case .purity: return "PUR"
+        case .mihomo: return "PX"
         }
     }
 
@@ -699,7 +704,7 @@ enum TileKind: String, CaseIterable, Identifiable, Codable {
         case .pause: return .orange
         case .stop: return .red
         case .logs, .about: return .gray
-        case .vpn, .transferReceive, .transferSend, .proxy, .profile, .connection, .speedtest, .trace, .purity: return WgInk.signal
+        case .vpn, .transferReceive, .transferSend, .proxy, .profile, .connection, .speedtest, .trace, .purity, .mihomo: return WgInk.signal
         }
     }
 
@@ -797,6 +802,10 @@ struct SidebarView: View {
             if !tiles.contains(where: { $0.kind == .purity }) { tiles.append(TileData(kind: .purity)) }
             UserDefaults.standard.set(true, forKey: "tileLayout.seeded.purity")
         }
+        if !UserDefaults.standard.bool(forKey: "tileLayout.seeded.mihomo") {
+            if !tiles.contains(where: { $0.kind == .mihomo }) { tiles.append(TileData(kind: .mihomo)) }
+            UserDefaults.standard.set(true, forKey: "tileLayout.seeded.mihomo")
+        }
         _tiles = State(initialValue: tiles)
     }
 
@@ -846,6 +855,7 @@ struct SidebarView: View {
             TileData(kind: .speedtest),
             TileData(kind: .trace),
             TileData(kind: .purity),
+            TileData(kind: .mihomo),
         ]
     }
 
@@ -1052,6 +1062,7 @@ struct SidebarView: View {
         case .speedtest: return .speedtest
         case .trace: return .trace
         case .purity: return .purity
+        case .mihomo: return .mihomo
         case .pause, .stop: return nil
         }
     }
@@ -1118,6 +1129,9 @@ struct SidebarView: View {
             let purity = PurityPresentation(status: client.status, tunnelUp: client.isTunnelUp)
             return ModuleInfo(symbol: kind.icon, tint: WgInk.warn, isOn: purity.mode == .on || purity.mode == .domestic,
                               status: Text(purity.verdict), highlight: purity.needsAttention)
+        case .mihomo:
+            // 骨架阶段：本机内核尚未内置，只如实显示「未接入」
+            return ModuleInfo(symbol: kind.icon, tint: kind.activeColor, isOn: false, status: Text("未接入"))
         case .vpn, .connection, .speedtest:
             return ModuleInfo(symbol: kind.icon, tint: kind.activeColor, isOn: false, status: Text(""))
         }
@@ -1465,6 +1479,7 @@ struct SidebarView: View {
             case .speedtest: selection = .speedtest
             case .trace: selection = .trace
             case .purity: selection = .purity
+            case .mihomo: selection = .mihomo
             case .stop: stopAllServices()
             case .pause: break
             }

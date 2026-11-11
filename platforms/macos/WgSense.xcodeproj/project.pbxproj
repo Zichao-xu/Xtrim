@@ -76,6 +76,7 @@
 		C4886BF191973A5EFEBDBB68 /* ProxyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842AA6F3E44BEA9F7D66B894 /* ProxyView.swift */; };
 		C51B08E4078EEA0C67992747 /* WgTunePanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22BC696A3B3A005E9F558FD5 /* WgTunePanel.swift */; };
 		C6D8922CDA57B0668AAA41F2 /* WgSenseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A8FD83AD3FB5681EAE1110 /* WgSenseApp.swift */; };
+		CBFE0FA4D7F4A7E4E2E066BF /* MihomoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A49C3F1D162FD1D0653822E6 /* MihomoView.swift */; };
 		CF0381EF47BE69482A7AD475 /* WgSurfaces.swift in Sources */ = {isa = PBXBuildFile; fileRef = B327C41F92B977872F228B46 /* WgSurfaces.swift */; };
 		D0739DCF9224C40F63F72E11 /* WgDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AB2485CFB7FA7A48A19F6D4 /* WgDesign.swift */; };
 		D1105B190420CE11C124425B /* TraceRegions.bin in Resources */ = {isa = PBXBuildFile; fileRef = 0DA2AA96BEDDA7AEF6C95F1B /* TraceRegions.bin */; };
@@ -174,6 +175,7 @@
 		9DA9782B4A5C321CF31590D8 /* WgHUDMotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WgHUDMotion.swift; sourceTree = "<group>"; };
 		9F09A3413AE1F52A4503D1C4 /* WgStatusBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WgStatusBarController.swift; sourceTree = "<group>"; };
 		A24F5FEF465654A8DDFCA386 /* TraceGeo.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = TraceGeo.bin; sourceTree = "<group>"; };
+		A49C3F1D162FD1D0653822E6 /* MihomoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MihomoView.swift; sourceTree = "<group>"; };
 		A6F32A96612A010AB2B369F7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B02611306A3F020AE12A7424 /* TraceRadiation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceRadiation.swift; sourceTree = "<group>"; };
 		B2FDC1F4BFF26310453EA1A3 /* TraceFPS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceFPS.swift; sourceTree = "<group>"; };
@@ -283,6 +285,7 @@
 			children = (
 				EA034BB1EC7512467D785C99 /* MainView.swift */,
 				FB8BEADBFB4F30FEA8CAE2D2 /* MenuBarView.swift */,
+				A49C3F1D162FD1D0653822E6 /* MihomoView.swift */,
 				8E57ED7DA686D5363F4DCFBE /* OtherViews.swift */,
 				7DF23D4A47461A7F12D1F16B /* OverviewView.swift */,
 				C632B444F63E828AD86F00E4 /* ProfileManagerView.swift */,
@@ -532,6 +535,7 @@
 				A9184D24FC36095D400742E2 /* MihomoAPI.swift in Sources */,
 				882F34D0761960552EDAA758 /* MihomoBackends.swift in Sources */,
 				0A2EC6E290092752B87FCA08 /* MihomoModels.swift in Sources */,
+				CBFE0FA4D7F4A7E4E2E066BF /* MihomoView.swift in Sources */,
 				5C89F8AE623FCFC4434B574E /* OpenWrtRuleSource.swift in Sources */,
 				A7708D45E8B5D47CDEAFB91E /* OtherViews.swift in Sources */,
 				65F94DE5427036A4F67E7751 /* OverviewView.swift in Sources */,
