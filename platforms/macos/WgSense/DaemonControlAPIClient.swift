@@ -47,6 +47,11 @@ struct DaemonControlAPIClient {
         try await api.decode(MihomoStatus.self, path: "api/mihomo", method: "POST", body: ["action": action], timeout: 30)
     }
 
+    @discardableResult
+    func setExit(_ exit: String) async throws -> Data {
+        try await api.request("api/exit", method: "POST", body: ["exit": exit], timeout: 60)
+    }
+
     func tunnelIPv6() async throws -> TunnelIPv6Settings {
         try await api.decode(TunnelIPv6Settings.self, path: "api/tunnel/ipv6")
     }

@@ -508,7 +508,7 @@ private struct MainPageArea: View {
                     case .speedtest: SpeedLabView()
                     case .trace: TraceView()
                     case .purity: PurityView()
-                    case .mihomo: MihomoView()
+                    case .vpn: VPNView()
                     case .proxy, .logs: EmptyView()
                     }
                 }
@@ -608,7 +608,7 @@ private final class SidebarResizeHandleView: NSView {
 // MARK: - Tab 枚举
 
 enum SidebarTab: String, CaseIterable, Identifiable {
-    case dashboard, wireguard, proxy, profile, transferReceive, transferSend, settings, logs, about, speedtest, trace, purity, mihomo
+    case dashboard, wireguard, proxy, profile, transferReceive, transferSend, settings, logs, about, speedtest, trace, purity, vpn
     var id: String { rawValue }
 
     var label: LocalizedStringKey {
@@ -625,7 +625,7 @@ enum SidebarTab: String, CaseIterable, Identifiable {
         case .speedtest: return "测速"
         case .trace: return "路由追踪"
         case .purity: return "纯良"
-        case .mihomo: return "代理"
+        case .vpn: return "VPN"
         }
     }
 }
@@ -633,7 +633,7 @@ enum SidebarTab: String, CaseIterable, Identifiable {
 // MARK: - 磁贴数据模型
 
 enum TileKind: String, CaseIterable, Identifiable, Codable {
-    case vpn, pause, stop, transferReceive, transferSend, proxy, profile, logs, about, connection, speedtest, trace, purity, mihomo
+    case vpn, pause, stop, transferReceive, transferSend, proxy, profile, logs, about, connection, speedtest, trace, purity
     var id: String { rawValue }
 
     var isAddable: Bool {
@@ -655,7 +655,6 @@ enum TileKind: String, CaseIterable, Identifiable, Codable {
         case .speedtest: return "测速"
         case .trace: return "路由追踪"
         case .purity: return "纯良"
-        case .mihomo: return "代理"
         }
     }
 
@@ -674,7 +673,6 @@ enum TileKind: String, CaseIterable, Identifiable, Codable {
         case .speedtest: return "gauge.with.dots.needle.67percent"
         case .trace: return "point.3.connected.trianglepath.dotted"
         case .purity: return "hand.raised.fill"
-        case .mihomo: return "globe"
         }
     }
 
@@ -694,7 +692,6 @@ enum TileKind: String, CaseIterable, Identifiable, Codable {
         case .speedtest: return "SPD"
         case .trace: return "TRC"
         case .purity: return "PUR"
-        case .mihomo: return "PX"
         }
     }
 
@@ -704,7 +701,7 @@ enum TileKind: String, CaseIterable, Identifiable, Codable {
         case .pause: return .orange
         case .stop: return .red
         case .logs, .about: return .gray
-        case .vpn, .transferReceive, .transferSend, .proxy, .profile, .connection, .speedtest, .trace, .purity, .mihomo: return WgInk.signal
+        case .vpn, .transferReceive, .transferSend, .proxy, .profile, .connection, .speedtest, .trace, .purity: return WgInk.signal
         }
     }
 
@@ -802,10 +799,6 @@ struct SidebarView: View {
             if !tiles.contains(where: { $0.kind == .purity }) { tiles.append(TileData(kind: .purity)) }
             UserDefaults.standard.set(true, forKey: "tileLayout.seeded.purity")
         }
-        if !UserDefaults.standard.bool(forKey: "tileLayout.seeded.mihomo") {
-            if !tiles.contains(where: { $0.kind == .mihomo }) { tiles.append(TileData(kind: .mihomo)) }
-            UserDefaults.standard.set(true, forKey: "tileLayout.seeded.mihomo")
-        }
         _tiles = State(initialValue: tiles)
     }
 
@@ -855,7 +848,6 @@ struct SidebarView: View {
             TileData(kind: .speedtest),
             TileData(kind: .trace),
             TileData(kind: .purity),
-            TileData(kind: .mihomo),
         ]
     }
 
@@ -1052,7 +1044,8 @@ struct SidebarView: View {
 
     private func tab(for kind: TileKind) -> SidebarTab? {
         switch kind {
-        case .vpn, .connection: return .dashboard
+        case .vpn: return .vpn
+        case .connection: return .dashboard
         case .transferReceive: return .transferReceive
         case .transferSend: return .transferSend
         case .proxy: return .proxy
@@ -1062,7 +1055,6 @@ struct SidebarView: View {
         case .speedtest: return .speedtest
         case .trace: return .trace
         case .purity: return .purity
-        case .mihomo: return .mihomo
         case .pause, .stop: return nil
         }
     }
@@ -1129,10 +1121,6 @@ struct SidebarView: View {
             let purity = PurityPresentation(status: client.status, tunnelUp: client.isTunnelUp)
             return ModuleInfo(symbol: kind.icon, tint: WgInk.warn, isOn: purity.mode == .on || purity.mode == .domestic,
                               status: Text(purity.verdict), highlight: purity.needsAttention)
-        case .mihomo:
-            let m = MihomoPresentation(status: client.mihomo, error: client.mihomoError)
-            return ModuleInfo(symbol: kind.icon, tint: WgInk.warn, isOn: m.phase == .running,
-                              status: Text(m.title), highlight: m.phase == .crashed)
         case .vpn, .connection, .speedtest:
             return ModuleInfo(symbol: kind.icon, tint: kind.activeColor, isOn: false, status: Text(""))
         }
@@ -1221,11 +1209,6 @@ struct SidebarView: View {
                     detailLine(name, name == client.status?.service ? "当前" : "")
                 }
             }
-        case .mihomo:
-            if let m = client.mihomo, m.bundled {
-                detailLine("端口", m.running ? "\(m.mixed_port)" : "—")
-                if tile.size == .large { detailLine("内核", m.version ?? "—") }
-            }
         case .purity:
             let purity = PurityPresentation(status: client.status, tunnelUp: client.isTunnelUp)
             detailLine("处境", purity.code)
@@ -1252,16 +1235,22 @@ struct SidebarView: View {
 
     private func vpnModule(_ tile: TileData) -> some View {
         let vpn = client.vpnPresentation
+        let exit = client.currentExit
+        let mh = MihomoPresentation(status: client.mihomo, error: client.mihomoError)
         let compact = tile.size == .small
+        // 出口不是 WireGuard 时，徽标与状态跟随当前出口；守护 / 暂停只属于 WireGuard
+        let isOn = exit == .mihomo ? mh.phase == .running : vpn.isConnected
+        let statusText: Text = exit == .mihomo ? Text(mh.title) : Text(vpn.title)
+        let statusTint: Color = exit == .mihomo ? (mh.phase == .crashed ? WgInk.warn : (isOn ? vpn.tint : .secondary)) : (vpn.isConnected ? vpn.tint : .secondary)
         return VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .center, spacing: compact ? WgSpace.m : WgSpace.m) {
+            HStack(alignment: .center, spacing: WgSpace.m) {
                 Button(action: toggleVPN) {
                     WgCircleBadge(
-                        symbol: vpn.symbol,
-                        tint: vpn.tint,
-                        isOn: vpn.isConnected,
+                        symbol: exit == .mihomo ? "globe" : vpn.symbol,
+                        tint: exit == .mihomo ? .green : vpn.tint,
+                        isOn: isOn,
                         size: compact ? 36 : 46,
-                        isBusy: vpn.isBusy
+                        isBusy: exit == .mihomo ? client.switchingExit != nil : vpn.isBusy
                     )
                 }
                 .buttonStyle(.plain)
@@ -1269,34 +1258,36 @@ struct SidebarView: View {
                 .help(vpnToggleHelp(vpn))
 
                 VStack(alignment: .leading, spacing: 1) {
-                    Text("VPN")
-                        .font(.system(size: compact ? WgType.body : WgType.title, weight: .semibold))
-                    Text(vpn.title)
-                        .font(.system(size: compact ? WgType.body : WgType.sub, weight: vpn.isConnected ? .medium : .regular))
-                        .foregroundStyle(vpn.isConnected ? vpn.tint : Color.secondary)
+                    HStack(alignment: .firstTextBaseline, spacing: WgSpace.s) {
+                        Text("VPN")
+                            .font(.system(size: compact ? WgType.body : WgType.title, weight: .semibold))
+                        Text(verbatim: exit.code)
+                            .font(WgInk.mono(.caption, .medium))
+                            .tracking(1.2)
+                            .foregroundStyle(WgInk.ink3)
+                    }
+                    statusText
+                        .font(.system(size: compact ? WgType.body : WgType.sub, weight: isOn ? .medium : .regular))
+                        .foregroundStyle(statusTint)
                         .contentTransition(.opacity)
                 }
+                .fixedSize()
                 Spacer(minLength: 0)
 
                 if tile.size == .medium {
-                    HStack(spacing: WgSpace.zero) {
-                        Button { Task { await client.setGuardEnabled(!guardRunning) } } label: {
-                            Image(systemName: guardRunning ? "shield.fill" : "shield.slash")
-                        }
-                        .buttonStyle(WgToolbarIconButtonStyle(isActive: guardRunning))
-                        .help(guardRunning ? "关闭守护" : "开启守护")
-                        Button(action: toggleVPNPause) {
-                            Image(systemName: client.isPauseOn ? "play.fill" : "pause.fill")
-                        }
-                        .buttonStyle(WgToolbarIconButtonStyle(isActive: client.isPauseOn))
-                        .help(client.isPauseOn ? "继续并重新连接" : "暂停 \(client.pauseMinutes) 分钟")
+                    // 一行高：出口切换放得下就放切换，放不下退回守护 / 暂停两个图标
+                    ViewThatFits(in: .horizontal) {
+                        WgExitSwitch(compact: true, isEnabled: !isEditMode).frame(width: 132)
+                        wgGuardPauseIcons.disabled(exit != .wireguard)
                     }
                     .disabled(isEditMode)
                 }
             }
 
             if tile.size == .large {
-                Text(vpn.detail)
+                WgExitSwitch(compact: true, isEnabled: !isEditMode)
+                    .wgPadding(.top, .m)
+                (exit == .mihomo ? Text(verbatim: mihomoTileDetail(mh)) : Text(vpn.detail))
                     .font(.system(size: WgType.body))
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
@@ -1304,16 +1295,47 @@ struct SidebarView: View {
                     .wgPadding(.top, .m)
                 Spacer(minLength: 8)
                 vpnActions
+                    .disabled(exit != .wireguard)
+                    .opacity(exit == .wireguard ? 1 : 0.4)
             }
         }
         .wgPadding(compact ? .m : .l)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: compact ? .leading : .topLeading)
-        .wgInteractiveSurface(isSelected: selection == .dashboard, isEnabled: !isEditMode) {
-            withAnimation(.easeInOut(duration: 0.15)) { selection = .dashboard }
+        .wgInteractiveSurface(isSelected: selection == .vpn, isEnabled: !isEditMode) {
+            withAnimation(.easeInOut(duration: 0.15)) { selection = .vpn }
+        }
+    }
+
+    private var wgGuardPauseIcons: some View {
+        HStack(spacing: WgSpace.zero) {
+            Button { Task { await client.setGuardEnabled(!guardRunning) } } label: {
+                Image(systemName: guardRunning ? "shield.fill" : "shield.slash")
+            }
+            .buttonStyle(WgToolbarIconButtonStyle(isActive: guardRunning))
+            .help(guardRunning ? "关闭守护" : "开启守护")
+            Button(action: toggleVPNPause) {
+                Image(systemName: client.isPauseOn ? "play.fill" : "pause.fill")
+            }
+            .buttonStyle(WgToolbarIconButtonStyle(isActive: client.isPauseOn))
+            .help(client.isPauseOn ? "继续并重新连接" : "暂停 \(client.pauseMinutes) 分钟")
+        }
+    }
+
+    private func mihomoTileDetail(_ mh: MihomoPresentation) -> String {
+        switch mh.phase {
+        case .running: return "内核运行中 · 只监听本机端口，尚未接管流量"
+        case .crashed: return mh.status?.last_exit ?? "内核意外退出"
+        case .stopped: return "内核已停止"
+        case .notBundled, .unsupported: return "内核不可用"
         }
     }
 
     private func toggleVPN() {
+        if client.currentExit == .mihomo {
+            let running = client.mihomo?.running == true
+            Task { _ = await client.setMihomo(running: !running) }
+            return
+        }
         let vpn = client.vpnPresentation
         if vpn.phase == .setupFailed {
             Task { await client.retryServiceInstall() }
@@ -1323,6 +1345,7 @@ struct SidebarView: View {
     }
 
     private func vpnToggleHelp(_ vpn: WgVPNPresentation) -> LocalizedStringKey {
+        if client.currentExit == .mihomo { return client.mihomo?.running == true ? "停止 mihomo 内核" : "启动 mihomo 内核" }
         if vpn.canDisconnect { return "断开 VPN" }
         if vpn.phase == .setupFailed { return "重试安装后台服务（会弹一次密码框）" }
         if vpn.phase == .home { return "在家由守护保持断开；关闭守护后可手动连接" }
@@ -1475,7 +1498,8 @@ struct SidebarView: View {
     private func handleSmallTileTap(_ tile: TileData) {
         withAnimation(.easeInOut(duration: 0.15)) {
             switch tile.kind {
-            case .vpn, .connection: selection = .dashboard
+            case .vpn: selection = .vpn
+            case .connection: selection = .dashboard
             case .proxy: selection = .proxy
             case .profile: selection = .profile
             case .transferReceive: selection = .transferReceive
@@ -1485,7 +1509,6 @@ struct SidebarView: View {
             case .speedtest: selection = .speedtest
             case .trace: selection = .trace
             case .purity: selection = .purity
-            case .mihomo: selection = .mihomo
             case .stop: stopAllServices()
             case .pause: break
             }

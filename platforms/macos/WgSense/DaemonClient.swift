@@ -940,6 +940,34 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         }
     }
 
+    /// 当前出口；旧版网络服务不报 = WireGuard。
+    var currentExit: WgExit { WgExit(rawValue: status?.exit ?? "") ?? .wireguard }
+
+    /// 网络服务是否支持切换出口（新版才报 exit 字段，且带了内核才能选 mihomo）。
+    func exitAvailable(_ exit: WgExit) -> Bool {
+        switch exit {
+        case .wireguard: return true
+        case .tailscale: return false
+        case .mihomo: return status?.exit != nil && mihomo?.bundled == true
+        }
+    }
+
+    @Published var switchingExit: WgExit?
+
+    /// 手动切换出口（三者互斥）：网络服务先拆旧出口再起新出口。
+    func setExit(_ exit: WgExit) async {
+        guard exit != currentExit, switchingExit == nil else { return }
+        switchingExit = exit
+        defer { switchingExit = nil }
+        do {
+            try await controlAPI.setExit(exit.rawValue)
+        } catch {
+            alertMsg = "切换到 \(exit.title) 失败: \(error.localizedDescription)"
+        }
+        await fetchStatus()
+        await fetchMihomo()
+    }
+
     func fetchTunnelIPv6() async {
         do {
             let next = try await controlAPI.tunnelIPv6()

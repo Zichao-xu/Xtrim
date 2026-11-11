@@ -28,6 +28,8 @@ struct DaemonStatus: Codable, Equatable {
     var firewall: FirewallStatus?
     /// 隧道接管了什么、哪些不走隧道以及原因。
     var coverage: TunnelCoverage?
+    /// 当前出口：wireguard / mihomo（tailscale 预留）。旧版网络服务没有这个字段 = 只有 WireGuard。
+    var exit: String?
 
     var isTrustedNetwork: Bool { trusted_network ?? at_home }
 

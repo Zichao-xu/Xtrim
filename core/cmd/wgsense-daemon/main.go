@@ -250,7 +250,16 @@ func main() {
 		mihomoDir = mihomo.DefaultRootDir
 	}
 	mihomoMgr := mihomo.New(mihomoDir, eng.Logf)
-	mihomoMgr.Restore()
+	eng.SetExitStore(filepath.Join(rtDir, "exit.json"))
+	if mihomoMgr.Bundled() {
+		eng.SetMihomoExit(mihomoMgr)
+	}
+	// 出口与内核运行状态对齐：出口是 mihomo 才恢复内核，否则保证它不在跑（三者互斥）。
+	if eng.Exit() == policy.ExitMihomo {
+		mihomoMgr.Restore()
+	} else if mihomoMgr.Status().Desired {
+		_ = mihomoMgr.Stop()
+	}
 
 	// 信号处理
 	var shutdownOnce sync.Once

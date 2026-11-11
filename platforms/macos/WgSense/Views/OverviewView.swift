@@ -7,10 +7,14 @@ import SwiftUI
 //   模块     系统设置式分组列表
 struct OverviewView: View {
     @EnvironmentObject var client: DaemonClient
+    /// 嵌进 VPN 板块（WireGuard 子页）时不显示自己的页头。
+    var showsHeader = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: WgSpace.m) {
-            WgPageHeader(title: "概览", subtitleText: "WGSENSE · STATUS", word: "OVERVIEW") { EmptyView() }
+            if showsHeader {
+                WgPageHeader(title: "概览", subtitleText: "WGSENSE · STATUS", word: "OVERVIEW") { EmptyView() }
+            }
 
             hero
 

@@ -64,6 +64,7 @@
 		A8DCD778C92DDABC7C2E0EDC /* TraceGlobeMesh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C046E4DEBAEF95C9B37569D /* TraceGlobeMesh.swift */; };
 		A9184D24FC36095D400742E2 /* MihomoAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4527B6C1A63B6D3C0730C4D /* MihomoAPI.swift */; };
 		A9FC1E8C8EA90AE0F05953B2 /* WgLinkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 805B104167A8BA3A2EF94FBF /* WgLinkMonitor.swift */; };
+		AB32F2537C17D1C30D08C651 /* WgExitSwitch.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB9C547D124A3E54EF8D6D1F /* WgExitSwitch.swift */; };
 		AD1CF9C11928FE18C9831B31 /* PPCustomRuleViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840FF9EAB81A5780AC273FE6 /* PPCustomRuleViews.swift */; };
 		AFA93798730A8E6F44DC3473 /* DaemonControlAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3B95572549041E76B3DBD63 /* DaemonControlAPIClient.swift */; };
 		B0B0DC1BB9FDD34E2BBAB88A /* TraceGlobe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA301075B9E8FE140316B6D /* TraceGlobe.swift */; };
@@ -91,6 +92,7 @@
 		F83E94C68A64EE9D46075167 /* SpeedLabSources.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DD6E62FAB87AA2E2703B80 /* SpeedLabSources.swift */; };
 		F96EF933C0CBA66EA3D7C5B7 /* TransferAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B75C77A4A22AD3006EA7C804 /* TransferAPIClient.swift */; };
 		FA09F9B661FA4BBEF66444BA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8B6A7A3B044CB63E8D0EDE36 /* Assets.xcassets */; };
+		FB8F6D09DEDAB7A9F3C232F4 /* VPNView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE710B6B1338046109474499 /* VPNView.swift */; };
 		FF0720246E8311E94ACD18D1 /* TraceGeo.bin in Resources */ = {isa = PBXBuildFile; fileRef = A24F5FEF465654A8DDFCA386 /* TraceGeo.bin */; };
 /* End PBXBuildFile section */
 
@@ -193,7 +195,9 @@
 		C68B274E6C97E391F611D45A /* CustomRuleEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomRuleEditor.swift; sourceTree = "<group>"; };
 		C70096D6DF1BCFA12942C300 /* MenuBarComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarComponents.swift; sourceTree = "<group>"; };
 		CB0405F95CE810AD587AE2C4 /* TraceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceView.swift; sourceTree = "<group>"; };
+		CB9C547D124A3E54EF8D6D1F /* WgExitSwitch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WgExitSwitch.swift; sourceTree = "<group>"; };
 		CD3D5DC3E583F91BE8D50DF5 /* SpeedLabHUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedLabHUD.swift; sourceTree = "<group>"; };
+		CE710B6B1338046109474499 /* VPNView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNView.swift; sourceTree = "<group>"; };
 		D7229BEE2D642996184E5338 /* SpeedLabFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedLabFormat.swift; sourceTree = "<group>"; };
 		D88E5DBF28786A4E5E3E2DC3 /* TraceGeoData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceGeoData.swift; sourceTree = "<group>"; };
 		E00108A90339FFC96F956660 /* TraceEarcut.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceEarcut.swift; sourceTree = "<group>"; };
@@ -292,8 +296,10 @@
 				842AA6F3E44BEA9F7D66B894 /* ProxyView.swift */,
 				3A894A60353CBFB063C2AB0C /* PurityView.swift */,
 				7B99A22CE06D6D9059021F48 /* RetainedGrid.swift */,
+				CE710B6B1338046109474499 /* VPNView.swift */,
 				4035E284FAC95E00C2F2CEDF /* WgBrandIcon.swift */,
 				8AB2485CFB7FA7A48A19F6D4 /* WgDesign.swift */,
+				CB9C547D124A3E54EF8D6D1F /* WgExitSwitch.swift */,
 				025AA57CBF7107F99D3479A5 /* WgFrameProbe.swift */,
 				33584D349600AEC079B8873A /* WgHUDDisplayClock.swift */,
 				9DA9782B4A5C321CF31590D8 /* WgHUDMotion.swift */,
@@ -581,8 +587,10 @@
 				A731880294284B59A0967455 /* TraceView.swift in Sources */,
 				F96EF933C0CBA66EA3D7C5B7 /* TransferAPIClient.swift in Sources */,
 				6E1F049D995E07C2D53DCA04 /* TransferModels.swift in Sources */,
+				FB8F6D09DEDAB7A9F3C232F4 /* VPNView.swift in Sources */,
 				8D12E67693DE603409D1FD95 /* WgBrandIcon.swift in Sources */,
 				D0739DCF9224C40F63F72E11 /* WgDesign.swift in Sources */,
+				AB32F2537C17D1C30D08C651 /* WgExitSwitch.swift in Sources */,
 				DD547983D07C16536E2BE7B9 /* WgFrameProbe.swift in Sources */,
 				126B53B2D18531AA83E35ADD /* WgHUDDisplayClock.swift in Sources */,
 				252A580BB4B5F08FD1769CD1 /* WgHUDMotion.swift in Sources */,

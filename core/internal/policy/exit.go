@@ -1,0 +1,159 @@
+package policy
+
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"os"
+	"path/filepath"
+
+	"github.com/wgsense/core/internal/tunnel"
+)
+
+// 出口：WireGuard、Tailscale、mihomo 三者互斥，同一时刻只有一个能接管流量。
+// 本阶段只做手动切换；Tailscale 只占位，不能选。
+//
+// 出口选择单独存一个文件：/api/config 是整包同步，旧版 App 不带这个字段，
+// 放在 settings.json 里会被悄悄冲回 WireGuard。
+const (
+	ExitWireGuard = "wireguard"
+	ExitTailscale = "tailscale"
+	ExitMihomo    = "mihomo"
+)
+
+// ExitBackend 是 WireGuard 以外的出口（目前只有内置 mihomo）。
+type ExitBackend interface {
+	Start() error
+	Stop() error
+}
+
+// ErrExitNotWireGuard 当前出口不是 WireGuard 时拒绝连接 WireGuard。
+var ErrExitNotWireGuard = errors.New("当前出口不是 WireGuard，先切换出口")
+
+type exitState struct {
+	Exit string `json:"exit"`
+}
+
+// SetExitStore 设置出口选择的保存位置并读入（daemon 启动时调用）。
+func (e *Engine) SetExitStore(path string) {
+	e.exitPath = path
+	e.exit = ExitWireGuard
+	if data, err := os.ReadFile(path); err == nil {
+		var s exitState
+		if json.Unmarshal(data, &s) == nil && s.Exit == ExitMihomo {
+			e.exit = s.Exit
+		}
+	}
+}
+
+// SetMihomoExit 接上内置 mihomo 出口。
+func (e *Engine) SetMihomoExit(b ExitBackend) { e.mihomoExit = b }
+
+// Exit 返回当前出口。
+func (e *Engine) Exit() string {
+	e.opMu.Lock()
+	defer e.opMu.Unlock()
+	return e.exitLocked()
+}
+
+func (e *Engine) exitLocked() string {
+	if e.exit == "" {
+		return ExitWireGuard
+	}
+	return e.exit
+}
+
+// SetExit 手动切换出口：先拆旧出口，再起新出口。
+// 拆与起之间出站拦截照常生效（隧道已断，物理网卡按无出口的规则放行），不会裸奔。
+func (e *Engine) SetExit(exit string) error {
+	e.opMu.Lock()
+	defer e.opMu.Unlock()
+	if e.shuttingDown {
+		return ErrShuttingDown
+	}
+	if e.serviceMaintenance {
+		return ErrServiceMaintenance
+	}
+	switch exit {
+	case ExitWireGuard:
+	case ExitMihomo:
+		if e.mihomoExit == nil {
+			return errors.New("这份网络服务没有内置代理内核")
+		}
+	case ExitTailscale:
+		return errors.New("Tailscale 出口尚未接入")
+	default:
+		return fmt.Errorf("未知出口: %s", exit)
+	}
+	if exit == e.exitLocked() {
+		return nil
+	}
+	if err := e.saveExit(exit); err != nil {
+		return err
+	}
+	prev := e.exitLocked()
+	e.exit = exit
+	e.Logf("切换出口: %s → %s", prev, exit)
+
+	switch exit {
+	case ExitMihomo:
+		// 先拆 WireGuard。保留 VPN 意图字段不动：它只在出口是 WireGuard 时生效。
+		if state, _ := e.tun.Status(e.service); state != tunnel.StateDisconnected {
+			if err := e.tun.Disconnect(e.service); err != nil {
+				e.Logf("切换出口时断开 WireGuard 失败: %v", err)
+			}
+		}
+		e.syncFirewallNow()
+		if err := e.mihomoExit.Start(); err != nil {
+			return fmt.Errorf("启动内置代理内核失败: %w", err)
+		}
+	case ExitWireGuard:
+		if e.mihomoExit != nil {
+			if err := e.mihomoExit.Stop(); err != nil {
+				e.Logf("切换出口时停止内置代理内核失败: %v", err)
+			}
+		}
+		// 切到 WireGuard 即表示要用它；在家且守护开着时仍按设计保持断开。
+		e.cfg.DesiredVPNEnabled = true
+		if err := e.saveCurrentConfig(); err != nil {
+			return err
+		}
+		if err := e.pause.Resume(); err != nil {
+			return err
+		}
+		// 出口已经切过来了；连接失败不算切换失败，守护会继续按策略重试。
+		if err := e.runOnceLocked(); err != nil {
+			e.Logf("已切到 WireGuard，但连接失败（守护会继续重试）: %v", err)
+		}
+	}
+	return nil
+}
+
+func (e *Engine) saveExit(exit string) error {
+	if e.exitPath == "" {
+		return nil
+	}
+	if err := os.MkdirAll(filepath.Dir(e.exitPath), 0755); err != nil {
+		return err
+	}
+	data, _ := json.Marshal(exitState{Exit: exit})
+	tmp := e.exitPath + ".tmp"
+	if err := os.WriteFile(tmp, append(data, '\n'), 0644); err != nil {
+		return err
+	}
+	return os.Rename(tmp, e.exitPath)
+}
+
+// enforceExitLocked 出口不是 WireGuard 时保证隧道断开，并跳过 WireGuard 的自动策略。
+// 返回 true 表示已处理，调用方不再继续 WireGuard 策略。
+func (e *Engine) enforceExitLocked() (bool, error) {
+	if e.exitLocked() == ExitWireGuard {
+		return false, nil
+	}
+	state, _ := e.tun.Status(e.service)
+	if state != tunnel.StateDisconnected {
+		e.Logf("出口是 %s，断开 WireGuard", e.exitLocked())
+		return true, e.tun.Disconnect(e.service)
+	}
+	return true, nil
+}

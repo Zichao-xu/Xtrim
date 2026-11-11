@@ -78,6 +78,7 @@ func (s *Server) Serve(listener net.Listener) error {
 	mux.HandleFunc("/api/firewall", s.handleFirewall)
 	mux.HandleFunc("/api/tunnel/ipv6", s.handleTunnelIPv6)
 	mux.HandleFunc("/api/mihomo", s.handleMihomo)
+	mux.HandleFunc("/api/exit", s.handleExit)
 	mux.HandleFunc("/api/logs", s.handleLogs)
 	mux.HandleFunc("/api/traffic", s.handleTraffic)
 	mux.HandleFunc("/api/shutdown", s.handleShutdown)
@@ -373,7 +374,12 @@ func (s *Server) handleMihomo(w http.ResponseWriter, r *http.Request) {
 		var err error
 		switch req.Action {
 		case "start":
-			err = s.mihomo.Start()
+			// 启动内核 = 把出口切到 mihomo：与 WireGuard 互斥由引擎保证
+			if s.eng.Exit() == policy.ExitMihomo {
+				err = s.mihomo.Start()
+			} else {
+				err = s.eng.SetExit(policy.ExitMihomo)
+			}
 		case "stop":
 			err = s.mihomo.Stop()
 		default:
@@ -389,6 +395,33 @@ func (s *Server) handleMihomo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, s.mihomo.Status())
+}
+
+// handleExit GET 返回当前出口；POST {"exit":"wireguard"|"mihomo"} 手动切换（三者互斥）。
+func (s *Server) handleExit(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+	case http.MethodPost:
+		var req struct {
+			Exit string `json:"exit"`
+		}
+		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4<<10)).Decode(&req); err != nil {
+			writeError(w, err)
+			return
+		}
+		if err := s.eng.SetExit(req.Exit); err != nil {
+			writeError(w, err)
+			return
+		}
+	default:
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	available := []string{policy.ExitWireGuard}
+	if s.mihomo != nil && s.mihomo.Bundled() {
+		available = append(available, policy.ExitMihomo)
+	}
+	writeJSON(w, map[string]interface{}{"exit": s.eng.Exit(), "available": available})
 }
 
 // handleTunnelIPv6 GET 返回全局隧道的公网 IPv6 设置，POST 更新并立即生效

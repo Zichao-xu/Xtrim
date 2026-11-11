@@ -53,6 +53,8 @@ struct MihomoPresentation: Equatable {
 
 struct MihomoView: View {
     @EnvironmentObject var client: DaemonClient
+    /// 嵌进 VPN 板块（mihomo 子页）时不显示自己的页头。
+    var showsHeader = true
     @State private var busy = false
 
     private var m: MihomoPresentation { MihomoPresentation(status: client.mihomo, error: client.mihomoError) }
@@ -60,7 +62,9 @@ struct MihomoView: View {
     var body: some View {
         let m = m
         return VStack(alignment: .leading, spacing: WgSpace.m) {
-            WgPageHeader(title: "代理", subtitleText: "WGSENSE · MIHOMO", word: "PROXY") { EmptyView() }
+            if showsHeader {
+                WgPageHeader(title: "代理", subtitleText: "WGSENSE · MIHOMO", word: "PROXY") { EmptyView() }
+            }
             hero(m)
             LazyVGrid(
                 columns: [GridItem(.flexible(), spacing: WgSpace.m), GridItem(.flexible(), spacing: WgSpace.m)],
