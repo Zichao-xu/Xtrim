@@ -182,16 +182,20 @@ final class WgStatusBarController: NSObject, NSMenuDelegate, NSWindowDelegate {
             .tint(WgInk.control)
         let hosting = NSHostingView(rootView: root)
         let size = hosting.fittingSize
+        // 尺寸由这里一次定好，不让托管视图再反向改窗口大小。
+        hosting.sizingOptions = []
 
         let panel = self.panel ?? WgMenuBarPanel()
         panel.delegate = self
-        panel.setContent(hosting, size: size)
 
         let buttonFrame = buttonWindow.convertToScreen(button.convert(button.bounds, to: nil))
         let screenFrame = (buttonWindow.screen ?? NSScreen.main)?.visibleFrame ?? .zero
         var origin = NSPoint(x: buttonFrame.minX, y: buttonFrame.minY - size.height - 6)
         origin.x = min(max(origin.x, screenFrame.minX + 6), screenFrame.maxX - size.width - 6)
-        panel.setFrame(NSRect(origin: origin, size: size), display: true)
+        // 先定窗口尺寸再挂内容：反过来的话，首次打开时背景视图从 0×0 被拉大，
+        // autoresizing 会把这段增量叠加到内容上（内容变成两倍大、只露出左下四分之一）。
+        panel.setFrame(NSRect(origin: origin, size: size), display: false)
+        panel.setContent(hosting)
 
         self.panel = panel
         NSApp.activate(ignoringOtherApps: true)
@@ -387,11 +391,18 @@ final class WgMenuBarPanel: NSPanel {
 
     override var canBecomeKey: Bool { true }
 
-    func setContent(_ view: NSView, size: NSSize) {
+    /// 内容始终铺满背景：用约束而不是 autoresizing，背景从任何尺寸变化都不会把内容撑歪。
+    func setContent(_ view: NSView) {
         clearContent()
-        view.frame = NSRect(origin: .zero, size: size)
-        view.autoresizingMask = [.width, .height]
+        view.translatesAutoresizingMaskIntoConstraints = false
         background.addSubview(view)
+        NSLayoutConstraint.activate([
+            view.leadingAnchor.constraint(equalTo: background.leadingAnchor),
+            view.trailingAnchor.constraint(equalTo: background.trailingAnchor),
+            view.topAnchor.constraint(equalTo: background.topAnchor),
+            view.bottomAnchor.constraint(equalTo: background.bottomAnchor)
+        ])
+        background.layoutSubtreeIfNeeded()
     }
 
     func clearContent() {
