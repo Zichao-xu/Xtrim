@@ -13,6 +13,7 @@
 		126B53B2D18531AA83E35ADD /* WgHUDDisplayClock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33584D349600AEC079B8873A /* WgHUDDisplayClock.swift */; };
 		1D959CB4980AECC76DC532EA /* PPGroupTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B9DCCE34E27D91EFD69FC1D /* PPGroupTable.swift */; };
 		205BFAA4DA400C825AF59FDE /* ProfileFileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C8CD7D8ADC89A97CD38C8D1 /* ProfileFileStore.swift */; };
+		2504C9FD6CD599AAC9D884C5 /* PurityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A894A60353CBFB063C2AB0C /* PurityView.swift */; };
 		252A580BB4B5F08FD1769CD1 /* WgHUDMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA9782B4A5C321CF31590D8 /* WgHUDMotion.swift */; };
 		26E9951B315DEC26B53EFF25 /* TraceGeoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88E5DBF28786A4E5E3E2DC3 /* TraceGeoData.swift */; };
 		29D7B386D93D85926B250213 /* RetainedGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B99A22CE06D6D9059021F48 /* RetainedGrid.swift */; };
@@ -134,6 +135,7 @@
 		3354F508C0653A08D63DBEEC /* MihomoModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MihomoModels.swift; sourceTree = "<group>"; };
 		33584D349600AEC079B8873A /* WgHUDDisplayClock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WgHUDDisplayClock.swift; sourceTree = "<group>"; };
 		3750B94EFA321F4F3F8C19F3 /* WgSenseWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WgSenseWidget.swift; sourceTree = "<group>"; };
+		3A894A60353CBFB063C2AB0C /* PurityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurityView.swift; sourceTree = "<group>"; };
 		4035E284FAC95E00C2F2CEDF /* WgBrandIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WgBrandIcon.swift; sourceTree = "<group>"; };
 		4455FF95397C153A2E668592 /* PPComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PPComponents.swift; sourceTree = "<group>"; };
 		4545014078AAC90D2EFD30BC /* SpeedLabModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedLabModels.swift; sourceTree = "<group>"; };
@@ -285,6 +287,7 @@
 				7DF23D4A47461A7F12D1F16B /* OverviewView.swift */,
 				C632B444F63E828AD86F00E4 /* ProfileManagerView.swift */,
 				842AA6F3E44BEA9F7D66B894 /* ProxyView.swift */,
+				3A894A60353CBFB063C2AB0C /* PurityView.swift */,
 				7B99A22CE06D6D9059021F48 /* RetainedGrid.swift */,
 				4035E284FAC95E00C2F2CEDF /* WgBrandIcon.swift */,
 				8AB2485CFB7FA7A48A19F6D4 /* WgDesign.swift */,
@@ -548,6 +551,7 @@
 				85FC1CBD1AC639C275B65736 /* ProxyModels.swift in Sources */,
 				2D3FCB428630D7F9D10607AE /* ProxyPanelStore.swift in Sources */,
 				C4886BF191973A5EFEBDBB68 /* ProxyView.swift in Sources */,
+				2504C9FD6CD599AAC9D884C5 /* PurityView.swift in Sources */,
 				29D7B386D93D85926B250213 /* RetainedGrid.swift in Sources */,
 				3941C8336123C5CB8E9F31E6 /* ShellCommand.swift in Sources */,
 				966D67D20ADBE1491172FEC9 /* SpeedLabFormat.swift in Sources */,

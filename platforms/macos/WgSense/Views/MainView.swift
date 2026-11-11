@@ -507,6 +507,7 @@ private struct MainPageArea: View {
                     case .about: AboutView()
                     case .speedtest: SpeedLabView()
                     case .trace: TraceView()
+                    case .purity: PurityView()
                     case .proxy, .logs: EmptyView()
                     }
                 }
@@ -606,7 +607,7 @@ private final class SidebarResizeHandleView: NSView {
 // MARK: - Tab 枚举
 
 enum SidebarTab: String, CaseIterable, Identifiable {
-    case dashboard, wireguard, proxy, profile, transferReceive, transferSend, settings, logs, about, speedtest, trace
+    case dashboard, wireguard, proxy, profile, transferReceive, transferSend, settings, logs, about, speedtest, trace, purity
     var id: String { rawValue }
 
     var label: LocalizedStringKey {
@@ -622,6 +623,7 @@ enum SidebarTab: String, CaseIterable, Identifiable {
         case .about: return "关于"
         case .speedtest: return "测速"
         case .trace: return "路由追踪"
+        case .purity: return "纯良"
         }
     }
 }
@@ -629,7 +631,7 @@ enum SidebarTab: String, CaseIterable, Identifiable {
 // MARK: - 磁贴数据模型
 
 enum TileKind: String, CaseIterable, Identifiable, Codable {
-    case vpn, pause, stop, transferReceive, transferSend, proxy, profile, logs, about, connection, speedtest, trace
+    case vpn, pause, stop, transferReceive, transferSend, proxy, profile, logs, about, connection, speedtest, trace, purity
     var id: String { rawValue }
 
     var isAddable: Bool {
@@ -650,6 +652,7 @@ enum TileKind: String, CaseIterable, Identifiable, Codable {
         case .connection: return "流量"
         case .speedtest: return "测速"
         case .trace: return "路由追踪"
+        case .purity: return "纯良"
         }
     }
 
@@ -667,6 +670,7 @@ enum TileKind: String, CaseIterable, Identifiable, Codable {
         case .connection: return "arrow.up.arrow.down"
         case .speedtest: return "gauge.with.dots.needle.67percent"
         case .trace: return "point.3.connected.trianglepath.dotted"
+        case .purity: return "hand.raised.fill"
         }
     }
 
@@ -685,6 +689,7 @@ enum TileKind: String, CaseIterable, Identifiable, Codable {
         case .connection: return "NET"
         case .speedtest: return "SPD"
         case .trace: return "TRC"
+        case .purity: return "PUR"
         }
     }
 
@@ -694,7 +699,7 @@ enum TileKind: String, CaseIterable, Identifiable, Codable {
         case .pause: return .orange
         case .stop: return .red
         case .logs, .about: return .gray
-        case .vpn, .transferReceive, .transferSend, .proxy, .profile, .connection, .speedtest, .trace: return WgInk.signal
+        case .vpn, .transferReceive, .transferSend, .proxy, .profile, .connection, .speedtest, .trace, .purity: return WgInk.signal
         }
     }
 
@@ -788,6 +793,10 @@ struct SidebarView: View {
             if !tiles.contains(where: { $0.kind == .trace }) { tiles.append(TileData(kind: .trace)) }
             UserDefaults.standard.set(true, forKey: "tileLayout.seeded.trace")
         }
+        if !UserDefaults.standard.bool(forKey: "tileLayout.seeded.purity") {
+            if !tiles.contains(where: { $0.kind == .purity }) { tiles.append(TileData(kind: .purity)) }
+            UserDefaults.standard.set(true, forKey: "tileLayout.seeded.purity")
+        }
         _tiles = State(initialValue: tiles)
     }
 
@@ -836,6 +845,7 @@ struct SidebarView: View {
             TileData(kind: .connection),
             TileData(kind: .speedtest),
             TileData(kind: .trace),
+            TileData(kind: .purity),
         ]
     }
 
@@ -1041,6 +1051,7 @@ struct SidebarView: View {
         case .about: return .about
         case .speedtest: return .speedtest
         case .trace: return .trace
+        case .purity: return .purity
         case .pause, .stop: return nil
         }
     }
@@ -1102,6 +1113,11 @@ struct SidebarView: View {
             let tile = traceTile
             return ModuleInfo(symbol: kind.icon, tint: kind.activeColor, isOn: tile.running,
                               status: tile.text.map { Text(verbatim: $0) } ?? Text("世界航线"))
+        case .purity:
+            // 状态行只说现在生效的规则；没开或出口在线却没锁定时着警示色
+            let purity = PurityPresentation(status: client.status, tunnelUp: client.isTunnelUp)
+            return ModuleInfo(symbol: kind.icon, tint: WgInk.warn, isOn: purity.mode == .on || purity.mode == .domestic,
+                              status: Text(purity.tileStatus), highlight: purity.needsAttention)
         case .vpn, .connection, .speedtest:
             return ModuleInfo(symbol: kind.icon, tint: kind.activeColor, isOn: false, status: Text(""))
         }
@@ -1165,6 +1181,11 @@ struct SidebarView: View {
                     detailLine(name, name == client.status?.service ? "当前" : "")
                 }
             }
+        case .purity:
+            let purity = PurityPresentation(status: client.status, tunnelUp: client.isTunnelUp)
+            detailLine("状态", purity.code)
+            detailLine("已拦", "\(purity.blocked) 包")
+            if tile.size == .large { detailLine("放行名单", "\(purity.allowCount) 项") }
         default:
             EmptyView()
         }
@@ -1416,6 +1437,7 @@ struct SidebarView: View {
             case .about: selection = .about
             case .speedtest: selection = .speedtest
             case .trace: selection = .trace
+            case .purity: selection = .purity
             case .stop: stopAllServices()
             case .pause: break
             }
