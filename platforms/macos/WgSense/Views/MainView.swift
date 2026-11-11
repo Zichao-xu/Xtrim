@@ -1262,12 +1262,9 @@ struct SidebarView: View {
                 .help(vpnToggleHelp(vpn))
 
                 VStack(alignment: .leading, spacing: 1) {
-                    HStack(alignment: .firstTextBaseline, spacing: WgSpace.s) {
-                        Text("VPN")
-                            .font(.system(size: compact ? WgType.body : WgType.title, weight: .semibold))
-                        WgExitLogo(exit: exit, size: compact ? 11 : 13)
-                            .foregroundStyle(WgInk.ink3)
-                    }
+                    // 当前出口由左侧徽章里的标识表示，标题旁不再重复
+                    Text("VPN")
+                        .font(.system(size: compact ? WgType.body : WgType.title, weight: .semibold))
                     statusText
                         .font(.system(size: compact ? WgType.body : WgType.sub, weight: isOn ? .medium : .regular))
                         .foregroundStyle(statusTint)
@@ -1277,18 +1274,19 @@ struct SidebarView: View {
                 Spacer(minLength: 0)
 
                 if tile.size == .medium {
-                    // 一行高：出口切换放得下就放切换，放不下退回守护 / 暂停两个图标
-                    ViewThatFits(in: .horizontal) {
-                        WgExitSwitch(compact: true, isEnabled: !isEditMode).frame(width: 160)
-                        wgGuardPauseIcons.disabled(exit != .wireguard)
-                    }
-                    .disabled(isEditMode)
+                    wgGuardPauseIcons
+                        .disabled(isEditMode || exit != .wireguard)
                 }
             }
 
             if tile.size == .large {
-                // 切换放大后，详情一行让位（状态已在标题下，细节在 VPN 板块），保证底部操作不被裁掉
-                WgExitSwitch(compact: true, isEnabled: !isEditMode)
+                // 出口切换只在 VPN 板块里做；磁贴只显示当前出口（徽章标识）与常用操作
+                // 切换条移走后，详情行回到原位
+                (exit == .mihomo ? Text(verbatim: mihomoTileDetail(mh)) : Text(vpn.detail))
+                    .font(.system(size: WgType.body))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
                     .wgPadding(.top, .m)
                 Spacer(minLength: 8)
                 vpnActions
