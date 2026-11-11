@@ -34,7 +34,9 @@ targets:
           out_dir="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/libexec"
           packaging_out="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/packaging"
           mkdir -p "$out_dir" "$packaging_out"
-          (cd "$core_dir" && /usr/bin/env go build -trimpath -o "$out_dir/wgsense-daemon" ./cmd/wgsense-daemon)
+          # 内置代理内核（自建 mihomo）：编好就以 mihomo_embed 标签嵌进 daemon，拿不到则不带
+          mihomo_tags="$("$SRCROOT/vendor/build-mihomo.sh" "$core_dir" | tail -n 1)"
+          (cd "$core_dir" && /usr/bin/env go build -trimpath ${mihomo_tags:+-tags "$mihomo_tags"} -o "$out_dir/wgsense-daemon" ./cmd/wgsense-daemon)
           chmod 0755 "$out_dir/wgsense-daemon"
           install -m 0755 "$packaging_dir/wgsense-install-services.sh" "$packaging_out/wgsense-install-services.sh"
           install -m 0755 "$packaging_dir/wgsense-uninstall-services.sh" "$packaging_out/wgsense-uninstall-services.sh"

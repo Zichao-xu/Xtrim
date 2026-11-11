@@ -21,6 +21,7 @@ import (
 	"github.com/wgsense/core/internal/firewall"
 	"github.com/wgsense/core/internal/healthcheck"
 	"github.com/wgsense/core/internal/location"
+	"github.com/wgsense/core/internal/mihomo"
 	"github.com/wgsense/core/internal/pause"
 	"github.com/wgsense/core/internal/policy"
 	"github.com/wgsense/core/internal/proxy"
@@ -242,12 +243,22 @@ func main() {
 		log.Printf("代理服务启动失败(非致命): %v", err)
 	}
 
+	// 内置代理内核：只管本机进程与本机端口，不改路由 / DNS，被动模式也可安全使用。
+	// root 服务放在 root 专属目录（二进制会以 nobody 身份运行），其余放运行目录下。
+	mihomoDir := filepath.Join(rtDir, "mihomo")
+	if os.Geteuid() == 0 && !explicitFlags["runtime-dir"] {
+		mihomoDir = mihomo.DefaultRootDir
+	}
+	mihomoMgr := mihomo.New(mihomoDir, eng.Logf)
+	mihomoMgr.Restore()
+
 	// 信号处理
 	var shutdownOnce sync.Once
 	stopDaemon := func(code int) {
 		shutdownOnce.Do(func() {
 			cancel()
 			apiListener.Close()
+			mihomoMgr.Shutdown()
 			if err := eng.ShutdownCleanup(); err != nil {
 				log.Printf("退出前清理隧道失败: %v", err)
 			}
@@ -287,6 +298,7 @@ func main() {
 	// 前台启动 API server
 	log.Printf("WgSense daemon 启动 interval=%ds api=%s mihomo=%s passive=%t auto_connect_untrusted=%t app_owned=%t", cfg.IntervalSeconds, *apiAddr, proxyCfg.Address, *passive, cfg.AutoConnectUntrusted, *appOwned)
 	apiSrv := api.New(*apiAddr, eng, transSvc, proxySvc)
+	apiSrv.SetMihomo(mihomoMgr)
 	if *managed {
 		apiSrv.SetService(func() service.Info { return service.RuntimeInfo(managedOwner, binaryHash) }, func(_ context.Context, req service.Request) (service.Request, error) {
 			req.Owner = managedOwner

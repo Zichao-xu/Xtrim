@@ -105,6 +105,25 @@ struct TunnelIPv6Settings: Codable, Equatable {
     var probe_targets: [String]
 }
 
+/// 内置代理内核（daemon /api/mihomo）。
+struct MihomoStatus: Codable, Equatable {
+    /// 这份网络服务带了内核。
+    var bundled: Bool
+    var version: String?
+    /// 用户希望它运行（跨服务重启保持）。
+    var desired: Bool
+    var running: Bool
+    var pid: Int?
+    var started_at: String?
+    var controller: String
+    var mixed_port: Int
+    var config_path: String
+    var user: String?
+    /// 上次意外退出的原因。
+    var last_exit: String?
+    var error: String?
+}
+
 struct FirewallResponse: Codable, Equatable {
     var settings: FirewallSettings
     var status: FirewallStatus

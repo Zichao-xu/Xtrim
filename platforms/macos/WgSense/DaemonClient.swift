@@ -206,6 +206,8 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
                 await self.fetchStatus()
                 guard visible else { return }
                 if self.status != nil { await self.fetchTransferState() }
+                // 内置代理内核状态只给磁贴用，10 秒一轮足够；代理页打开时自己 2 秒一轮
+                if self.status != nil, tick % 5 == 0 { await self.fetchMihomo() }
                 if self.isTunnelUp {
                     await self.fetchTraffic()
                 } else if self.traffic != nil {
@@ -218,6 +220,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         Task {
             await fetchStatus()
             if status != nil { await fetchTransferState() }
+            if status != nil { await fetchMihomo() }
             await fetchTraffic()
         }
     }
@@ -829,6 +832,9 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
     @Published var transferDevices: [TransferDevice] = []
     @Published var transferState: TransferReceiveState?
     @Published var firewall: FirewallResponse?
+    /// 内置代理内核状态；nil 且 mihomoError 有值 = 运行中的网络服务还不支持。
+    @Published var mihomo: MihomoStatus?
+    @Published var mihomoError: String?
     @Published var firewallError: String?
     @Published var tunnelIPv6: TunnelIPv6Settings?
     @Published var tunnelIPv6Error: String?
@@ -906,6 +912,31 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             if firewall != nil { firewall = nil }
             let message = daemonConnectionMessage(error)
             if firewallError != message { firewallError = message }
+        }
+    }
+
+    func fetchMihomo() async {
+        do {
+            let next = try await controlAPI.mihomo()
+            if mihomo != next { mihomo = next }
+            if mihomoError != nil { mihomoError = nil }
+        } catch {
+            if mihomo != nil { mihomo = nil }
+            let message = daemonConnectionMessage(error)
+            if mihomoError != message { mihomoError = message }
+        }
+    }
+
+    /// 启停内置代理内核（只影响本机端口，不动路由与 DNS）。
+    func setMihomo(running: Bool) async -> Bool {
+        do {
+            mihomo = try await controlAPI.mihomo(action: running ? "start" : "stop")
+            mihomoError = nil
+            return true
+        } catch {
+            alertMsg = (running ? "启动" : "停止") + "内置代理内核失败: \(error.localizedDescription)"
+            await fetchMihomo()
+            return false
         }
     }
 

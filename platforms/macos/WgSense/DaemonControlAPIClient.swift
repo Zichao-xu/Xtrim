@@ -39,6 +39,14 @@ struct DaemonControlAPIClient {
         return try JSONDecoder().decode(FirewallResponse.self, from: data)
     }
 
+    func mihomo() async throws -> MihomoStatus {
+        try await api.decode(MihomoStatus.self, path: "api/mihomo")
+    }
+
+    func mihomo(action: String) async throws -> MihomoStatus {
+        try await api.decode(MihomoStatus.self, path: "api/mihomo", method: "POST", body: ["action": action], timeout: 30)
+    }
+
     func tunnelIPv6() async throws -> TunnelIPv6Settings {
         try await api.decode(TunnelIPv6Settings.self, path: "api/tunnel/ipv6")
     }

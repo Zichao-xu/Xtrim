@@ -1130,8 +1130,9 @@ struct SidebarView: View {
             return ModuleInfo(symbol: kind.icon, tint: WgInk.warn, isOn: purity.mode == .on || purity.mode == .domestic,
                               status: Text(purity.verdict), highlight: purity.needsAttention)
         case .mihomo:
-            // 骨架阶段：本机内核尚未内置，只如实显示「未接入」
-            return ModuleInfo(symbol: kind.icon, tint: kind.activeColor, isOn: false, status: Text("未接入"))
+            let m = MihomoPresentation(status: client.mihomo, error: client.mihomoError)
+            return ModuleInfo(symbol: kind.icon, tint: WgInk.warn, isOn: m.phase == .running,
+                              status: Text(m.title), highlight: m.phase == .crashed)
         case .vpn, .connection, .speedtest:
             return ModuleInfo(symbol: kind.icon, tint: kind.activeColor, isOn: false, status: Text(""))
         }
@@ -1219,6 +1220,11 @@ struct SidebarView: View {
                 ForEach(client.profiles.prefix(3), id: \.self) { name in
                     detailLine(name, name == client.status?.service ? "当前" : "")
                 }
+            }
+        case .mihomo:
+            if let m = client.mihomo, m.bundled {
+                detailLine("端口", m.running ? "\(m.mixed_port)" : "—")
+                if tile.size == .large { detailLine("内核", m.version ?? "—") }
             }
         case .purity:
             let purity = PurityPresentation(status: client.status, tunnelUp: client.isTunnelUp)
