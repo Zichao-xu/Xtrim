@@ -74,7 +74,9 @@ struct WgExitSwitch: View {
         switch exit {
         case .tailscale: return "Tailscale 尚未接入"
         case .mihomo where !available:
-            return client.status?.exit == nil ? "需要更新网络服务后才能切换出口" : "这份网络服务没有内置 mihomo 内核"
+            return "这份网络服务没有内置 mihomo 内核"
+        case .mihomo where client.status?.exit == nil:
+            return "切换到 mihomo：先断开 WireGuard、更新网络服务，再启用 mihomo"
         default: return "切换到 \(exit.title)：先断开当前出口，再启用它"
         }
     }

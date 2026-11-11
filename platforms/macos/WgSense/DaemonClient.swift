@@ -948,17 +948,25 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         switch exit {
         case .wireguard: return true
         case .tailscale: return false
-        case .mihomo: return status?.exit != nil && mihomo?.bundled == true
+        // 运行中的服务还不认识出口时也可以点：点了就是要切，切换流程会先把服务升级到 App 自带的版本
+        case .mihomo: return status?.exit == nil || mihomo?.bundled == true
         }
     }
 
     @Published var switchingExit: WgExit?
+    /// 切换进行到哪一步，给界面显示。
+    @Published var exitProgress: String?
 
     /// 手动切换出口（三者互斥）：网络服务先拆旧出口再起新出口。
+    /// 运行中的网络服务太旧、不认识出口时，先断开隧道并升级服务，再切换——用户点了就是要切。
     func setExit(_ exit: WgExit) async {
         guard exit != currentExit, switchingExit == nil else { return }
         switchingExit = exit
-        defer { switchingExit = nil }
+        defer { switchingExit = nil; exitProgress = nil }
+        if status?.exit == nil, exit != .wireguard {
+            guard await upgradeServiceForExit() else { return }
+        }
+        exitProgress = "正在切换到 \(exit.title)"
         do {
             try await controlAPI.setExit(exit.rawValue)
         } catch {
@@ -966,6 +974,39 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         }
         await fetchStatus()
         await fetchMihomo()
+    }
+
+    /// 升级网络服务以支持出口切换。升级要求隧道先断开（保护规则：不在隧道连着时换服务）；
+    /// 切到别的出口本来就要断开 WireGuard，所以这里直接断开。失败则把隧道恢复原状。
+    private func upgradeServiceForExit() async -> Bool {
+        let wasConnected = isTunnelUp
+        if wasConnected {
+            exitProgress = "正在断开 WireGuard"
+            _ = try? await api.request("api/disconnect", method: "POST", timeout: 30)
+            for _ in 0..<20 {
+                await fetchStatus()
+                if !isTunnelUp { break }
+                try? await Task.sleep(for: .milliseconds(500))
+            }
+        }
+        exitProgress = "正在更新网络服务"
+        let ok = await ensureDaemon(requireActive: true, authorizeIfNeeded: true)
+        if ok {
+            // 新服务起来后才会报 exit 字段
+            for _ in 0..<60 {
+                await fetchStatus()
+                if status?.exit != nil { break }
+                try? await Task.sleep(for: .milliseconds(500))
+            }
+            await fetchMihomo()
+        }
+        guard ok, status?.exit != nil else {
+            alertMsg = "更新网络服务失败，未切换出口: \(serviceLifecycleError ?? "新服务未就绪")"
+            if wasConnected { _ = try? await api.request("api/connect", method: "POST", timeout: 60) }
+            await fetchStatus()
+            return false
+        }
+        return true
     }
 
     func fetchTunnelIPv6() async {
