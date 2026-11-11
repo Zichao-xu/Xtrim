@@ -110,11 +110,16 @@ struct PurityPresentation: Equatable {
     var blocked: UInt64
     var allowCount: Int
     var checks: [PurityCheck]
+    /// 出口是内置 mihomo（代理锁定），而不是 WireGuard 隧道。
+    var viaProxy: Bool
 
     /// `settings` 只有页面拿得到（磁贴只有轮询状态），缺省时少一条「总开关已关」的判断。
-    init(status: DaemonStatus?, tunnelUp: Bool, settings: FirewallSettings? = nil) {
+    init(status: DaemonStatus?, tunnelUp: Bool, settings: FirewallSettings? = nil, proxyDNSService: String? = nil) {
         let fw = status?.firewall
+        viaProxy = fw?.lock_kind == "proxy" || (status?.exit == "mihomo" && proxyDNSService != nil)
         if tunnelUp, status?.coverage?.full_tunnel == true {
+            position = .exit
+        } else if viaProxy {
             position = .exit
         } else if status?.isTrustedNetwork == true {
             position = .home
@@ -135,7 +140,8 @@ struct PurityPresentation: Equatable {
             Self.directCheck(mode: mode, settings: settings),
             Self.lockCheck(mode: mode, position: position, locked: locked, blocked: blocked),
             Self.ipv6Check(mode: mode, position: position, v6: status?.coverage?.ipv6),
-            Self.dnsCheck(mode: mode, position: position, dns: status?.coverage?.dns),
+            Self.dnsCheck(mode: mode, position: position,
+                          dns: viaProxy ? proxyDNSService.map { ["内置代理（\($0)）"] } : status?.coverage?.dns),
         ]
     }
 
@@ -249,7 +255,8 @@ struct PurityView: View {
     private var status: FirewallStatus? { client.status?.firewall ?? client.firewall?.status }
     private var settings: FirewallSettings? { client.firewall?.settings }
     private var purity: PurityPresentation {
-        PurityPresentation(status: client.status, tunnelUp: client.isTunnelUp, settings: settings)
+        PurityPresentation(status: client.status, tunnelUp: client.isTunnelUp, settings: settings,
+                           proxyDNSService: client.mihomo?.dns_service)
     }
 
     var body: some View {
@@ -597,7 +604,7 @@ struct PurityEgressDiagram: View {
 
     private static func all(_ result: Lane.Result) -> [Lane] {
         [
-            Lane(id: "tunnel", name: "隧道", via: "WG 服务器 → 出口", result: result, trunk: true),
+            Lane(id: "tunnel", name: "出口", via: "WG 隧道 / 代理内核", result: result, trunk: true),
             Lane(id: "lan", name: "局域网", via: "本地网段", result: result),
             Lane(id: "cn", name: "国内直连", via: "国内 IP 段", result: result),
             Lane(id: "gateway", name: "网关代理", via: "fake-ip → 家里网关", result: result),

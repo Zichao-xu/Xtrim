@@ -79,6 +79,7 @@ func (s *Server) Serve(listener net.Listener) error {
 	mux.HandleFunc("/api/tunnel/ipv6", s.handleTunnelIPv6)
 	mux.HandleFunc("/api/mihomo", s.handleMihomo)
 	mux.HandleFunc("/api/exit", s.handleExit)
+	mux.HandleFunc("/api/mihomo/import", s.handleMihomoImport)
 	mux.HandleFunc("/api/logs", s.handleLogs)
 	mux.HandleFunc("/api/traffic", s.handleTraffic)
 	mux.HandleFunc("/api/shutdown", s.handleShutdown)
@@ -392,6 +393,36 @@ func (s *Server) handleMihomo(w http.ResponseWriter, r *http.Request) {
 		}
 	default:
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	writeJSON(w, s.mihomo.Status())
+}
+
+// handleMihomoImport POST {"bundle": "<tar.gz 路径>", "origin": "root@host:/etc/mihomo"}：
+// 导入从 op 同步来的配置包（App 用 SSH 打包后落在本机），改写成 Mac 版并校验后替换。
+func (s *Server) handleMihomoImport(w http.ResponseWriter, r *http.Request) {
+	if s.mihomo == nil {
+		http.Error(w, "这份网络服务没有接入内置代理内核", http.StatusConflict)
+		return
+	}
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	var req struct {
+		Bundle string `json:"bundle"`
+		Origin string `json:"origin"`
+	}
+	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 8<<10)).Decode(&req); err != nil {
+		writeError(w, err)
+		return
+	}
+	if req.Bundle == "" {
+		http.Error(w, "缺少 bundle", http.StatusBadRequest)
+		return
+	}
+	if err := s.mihomo.Import(req.Bundle, req.Origin); err != nil {
+		writeError(w, err)
 		return
 	}
 	writeJSON(w, s.mihomo.Status())

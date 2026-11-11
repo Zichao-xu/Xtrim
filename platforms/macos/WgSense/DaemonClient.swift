@@ -951,6 +951,30 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         }
     }
 
+    /// 交给网络服务导入配置包。
+    func importMihomo(bundle: String, origin: String) async throws -> MihomoStatus {
+        let next = try await controlAPI.importMihomo(bundle: bundle, origin: origin)
+        mihomo = next
+        return next
+    }
+
+    @Published var syncingMihomo = false
+
+    /// 从 op 同步配置（代理页按钮与切换前调用）。返回是否成功；失败时 alert 由 showError 决定。
+    @discardableResult
+    func syncMihomoFromOp(showError: Bool = true) async -> Bool {
+        guard !syncingMihomo else { return false }
+        syncingMihomo = true
+        defer { syncingMihomo = false }
+        do {
+            _ = try await MihomoSync.run(client: self, includeGeo: mihomo?.source == nil)
+            return true
+        } catch {
+            if showError { alertMsg = error.localizedDescription }
+            return false
+        }
+    }
+
     /// 当前出口；旧版网络服务不报 = WireGuard。
     var currentExit: WgExit { WgExit(rawValue: status?.exit ?? "") ?? .wireguard }
 
@@ -978,8 +1002,36 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         guard exit != currentExit, switchingExit == nil else { return }
         switchingExit = exit
         defer { switchingExit = nil; exitProgress = nil }
-        if status?.exit == nil, exit != .wireguard {
-            guard await upgradeServiceForExit() else { return }
+        if exit == .mihomo {
+            // ① 趁 WireGuard 还连着（在外也能到路由器）先把 op 的配置拉到本机
+            exitProgress = "正在从 op 拉取配置"
+            var fetched: (bundle: URL, origin: String)?
+            var fetchError: String?
+            do {
+                fetched = try await MihomoSync.fetch(includeGeo: mihomo?.source == nil)
+            } catch {
+                fetchError = error.localizedDescription
+            }
+            defer { if let fetched { try? FileManager.default.removeItem(at: fetched.bundle) } }
+            // ② 运行中的网络服务太旧（没有出口切换或配置导入）就先升级：升级要求先断开 WireGuard
+            if await serviceLacksMihomoImport() {
+                guard await upgradeServiceForExit() else { return }
+            }
+            // ③ 导入刚拉到的配置；拉不到但已有上次同步的配置就沿用
+            if let fetched {
+                exitProgress = "正在导入 op 的配置"
+                do {
+                    _ = try await importMihomo(bundle: fetched.bundle.path, origin: fetched.origin)
+                } catch {
+                    fetchError = error.localizedDescription
+                }
+            }
+            await fetchMihomo()
+            if mihomo?.source == nil {
+                alertMsg = "切换到 mihomo 需要 op 的配置：\(fetchError ?? "还没有同步过")"
+                await restoreWireGuardIfNeeded()
+                return
+            }
         }
         exitProgress = "正在切换到 \(exit.title)"
         do {
@@ -989,6 +1041,26 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         }
         await fetchStatus()
         await fetchMihomo()
+    }
+
+    /// 运行中的网络服务没有配置导入接口（旧版）：新版对 GET 回 405，旧版回 404。
+    private func serviceLacksMihomoImport() async -> Bool {
+        do {
+            _ = try await api.request("api/mihomo/import", method: "GET", timeout: 5)
+            return false
+        } catch {
+            let message = error.localizedDescription.lowercased()
+            return message.contains("404") || message.contains("not found") || status?.exit == nil
+        }
+    }
+
+    /// 切换中途失败、WireGuard 已被断开时把它连回去。
+    private func restoreWireGuardIfNeeded() async {
+        await fetchStatus()
+        if currentExit == .wireguard && !isTunnelUp {
+            _ = try? await api.request("api/connect", method: "POST", timeout: 60)
+            await fetchStatus()
+        }
     }
 
     /// 升级网络服务以支持出口切换。升级要求隧道先断开（保护规则：不在隧道连着时换服务）；

@@ -46,6 +46,8 @@ struct FirewallStatus: Codable, Equatable {
     var interfaces: [String]?
     /// 隧道锁定生效中：全局隧道连着，物理网卡只放行局域网与 WG 服务器。
     var locked: Bool?
+    /// 锁定的出口：tunnel（WireGuard）/ proxy（内置 mihomo）。
+    var lock_kind: String?
     /// 本套规则生效以来被拒绝的出站包数。
     var blocked_packets: UInt64?
     /// 放行项当前解析到的地址，普通拦截模式下才有。
@@ -124,6 +126,13 @@ struct MihomoStatus: Codable, Equatable {
     /// 上次意外退出的原因。
     var last_exit: String?
     var error: String?
+    /// 配置来源（从 op 同步时为 root@host:/etc/mihomo）；nil = 默认配置，不能作为出口。
+    var source: String?
+    var synced_at: String?
+    /// 同步时剔除的、只能在路由器上用的节点。
+    var dropped: [String]?
+    /// 正在被接管 DNS 的网络服务（如 Wi-Fi）。
+    var dns_service: String?
 }
 
 struct FirewallResponse: Codable, Equatable {

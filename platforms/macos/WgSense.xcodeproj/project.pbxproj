@@ -21,6 +21,7 @@
 		2D3FCB428630D7F9D10607AE /* ProxyPanelStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6827EB7C08699493703F29CA /* ProxyPanelStore.swift */; };
 		2E480A6EE16C6B985A601C3A /* WgWindowVisibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = F62D9EEE52A2092FAF858600 /* WgWindowVisibility.swift */; };
 		338D7410BCA0C8F503856E3E /* DaemonClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 866A0A396B7DBCD9D7355E66 /* DaemonClient.swift */; };
+		3662C502B41C9ADC1261A728 /* MihomoSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = D09D8E0489F86402A6AED1C6 /* MihomoSync.swift */; };
 		37CC4467DE3F5215AF303A52 /* PPComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4455FF95397C153A2E668592 /* PPComponents.swift */; };
 		3941C8336123C5CB8E9F31E6 /* ShellCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83C9AEACF015695C43E09540 /* ShellCommand.swift */; };
 		3AE3936BA2CC7154DE9A16C7 /* TraceStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3746632F3F24FAAA82F8A29 /* TraceStage.swift */; };
@@ -198,6 +199,7 @@
 		CB9C547D124A3E54EF8D6D1F /* WgExitSwitch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WgExitSwitch.swift; sourceTree = "<group>"; };
 		CD3D5DC3E583F91BE8D50DF5 /* SpeedLabHUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedLabHUD.swift; sourceTree = "<group>"; };
 		CE710B6B1338046109474499 /* VPNView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNView.swift; sourceTree = "<group>"; };
+		D09D8E0489F86402A6AED1C6 /* MihomoSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MihomoSync.swift; sourceTree = "<group>"; };
 		D7229BEE2D642996184E5338 /* SpeedLabFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedLabFormat.swift; sourceTree = "<group>"; };
 		D88E5DBF28786A4E5E3E2DC3 /* TraceGeoData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceGeoData.swift; sourceTree = "<group>"; };
 		E00108A90339FFC96F956660 /* TraceEarcut.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceEarcut.swift; sourceTree = "<group>"; };
@@ -223,6 +225,7 @@
 				13C4756EC6DAF2B9C8E8EC93 /* DaemonMaintenanceService.swift */,
 				25978E89B4CCD23B64EA7345 /* DaemonModels.swift */,
 				BD8D739D3B0B49B54B3F0C39 /* Localizable.xcstrings */,
+				D09D8E0489F86402A6AED1C6 /* MihomoSync.swift */,
 				0C8CD7D8ADC89A97CD38C8D1 /* ProfileFileStore.swift */,
 				88EC3834F9EE809E1C80F044 /* ProxyAPIClient.swift */,
 				C415A763228416E61BA81E86 /* ProxyModels.swift */,
@@ -541,6 +544,7 @@
 				A9184D24FC36095D400742E2 /* MihomoAPI.swift in Sources */,
 				882F34D0761960552EDAA758 /* MihomoBackends.swift in Sources */,
 				0A2EC6E290092752B87FCA08 /* MihomoModels.swift in Sources */,
+				3662C502B41C9ADC1261A728 /* MihomoSync.swift in Sources */,
 				CBFE0FA4D7F4A7E4E2E066BF /* MihomoView.swift in Sources */,
 				5C89F8AE623FCFC4434B574E /* OpenWrtRuleSource.swift in Sources */,
 				A7708D45E8B5D47CDEAFB91E /* OtherViews.swift in Sources */,

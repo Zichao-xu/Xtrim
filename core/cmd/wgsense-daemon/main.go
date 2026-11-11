@@ -250,6 +250,13 @@ func main() {
 		mihomoDir = mihomo.DefaultRootDir
 	}
 	mihomoMgr := mihomo.New(mihomoDir, eng.Logf)
+	// 内核起停后立即重算出站拦截（代理锁定只在它作为出口运行时生效）
+	if fw := eng.Firewall(); fw != nil {
+		fw.ProxyLocked = func() bool {
+			return eng.Exit() == policy.ExitMihomo && mihomoMgr.Running() && mihomoMgr.TUNEnabled()
+		}
+		mihomoMgr.OnChange = func() { _ = fw.Sync() }
+	}
 	eng.SetExitStore(filepath.Join(rtDir, "exit.json"))
 	if mihomoMgr.Bundled() {
 		eng.SetMihomoExit(mihomoMgr)

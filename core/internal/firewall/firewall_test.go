@@ -320,3 +320,16 @@ func TestAllowHostsRejectInvalidAndPersist(t *testing.T) {
 		t.Fatal("allow_hosts must be non-nil so the UI can detect support")
 	}
 }
+
+func TestRenderProxyLockAllowsKernelGroupOnly(t *testing.T) {
+	rules := RenderPF(RuleInput{Interfaces: []string{"en0"}, LockTunnel: true, AllowGroup: "nobody", CNFile: "/x"})
+	if !strings.Contains(rules, "pass out quick on { en0 } proto { tcp udp } group nobody keep state") {
+		t.Fatalf("kernel group not allowed:\n%s", rules)
+	}
+	if strings.Contains(rules, "wgsense_cn") {
+		t.Fatalf("proxy lock must not allow the CN table:\n%s", rules)
+	}
+	if !strings.Contains(rules, "block return out quick on { en0 } all") {
+		t.Fatalf("missing final block:\n%s", rules)
+	}
+}

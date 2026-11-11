@@ -9,8 +9,12 @@ import (
 	"github.com/wgsense/core/internal/tunnel"
 )
 
-type fakeExit struct{ running bool }
+type fakeExit struct {
+	running  bool
+	notReady error
+}
 
+func (f *fakeExit) Ready() error { return f.notReady }
 func (f *fakeExit) Start() error { f.running = true; return nil }
 func (f *fakeExit) Stop() error  { f.running = false; return nil }
 
@@ -100,6 +104,17 @@ func TestTailscaleAndUnknownRejected(t *testing.T) {
 	}
 	if e.Exit() != ExitWireGuard {
 		t.Fatal("rejected switch must not change the exit")
+	}
+}
+
+func TestMihomoNotReadyKeepsWireGuard(t *testing.T) {
+	e, tun, ex, _ := newExitEngine(t, false)
+	ex.notReady = errors.New("还没有同步配置")
+	if e.SetExit(ExitMihomo) == nil {
+		t.Fatal("must refuse when mihomo is not ready")
+	}
+	if e.Exit() != ExitWireGuard || tun.state != tunnel.StateConnected || ex.running {
+		t.Fatal("WireGuard must stay up when the switch is refused")
 	}
 }
 

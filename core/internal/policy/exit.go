@@ -23,6 +23,8 @@ const (
 
 // ExitBackend 是 WireGuard 以外的出口（目前只有内置 mihomo）。
 type ExitBackend interface {
+	// Ready 能否作为出口（如配置还没同步时返回原因）。
+	Ready() error
 	Start() error
 	Stop() error
 }
@@ -79,6 +81,10 @@ func (e *Engine) SetExit(exit string) error {
 	case ExitMihomo:
 		if e.mihomoExit == nil {
 			return errors.New("这份网络服务没有内置代理内核")
+		}
+		// 先确认能接管，再拆 WireGuard：不能出现两个出口都没有的切换
+		if err := e.mihomoExit.Ready(); err != nil {
+			return err
 		}
 	case ExitTailscale:
 		return errors.New("Tailscale 出口尚未接入")

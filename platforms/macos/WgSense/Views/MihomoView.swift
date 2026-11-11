@@ -74,14 +74,28 @@ struct MihomoView: View {
                          value: Text(verbatim: m.status?.version ?? "—"),
                          detail: Text(kernelDetail(m)))
                 InfoCard(symbol: "doc.text", tint: .gray, title: "配置",
-                         value: Text(verbatim: m.status.map { ($0.config_path as NSString).lastPathComponent } ?? "—"),
-                         detail: Text(verbatim: m.status.map { ($0.config_path as NSString).deletingLastPathComponent } ?? "单个 yaml，不分层"))
+                         value: Text(verbatim: configValue(m)),
+                         detail: Text(verbatim: m.status?.source ?? "默认配置：只监听本机、全部直连，不能作为出口")) {
+                    if m.status?.bundled == true {
+                        Button {
+                            Task { await client.syncMihomoFromOp() }
+                        } label: {
+                            if client.syncingMihomo { ProgressView().controlSize(.small) } else { Text("从 op 同步") }
+                        }
+                        .controlSize(.small)
+                        .disabled(client.syncingMihomo)
+                        .help("用 SSH 从「面板」当前路由器拉取 /etc/mihomo 的配置，改写成 Mac 版后替换")
+                    }
+                }
                 InfoCard(symbol: "point.3.connected.trianglepath.dotted", tint: .gray, title: "本机端口",
                          value: Text(verbatim: m.phase == .running ? "127.0.0.1:\(m.status?.mixed_port ?? 0)" : "—"),
                          detail: Text(verbatim: m.status.map { "控制接口 \($0.controller)" } ?? "只监听本机，不对局域网开放"))
                 InfoCard(symbol: "arrow.up.forward", tint: .gray, title: "出口",
-                         value: Text("未接管"),
-                         detail: Text("不开 TUN、不接管 DNS、不改系统代理；纯良暂不把它当作可信出口"))
+                         value: Text(takingOver(m) ? "接管中" : "未接管"),
+                         detail: Text(verbatim: exitDetail(m)))
+            }
+            if let dropped = m.status?.dropped, !dropped.isEmpty {
+                droppedList(dropped)
             }
             sceneList
             Spacer(minLength: 0)
@@ -153,6 +167,43 @@ struct MihomoView: View {
             return "pid \(m.status?.pid ?? 0) · 以 \(m.status?.user ?? "—") 身份运行\(since)"
         case .crashed:
             return m.status?.last_exit ?? m.status?.error ?? "进程已退出"
+        }
+    }
+
+    private func configValue(_ m: MihomoPresentation) -> String {
+        guard let st = m.status else { return "—" }
+        guard st.source != nil else { return "默认配置" }
+        let at = WgCoverageFormat.clock(st.synced_at).map { " · \($0)" } ?? ""
+        return "op 同步\(at)"
+    }
+
+    private func takingOver(_ m: MihomoPresentation) -> Bool {
+        m.phase == .running && m.status?.source != nil && client.currentExit == .mihomo
+    }
+
+    private func exitDetail(_ m: MihomoPresentation) -> String {
+        if takingOver(m) {
+            let dns = m.status?.dns_service.map { "DNS 已接管「\($0)」" } ?? "DNS 未接管"
+            return "TUN 接管整机流量 · \(dns) · 纯良只放行内核自己的连接"
+        }
+        if m.status?.source == nil { return "先从 op 同步配置，才能作为出口" }
+        return "在 VPN 板块切到 mihomo 后接管整机流量与 DNS"
+    }
+
+    /// 同步时剔除的节点：只能在路由器上用（依赖路由器本机的 SSH 私钥等）。
+    private func droppedList(_ names: [String]) -> some View {
+        VStack(alignment: .leading, spacing: WgSpace.s) {
+            Text("Mac 上不可用的节点")
+                .font(.system(size: WgType.sub, weight: .semibold))
+                .foregroundStyle(.secondary)
+                .wgPadding(.leading, .xs)
+            VStack(spacing: 0) {
+                ForEach(Array(names.enumerated()), id: \.offset) { index, name in
+                    if index > 0 { rule }
+                    sceneRow("nosign", LocalizedStringKey(name), "已剔除", "依赖路由器本机文件（SSH 私钥等），同步时连同经它中转的节点一起去掉")
+                }
+            }
+            .wgInteractiveSurface(cornerRadius: WgDesign.cardRadius)
         }
     }
 

@@ -55,8 +55,10 @@ type Status struct {
 	Forced     bool     `json:"forced"`
 	Reason     string   `json:"reason"`
 	Interfaces []string `json:"interfaces,omitempty"` // 正在使用的网卡，仅供展示
-	// Locked 隧道锁定正在生效（全局隧道连着，物理网卡只放行局域网与 WG 服务器）。
+	// Locked 隧道锁定或代理锁定正在生效（出口在线，物理网卡只放行局域网与出口自身）。
 	Locked bool `json:"locked"`
+	// LockKind 锁定的出口：tunnel（WireGuard）/ proxy（内置 mihomo）。
+	LockKind string `json:"lock_kind,omitempty"`
 	// BlockedPackets 自本套规则生效以来被拒绝的出站包数，非零说明有程序试图绕开。
 	BlockedPackets uint64 `json:"blocked_packets"`
 	// AllowedHosts 放行项当前解析到的地址，普通拦截模式下才有。
@@ -89,6 +91,9 @@ type Controller struct {
 	TunnelEndpoints    func() []string
 	// TunnelLocked 报告全局隧道是否连着；为 true 且未关闭锁定时启用隧道锁定。
 	TunnelLocked func() bool
+	// ProxyLocked 报告内置代理内核是否正作为出口接管整机；为 true 时启用代理锁定：
+	// 物理网卡只放行局域网与内核（nobody 组）自己的连接。
+	ProxyLocked func() bool
 	// ResolveHost 把放行域名解析成地址，失败返回空。
 	ResolveHost func(string) []string
 
@@ -116,6 +121,7 @@ func New(path string, backend Backend, logf func(string, ...interface{})) *Contr
 		ActiveInterfaces:   activeInterfaces,
 		TunnelEndpoints:    func() []string { return nil },
 		TunnelLocked:       func() bool { return false },
+		ProxyLocked:        func() bool { return false },
 		ResolveHost:        lookupHost,
 	}
 	if path != "" {
@@ -199,9 +205,18 @@ func (c *Controller) syncLocked() error {
 	case s.ForceDomestic:
 		status.Active, status.Reason = true, "国内模式：所有出口只放行国内"
 		rules = RenderPF(RuleInput{Endpoints: c.TunnelEndpoints(), CNFile: CNTablePath()})
+	case !s.AllowBypass && c.ProxyLocked():
+		ifaces := c.PhysicalInterfaces()
+		status.Active, status.Locked, status.LockKind = true, true, "proxy"
+		status.Reason = "代理锁定：物理网卡只放行局域网与内置代理内核，其余必须走代理"
+		if len(ifaces) == 0 {
+			status.Reason += "（当前无物理网卡）"
+		} else {
+			rules = RenderPF(RuleInput{Interfaces: ifaces, LockTunnel: true, AllowGroup: "nobody", CNFile: CNTablePath()})
+		}
 	case !s.AllowBypass && c.TunnelLocked():
 		ifaces := c.PhysicalInterfaces()
-		status.Active, status.Locked = true, true
+		status.Active, status.Locked, status.LockKind = true, true, "tunnel"
 		status.Reason = "隧道锁定：物理网卡只放行局域网与 WG 服务器，其余必须走隧道"
 		if len(ifaces) == 0 {
 			status.Reason += "（当前无物理网卡）"

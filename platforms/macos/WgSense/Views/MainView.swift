@@ -1118,7 +1118,7 @@ struct SidebarView: View {
                               status: tile.text.map { Text(verbatim: $0) } ?? Text("世界航线"))
         case .purity:
             // 状态行只给结论（成立 / N 项不成立），与页面第一层同源；不成立时着警示色
-            let purity = PurityPresentation(status: client.status, tunnelUp: client.isTunnelUp)
+            let purity = PurityPresentation(status: client.status, tunnelUp: client.isTunnelUp, proxyDNSService: client.mihomo?.dns_service)
             return ModuleInfo(symbol: kind.icon, tint: WgInk.warn, isOn: purity.mode == .on || purity.mode == .domestic,
                               status: Text(purity.verdict), highlight: purity.needsAttention)
         case .vpn, .connection, .speedtest:
@@ -1210,7 +1210,7 @@ struct SidebarView: View {
                 }
             }
         case .purity:
-            let purity = PurityPresentation(status: client.status, tunnelUp: client.isTunnelUp)
+            let purity = PurityPresentation(status: client.status, tunnelUp: client.isTunnelUp, proxyDNSService: client.mihomo?.dns_service)
             detailLine("处境", purity.code)
             detailLine("已拒绝", "\(purity.blocked) 包")
             if tile.size == .large {

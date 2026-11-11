@@ -2,10 +2,12 @@
 //
 // 内核二进制编进 daemon（构建标签 mihomo_embed），由 daemon 释放到自己的目录再运行：
 // 完整性随 daemon 自身的哈希一起校验，安装事务不用多管一个文件。
-// 以 root 运行时目录归 root 所有、内核降权到 nobody 运行（之后出站拦截可按这个身份放行）。
+// 以 root 运行时目录归 root 所有；内核以 root 用户（创建 TUN 需要）、nobody 组运行，
+// 出站拦截按 nobody 组放行它自己连节点的流量，其余程序绕不开它。
 //
-// 本阶段只管生命周期：释放、启动、停止、状态。默认配置只监听本机端口，
-// 不开 TUN、不接管 DNS、不改系统代理，所以启停都不会影响本机网络。
+// 两种配置：
+//   - 默认配置：只监听本机端口，不开 TUN、不接管 DNS，启停不影响本机网络；不能作为出口。
+//   - 从 op 同步的配置（见 importer.go）：开 TUN 接管整机流量，并把系统 DNS 指向 TUN。
 package mihomo
 
 import (
@@ -55,13 +57,24 @@ type Status struct {
 	User string `json:"user,omitempty"`
 	// LastExit 上次退出的原因（非用户停止时）。
 	LastExit string `json:"last_exit,omitempty"`
-	Error    string `json:"error,omitempty"`
+	// Source 配置来源（从 op 同步时为 root@host:/etc/mihomo），空 = 默认配置，不能作为出口。
+	Source   string `json:"source,omitempty"`
+	SyncedAt string `json:"synced_at,omitempty"`
+	// Dropped 同步时剔除的、只能在路由器上用的节点。
+	Dropped []string `json:"dropped,omitempty"`
+	// DNSService 正在被接管 DNS 的网络服务（如 Wi-Fi）。
+	DNSService string `json:"dns_service,omitempty"`
+	Error      string `json:"error,omitempty"`
 }
 
 // state 是持久化的设置。
 type state struct {
-	Desired bool   `json:"desired"`
-	Secret  string `json:"secret"`
+	Desired  bool   `json:"desired"`
+	Secret   string `json:"secret"`
+	Source   string `json:"source,omitempty"`
+	SyncedAt string `json:"synced_at,omitempty"`
+	// Dropped 同步时剔除的、只能在路由器上用的节点。
+	Dropped []string `json:"dropped,omitempty"`
 }
 
 // Manager 管理内核进程。
@@ -71,8 +84,13 @@ type Manager struct {
 	logf func(string, ...interface{})
 	// binary 是编进 daemon 的内核；nil 表示这份 daemon 没带。
 	binary []byte
-	// dropPrivileges 以 root 运行时把内核降权到 nobody。
+	// dropPrivileges 以 root 运行时把内核的组设为 nobody（用户仍是 root，TUN 需要）。
 	dropPrivileges bool
+	// runCommand 执行系统命令（DNS 接管用）；nil = 不接管（非 root、测试）。
+	runCommand func(name string, args ...string) (string, error)
+	dnsService string
+	// OnChange 内核启动或退出后调用（在锁外），用于让出站拦截立即重算。
+	OnChange func()
 
 	st        state
 	version   string
@@ -90,8 +108,15 @@ func New(dir string, logf func(string, ...interface{})) *Manager {
 		logf = func(string, ...interface{}) {}
 	}
 	m := &Manager{dir: dir, logf: logf, binary: embedded(), dropPrivileges: os.Geteuid() == 0}
+	if m.dropPrivileges {
+		m.runCommand = runSystem
+	}
 	if data, err := os.ReadFile(m.statePath()); err == nil {
 		_ = json.Unmarshal(data, &m.st)
+	}
+	// 上次没来得及归还的 DNS（daemon 被强杀）先恢复
+	if err := m.restoreDNS(); err != nil {
+		logf("恢复残留的 DNS 接管失败: %v", err)
 	}
 	return m
 }
@@ -103,6 +128,31 @@ func (m *Manager) dataDir() string    { return filepath.Join(m.dir, "data") }
 
 // Bundled 报告这份 daemon 是否带了内核。
 func (m *Manager) Bundled() bool { return len(m.binary) > 0 }
+
+// TUNEnabled 当前配置会开 TUN 接管整机（从 op 同步过）。
+func (m *Manager) TUNEnabled() bool {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.st.Source != ""
+}
+
+// Running 内核正在运行。
+func (m *Manager) Running() bool {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.cmd != nil
+}
+
+// Ready 能否作为出口：要有内核，且配置已从 op 同步（默认配置全部直连，会绕开纯良）。
+func (m *Manager) Ready() error {
+	if !m.Bundled() {
+		return errors.New("这份网络服务没有内置代理内核")
+	}
+	if !m.TUNEnabled() {
+		return errors.New("还没有从 op 同步配置：默认配置全部直连，不能作为出口")
+	}
+	return nil
+}
 
 // Restore 在 daemon 启动时调用：用户上次让它运行，就再启动。
 func (m *Manager) Restore() {
@@ -128,9 +178,13 @@ func (m *Manager) Status() Status {
 		ConfigPath: m.ConfigPath(),
 		LastExit:   m.lastExit,
 		Error:      m.lastErr,
+		Source:     m.st.Source,
+		SyncedAt:   m.st.SyncedAt,
+		Dropped:    m.st.Dropped,
+		DNSService: m.dnsService,
 	}
 	if m.dropPrivileges {
-		s.User = "nobody"
+		s.User = "root:nobody"
 	} else {
 		s.User = fmt.Sprint(os.Getuid())
 	}
@@ -206,7 +260,8 @@ func (m *Manager) startLocked() error {
 		"CLASH_OVERRIDE_EXTERNAL_CONTROLLER=" + DefaultController, "CLASH_OVERRIDE_SECRET=" + m.st.Secret}
 	attr := &syscall.SysProcAttr{Setpgid: true}
 	if m.dropPrivileges {
-		attr.Credential = &syscall.Credential{Uid: nobodyID, Gid: nobodyID}
+		// root 用户（TUN 需要）+ nobody 组（出站拦截按组放行它）
+		attr.Credential = &syscall.Credential{Uid: 0, Gid: nobodyID, Groups: []uint32{}}
 	}
 	cmd.SysProcAttr = attr
 	logFile, err := os.OpenFile(filepath.Join(m.dir, "mihomo.log"), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
@@ -223,6 +278,12 @@ func (m *Manager) startLocked() error {
 	done := make(chan struct{})
 	m.cmd, m.done, m.startedAt, m.stopping, m.lastExit = cmd, done, time.Now(), false, ""
 	m.logf("内置代理内核已启动: pid=%d 控制接口=%s 本机端口=%d", cmd.Process.Pid, DefaultController, DefaultMixedPort)
+	if m.st.Source != "" {
+		if err := m.takeoverDNS(); err != nil {
+			m.logf("内置代理内核接管 DNS 失败: %v", err)
+		}
+	}
+	m.notifyChange()
 	go func() {
 		err := cmd.Wait()
 		if logFile != nil {
@@ -243,10 +304,20 @@ func (m *Manager) startLocked() error {
 			m.logf("内置代理内核已停止")
 		}
 		m.cmd, m.done = nil, nil
+		if err := m.restoreDNS(); err != nil {
+			m.logf("归还 DNS 失败: %v", err)
+		}
 		m.mu.Unlock()
 		close(done)
+		m.notifyChange()
 	}()
 	return nil
+}
+
+func (m *Manager) notifyChange() {
+	if fn := m.OnChange; fn != nil {
+		go fn()
+	}
 }
 
 // prepareLocked 释放二进制、补齐默认配置与目录权限。
