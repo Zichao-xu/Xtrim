@@ -228,7 +228,7 @@ struct MainView: View {
     /// 调试用：`open WgSense.app --args -WgSenseInitialTab settings` 直接停在指定页面（仅命令行参数域，不落盘）。
     @State private var selection: SidebarTab = SidebarTab(
         rawValue: UserDefaults.standard.volatileDomain(forName: UserDefaults.argumentDomain)["WgSenseInitialTab"] as? String ?? ""
-    ) ?? .dashboard
+    ) ?? .vpn
     /// 侧栏宽度：一路拖到最窄（64）就是只剩图标的收起形态，中间无极过渡（见 SidebarView.compactness）。
     /// 调试用：`--args -WgSenseSidebarWidth 120` 指定启动宽度（看中间形态，仅命令行参数域）。
     @State private var sidebarWidth: CGFloat = (UserDefaults.standard.volatileDomain(forName: UserDefaults.argumentDomain)["WgSenseSidebarWidth"] as? String)
@@ -499,7 +499,8 @@ private struct MainPageArea: View {
             WgScrollView(content: AnyView(
                 Group {
                     switch selection {
-                    case .dashboard, .wireguard: OverviewView()
+                    // 概览已并入 VPN 板块（WireGuard 子页即原概览内容）；旧入口一律打开 VPN
+                    case .dashboard, .wireguard: VPNView()
                     case .profile: ProfileManagerView()
                     case .transferReceive: TransferReceiveView()
                     case .transferSend: TransferSendView()
@@ -1045,7 +1046,7 @@ struct SidebarView: View {
     private func tab(for kind: TileKind) -> SidebarTab? {
         switch kind {
         case .vpn: return .vpn
-        case .connection: return .dashboard
+        case .connection: return .vpn
         case .transferReceive: return .transferReceive
         case .transferSend: return .transferSend
         case .proxy: return .proxy
@@ -1447,7 +1448,7 @@ struct SidebarView: View {
         .wgPadding(compact ? .m : .l)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: tile.size == .large ? .topLeading : .leading)
         .wgInteractiveSurface(isSelected: false, isEnabled: !isEditMode) {
-            withAnimation(.easeInOut(duration: 0.15)) { selection = .dashboard }
+            withAnimation(.easeInOut(duration: 0.15)) { selection = .vpn }
         }
     }
 
@@ -1465,7 +1466,7 @@ struct SidebarView: View {
     // MARK: - Tab 行
 
     private var tabRow: some View {
-        let topTabs: [SidebarTab] = [.dashboard, .profile, .settings]  // 概览 + 配置 + 设置
+        let topTabs: [SidebarTab] = [.vpn, .profile, .settings]  // VPN（原概览）+ 配置 + 设置
         return HStack(spacing: WgSpace.s) {
             ForEach(topTabs) { tab in
                 Button {
@@ -1494,7 +1495,7 @@ struct SidebarView: View {
         withAnimation(.easeInOut(duration: 0.15)) {
             switch tile.kind {
             case .vpn: selection = .vpn
-            case .connection: selection = .dashboard
+            case .connection: selection = .vpn
             case .proxy: selection = .proxy
             case .profile: selection = .profile
             case .transferReceive: selection = .transferReceive

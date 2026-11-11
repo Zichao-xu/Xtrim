@@ -32,7 +32,8 @@ struct OverviewView: View {
 
             coverage
 
-            modules
+            // 模块列表只在独立概览里有；并入 VPN 板块后各模块都有自己的磁贴，不再重复
+            if showsHeader { modules }
 
             Spacer(minLength: 0)
         }
