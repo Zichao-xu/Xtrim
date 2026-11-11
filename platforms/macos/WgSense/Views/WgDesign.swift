@@ -27,7 +27,6 @@ struct WgCircleBadge: View {
 
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.wgOnAccent) private var onAccent
-    @State private var spin = false
 
     var body: some View {
         // 仪表语言：方块而非圆片。开启 = 实色块 + 反白图标；关闭 = 发丝框。
@@ -51,14 +50,9 @@ struct WgCircleBadge: View {
                 .foregroundStyle(isOn ? WgInk.ink : Color.primary.opacity(0.8))
                 .contentTransition(.symbolEffect(.replace))
             if isBusy {
-                shape
-                    .trim(from: 0, to: 0.25)
-                    .stroke(onAccent ? Color.white : color, style: StrokeStyle(lineWidth: 1.5))
+                WgPerimeterRunner(shape: RoundedRectangle(cornerRadius: WgRadius.s + 3, style: .continuous),
+                                  color: onAccent ? Color.white : color, lineWidth: 1.5, period: 1.2)
                     .wgInset(-3)
-                    .rotationEffect(.degrees(spin ? 360 : 0))
-                    .onAppear {
-                        withAnimation(.linear(duration: 0.9).repeatForever(autoreverses: false)) { spin = true }
-                    }
             }
         }
         .frame(width: size, height: size)
@@ -67,6 +61,46 @@ struct WgCircleBadge: View {
 
     private var offFill: Color {
         colorScheme == .dark ? Color.white.opacity(0.07) : Color.black.opacity(0.05)
+    }
+}
+
+// MARK: - 忙碌指示
+
+/// 忙碌指示：一段亮线沿外框匀速绕行，始终贴在框上。
+/// 不用「描边一段再整体旋转」：方框旋转时线段会甩出框外。
+struct WgPerimeterRunner<S: Shape>: View {
+    var shape: S
+    var color: Color
+    var lineWidth: CGFloat = 1.5
+    /// 绕一圈的秒数。
+    var period: Double = 1.2
+    /// 亮线占周长的比例。
+    var length: CGFloat = 0.22
+
+    var body: some View {
+        TimelineView(.animation) { context in
+            let t = context.date.timeIntervalSinceReferenceDate
+            let phase = CGFloat(t.truncatingRemainder(dividingBy: period) / period)
+            WgPerimeterSegment(shape: shape, phase: phase, length: length)
+                .stroke(color, style: StrokeStyle(lineWidth: lineWidth, lineCap: .butt))
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+}
+
+/// 外框上从 phase 起、长 length 的一段（越过终点时接回起点）。
+struct WgPerimeterSegment<S: Shape>: Shape {
+    var shape: S
+    var phase: CGFloat
+    var length: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        let full = shape.path(in: rect)
+        let end = phase + length
+        var p = full.trimmedPath(from: phase, to: min(end, 1))
+        if end > 1 { p.addPath(full.trimmedPath(from: 0, to: end - 1)) }
+        return p
     }
 }
 

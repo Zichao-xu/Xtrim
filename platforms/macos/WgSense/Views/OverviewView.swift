@@ -344,7 +344,6 @@ struct StatusOrb: View {
     var isActive: Bool
     var isBusy: Bool
 
-    @State private var spin = false
 
     var body: some View {
         let normalized = WgInk.normalize(tint)
@@ -364,14 +363,9 @@ struct StatusOrb: View {
                 .foregroundStyle(isActive ? Color(nsColor: .windowBackgroundColor) : Color.primary.opacity(0.6))
                 .contentTransition(.symbolEffect(.replace))
             if isBusy {
-                Rectangle()
-                    .trim(from: 0, to: 0.2)
-                    .stroke(fill, style: StrokeStyle(lineWidth: 2))
-                    .frame(width: 72, height: 72)
-                    .rotationEffect(.degrees(spin ? 360 : 0))
-                    .onAppear {
-                        withAnimation(.linear(duration: 1.4).repeatForever(autoreverses: false)) { spin = true }
-                    }
+                // 沿最外一圈方框绕行，与三层框同一几何，不甩出去
+                WgPerimeterRunner(shape: Rectangle().inset(by: 1), color: fill, lineWidth: 2, period: 1.6, length: 0.18)
+                    .frame(width: 84, height: 84)
             }
         }
         .frame(width: 86, height: 86)
