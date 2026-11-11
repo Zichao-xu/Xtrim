@@ -22,6 +22,43 @@ enum WgExit: String, CaseIterable, Identifiable {
     }
 }
 
+/// 出口标识：单色、跟随前景色（图纸语言只有黑白灰）。
+/// WireGuard 的龙与 mihomo 的猫取自各自官方标识，抽成单色剪影；Tailscale 的九点格直接绘制。
+struct WgExitLogo: View {
+    var exit: WgExit
+    var size: CGFloat = 14
+
+    var body: some View {
+        Group {
+            switch exit {
+            case .wireguard: Image("ExitWireGuard").renderingMode(.template).resizable().interpolation(.high).scaledToFit()
+            case .mihomo: Image("ExitMihomo").renderingMode(.template).resizable().interpolation(.high).scaledToFit()
+            case .tailscale: TailscaleDots()
+            }
+        }
+        .frame(width: size, height: size)
+        .accessibilityLabel(Text(verbatim: exit.title))
+    }
+}
+
+/// Tailscale 标识：3×3 圆点，中行与下中实心（T 字），其余淡出。
+private struct TailscaleDots: View {
+    var body: some View {
+        Canvas { ctx, sz in
+            let cell = min(sz.width, sz.height) / 3
+            let d = cell * 0.72
+            let solid: Set<Int> = [3, 4, 5, 7]
+            for i in 0..<9 {
+                let x = CGFloat(i % 3) * cell + (cell - d) / 2
+                let y = CGFloat(i / 3) * cell + (cell - d) / 2
+                var dot = ctx
+                dot.opacity = solid.contains(i) ? 1 : 0.35
+                dot.fill(Path(ellipseIn: CGRect(x: x, y: y, width: d, height: d)), with: .foreground)
+            }
+        }
+    }
+}
+
 /// 出口切换：三段平行排列，当前出口白色弱玻璃；点另一段即切换。
 /// 紧凑形态（磁贴）用两字母代号，常规形态（页面）用全名。
 struct WgExitSwitch: View {
@@ -30,7 +67,8 @@ struct WgExitSwitch: View {
     var isEnabled = true
 
     var body: some View {
-        let current = client.currentExit
+        // 点击即高亮目标段，不等网络服务做完切换
+        let current = client.displayedExit
         HStack(spacing: WgSpace.xs) {
             ForEach(WgExit.allCases) { exit in
                 segment(exit, current: current)
@@ -46,11 +84,13 @@ struct WgExitSwitch: View {
         return Button {
             Task { await client.setExit(exit) }
         } label: {
-            HStack(spacing: WgSpace.xs) {
-                if switching { ProgressView().controlSize(.mini) }
-                Text(verbatim: compact ? exit.code : exit.title)
-                    .font(compact ? WgInk.mono(.caption, .semibold) : .system(size: WgType.body, weight: selected ? .semibold : .medium))
-                    .tracking(compact ? 1.2 : 0)
+            // 紧凑形态只放标识；常规形态标识 + 全名
+            HStack(spacing: WgSpace.s) {
+                WgExitLogo(exit: exit, size: compact ? 16 : 18)
+                if !compact {
+                    Text(verbatim: exit.title)
+                        .font(.system(size: WgType.body, weight: selected ? .semibold : .medium))
+                }
             }
             .foregroundStyle(selected ? WgInk.ink : (available ? WgInk.ink2 : WgInk.ink4))
             .frame(maxWidth: .infinity)
@@ -60,6 +100,12 @@ struct WgExitSwitch: View {
                     Color.clear.wgGlassAccent(shape)
                 } else {
                     WgShapePlate(shape: shape, fill: .clear, border: WgInk.rule, highlight: .clear)
+                }
+            }
+            .overlay {
+                // 切换进行中：亮线沿这一段的外框绕行，完成即消失
+                if switching {
+                    WgPerimeterRunner(shape: shape, color: WgInk.ink, lineWidth: 1.5, period: 1.0, length: 0.25)
                 }
             }
             .contentShape(Rectangle())

@@ -7,7 +7,8 @@ struct VPNView: View {
     @EnvironmentObject var client: DaemonClient
 
     var body: some View {
-        let exit = client.currentExit
+        // 子页随点击立即切换，不等网络服务完成
+        let exit = client.displayedExit
         return VStack(alignment: .leading, spacing: WgSpace.m) {
             WgPageHeader(title: "VPN", subtitleText: "WGSENSE · EXIT · \(exit.code)", word: "VPN") { EmptyView() }
             VStack(alignment: .leading, spacing: WgSpace.s) {

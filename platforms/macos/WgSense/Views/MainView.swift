@@ -1235,12 +1235,14 @@ struct SidebarView: View {
 
     private func vpnModule(_ tile: TileData) -> some View {
         let vpn = client.vpnPresentation
-        let exit = client.currentExit
+        // 代号与状态跟随点击立即变化；切换进行中显示「切换中」
+        let exit = client.displayedExit
+        let switching = client.switchingExit != nil
         let mh = MihomoPresentation(status: client.mihomo, error: client.mihomoError)
         let compact = tile.size == .small
         // 出口不是 WireGuard 时，徽标与状态跟随当前出口；守护 / 暂停只属于 WireGuard
         let isOn = exit == .mihomo ? mh.phase == .running : vpn.isConnected
-        let statusText: Text = exit == .mihomo ? Text(mh.title) : Text(vpn.title)
+        let statusText: Text = switching ? Text("切换中") : (exit == .mihomo ? Text(mh.title) : Text(vpn.title))
         let statusTint: Color = exit == .mihomo ? (mh.phase == .crashed ? WgInk.warn : (isOn ? vpn.tint : .secondary)) : (vpn.isConnected ? vpn.tint : .secondary)
         return VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .center, spacing: WgSpace.m) {
@@ -1250,7 +1252,7 @@ struct SidebarView: View {
                         tint: exit == .mihomo ? .green : vpn.tint,
                         isOn: isOn,
                         size: compact ? 36 : 46,
-                        isBusy: exit == .mihomo ? client.switchingExit != nil : vpn.isBusy
+                        isBusy: switching || (exit == .wireguard && vpn.isBusy)
                     )
                 }
                 .buttonStyle(.plain)
@@ -1261,9 +1263,7 @@ struct SidebarView: View {
                     HStack(alignment: .firstTextBaseline, spacing: WgSpace.s) {
                         Text("VPN")
                             .font(.system(size: compact ? WgType.body : WgType.title, weight: .semibold))
-                        Text(verbatim: exit.code)
-                            .font(WgInk.mono(.caption, .medium))
-                            .tracking(1.2)
+                        WgExitLogo(exit: exit, size: compact ? 11 : 13)
                             .foregroundStyle(WgInk.ink3)
                     }
                     statusText

@@ -954,6 +954,9 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
     }
 
     @Published var switchingExit: WgExit?
+
+    /// 界面显示的出口：点击即切到目标（乐观更新），切换失败再退回实际出口。
+    var displayedExit: WgExit { switchingExit ?? currentExit }
     /// 切换进行到哪一步，给界面显示。
     @Published var exitProgress: String?
 
