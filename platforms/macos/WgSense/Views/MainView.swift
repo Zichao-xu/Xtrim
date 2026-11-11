@@ -1140,13 +1140,22 @@ struct SidebarView: View {
         }
         return Group {
             if wide {
-                HStack(alignment: .center, spacing: WgSpace.l) {
+                // 侧栏宽窄不定：宽时详情列让出水印图标的位置；窄一档贴右排；再窄只留标题与结论，不显示截断的半截字。
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .center, spacing: WgSpace.l) {
+                        heading.fixedSize()
+                        Spacer(minLength: 0)
+                        VStack(alignment: .leading, spacing: WgSpace.xs) { moduleDetail(tile) }
+                            .frame(width: 120)
+                            .wgInset(.trailing, 52)
+                    }
+                    HStack(alignment: .center, spacing: WgSpace.l) {
+                        heading.fixedSize()
+                        Spacer(minLength: 0)
+                        VStack(alignment: .leading, spacing: WgSpace.xs) { moduleDetail(tile) }
+                            .frame(width: 88)
+                    }
                     heading
-                    Spacer(minLength: 0)
-                    // 右侧留出水印图标的位置，读数不压在图标上
-                    VStack(alignment: .leading, spacing: WgSpace.xs) { moduleDetail(tile) }
-                        .frame(maxWidth: 150)
-                        .wgInset(.trailing, 52)
                 }
             } else {
                 VStack(alignment: .leading, spacing: WgSpace.m) {

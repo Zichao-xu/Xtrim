@@ -589,6 +589,8 @@ struct PurityEgressDiagram: View {
             lanes[2].result = (exit && p.locked) ? .reject : .pass
             lanes[2].breach = exit && !p.locked
             lanes[3].result = exit ? (p.locked ? .reject : .pass) : (home ? .pass : .idle)
+            // 放行名单是「境外直连一律拒绝」的例外，生效时在这一条上写明，不让图说的比规则多
+            if p.allowCount > 0 { lanes[4].via = "其余全部地址 · 放行名单 \(p.allowCount) 项除外" }
             return lanes
         }
     }
@@ -644,7 +646,7 @@ struct PurityEgressDiagram: View {
         .accessibilityElement(children: .combine)
     }
 
-    private static let nameWidth: CGFloat = 196
+    private static let nameWidth: CGFloat = 250
     private static let resultWidth: CGFloat = 44
     /// 闸在线段区域里的横向位置。
     private static let gate: CGFloat = 0.42
