@@ -52,7 +52,8 @@ struct OverviewView: View {
     private var hero: some View {
         let vpn = client.vpnPresentation
         return HStack(spacing: WgSpace.m) {
-            StatusOrb(symbol: vpn.symbol, tint: vpn.tint, isActive: vpn.phase == .connected || vpn.phase == .home, isBusy: vpn.isBusy)
+            StatusOrb(symbol: vpn.symbol, tint: vpn.tint, isActive: vpn.phase == .connected || vpn.phase == .home, isBusy: vpn.isBusy,
+                      logo: .wireguard)
 
             VStack(alignment: .leading, spacing: WgSpace.xs) {
                 Text(vpn.title)
@@ -343,6 +344,8 @@ struct StatusOrb: View {
     var tint: Color
     var isActive: Bool
     var isBusy: Bool
+    /// 设了就画出口标识（龙 / 猫）代替 SF 图标。
+    var logo: WgExit? = nil
 
 
     var body: some View {
@@ -358,10 +361,16 @@ struct StatusOrb: View {
             Rectangle()
                 .fill(isActive ? fill : Color.clear)
                 .frame(width: 48, height: 48)
-            Image(systemName: symbol)
-                .font(.system(size: WgType.readout, weight: .semibold))
-                .foregroundStyle(isActive ? Color(nsColor: .windowBackgroundColor) : Color.primary.opacity(0.6))
-                .contentTransition(.symbolEffect(.replace))
+            Group {
+                if let logo {
+                    WgExitLogo(exit: logo, size: 30)
+                } else {
+                    Image(systemName: symbol)
+                        .font(.system(size: WgType.readout, weight: .semibold))
+                        .contentTransition(.symbolEffect(.replace))
+                }
+            }
+            .foregroundStyle(isActive ? Color(nsColor: .windowBackgroundColor) : Color.primary.opacity(0.6))
             if isBusy {
                 // 沿最外一圈方框绕行，与三层框同一几何，不甩出去
                 WgPerimeterRunner(shape: Rectangle().inset(by: 1), color: fill, lineWidth: 2, period: 1.6, length: 0.18)

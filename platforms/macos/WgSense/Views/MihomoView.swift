@@ -102,7 +102,7 @@ struct MihomoView: View {
     private func hero(_ m: MihomoPresentation) -> some View {
         HStack(spacing: WgSpace.m) {
             StatusOrb(symbol: "globe", tint: m.phase == .crashed ? .orange : .green,
-                      isActive: m.phase == .running, isBusy: busy)
+                      isActive: m.phase == .running, isBusy: busy, logo: .mihomo)
             VStack(alignment: .leading, spacing: WgSpace.xs) {
                 Text(m.title)
                     .font(.system(size: WgType.readout, weight: .semibold))

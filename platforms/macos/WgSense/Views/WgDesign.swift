@@ -24,6 +24,8 @@ struct WgCircleBadge: View {
     var isOn: Bool
     var size: CGFloat = 30
     var isBusy: Bool = false
+    /// 设了就画出口标识（龙 / 猫 / 九点格）代替 SF 图标。
+    var logo: WgExit? = nil
 
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.wgOnAccent) private var onAccent
@@ -45,10 +47,16 @@ struct WgCircleBadge: View {
                 shape.fill(offFill)
                 shape.strokeBorder(Color.primary.opacity(0.28), lineWidth: 1)
             }
-            Image(systemName: symbol)
-                .font(.system(size: size * 0.46, weight: .semibold))
-                .foregroundStyle(isOn ? WgInk.ink : Color.primary.opacity(0.8))
-                .contentTransition(.symbolEffect(.replace))
+            Group {
+                if let logo {
+                    WgExitLogo(exit: logo, size: size * 0.56)
+                } else {
+                    Image(systemName: symbol)
+                        .font(.system(size: size * 0.46, weight: .semibold))
+                        .contentTransition(.symbolEffect(.replace))
+                }
+            }
+            .foregroundStyle(isOn ? WgInk.ink : Color.primary.opacity(0.8))
             if isBusy {
                 WgPerimeterRunner(shape: RoundedRectangle(cornerRadius: WgRadius.s + 3, style: .continuous),
                                   color: onAccent ? Color.white : color, lineWidth: 1.5, period: 1.2)

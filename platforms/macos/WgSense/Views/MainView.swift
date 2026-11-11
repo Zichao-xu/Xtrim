@@ -1252,7 +1252,8 @@ struct SidebarView: View {
                         tint: exit == .mihomo ? .green : vpn.tint,
                         isOn: isOn,
                         size: compact ? 36 : 46,
-                        isBusy: switching || (exit == .wireguard && vpn.isBusy)
+                        isBusy: switching || (exit == .wireguard && vpn.isBusy),
+                        logo: exit
                     )
                 }
                 .buttonStyle(.plain)
