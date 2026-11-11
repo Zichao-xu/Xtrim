@@ -192,14 +192,7 @@ func main() {
 	if !*passive && os.Geteuid() == 0 {
 		fw := firewall.New(filepath.Join(rtDir, "firewall.json"), firewall.System{}, eng.Logf)
 		fw.TunnelEndpoints = liveEndpoints(tun, endpointResolver(tun, "default"))
-		if provider, ok := tun.(tunnel.CoverageProvider); ok {
-			fw.TunnelLocked = func() bool { return provider.Coverage("").FullTunnel }
-		}
-		// 隧道建立/拆除后立即同步：锁定只在隧道连着时生效，拆除后马上放开。
-		if notifier, ok := tun.(tunnel.StateNotifier); ok {
-			notifier.SetStateHook(func() { _ = fw.Sync() })
-		}
-		// 先于隧道和其他服务装上规则：开机/重启后不留无拦截的空窗。
+		// 先于隧道和其他服务装上规则：开机/重启后不留无拦截的空窗（心跳确认出口在线前纯良处于接管状态）。
 		_ = fw.Sync()
 		eng.SetFirewall(fw)
 	}
@@ -245,18 +238,13 @@ func main() {
 
 	// 内置代理内核：只管本机进程与本机端口，不改路由 / DNS，被动模式也可安全使用。
 	// root 服务放在 root 专属目录（二进制会以 nobody 身份运行），其余放运行目录下。
+	// 正式服务（root、受 launchd 管理）的内核放在 root 专属目录：
+	// 运行目录在登录用户名下，root 不能执行放在用户可改位置的程序。
 	mihomoDir := filepath.Join(rtDir, "mihomo")
-	if os.Geteuid() == 0 && !explicitFlags["runtime-dir"] {
+	if os.Geteuid() == 0 && *managed {
 		mihomoDir = mihomo.DefaultRootDir
 	}
 	mihomoMgr := mihomo.New(mihomoDir, eng.Logf)
-	// 内核起停后立即重算出站拦截（代理锁定只在它作为出口运行时生效）
-	if fw := eng.Firewall(); fw != nil {
-		fw.ProxyLocked = func() bool {
-			return eng.Exit() == policy.ExitMihomo && mihomoMgr.Running() && mihomoMgr.TUNEnabled()
-		}
-		mihomoMgr.OnChange = func() { _ = fw.Sync() }
-	}
 	eng.SetExitStore(filepath.Join(rtDir, "exit.json"))
 	if mihomoMgr.Bundled() {
 		eng.SetMihomoExit(mihomoMgr)
@@ -266,6 +254,38 @@ func main() {
 		mihomoMgr.Restore()
 	} else if mihomoMgr.Status().Desired {
 		_ = mihomoMgr.Stop()
+	}
+
+	// 纯良心跳：每 3 秒算一次当前出口是否健康交给出站拦截——出口在线就休眠，不在就接管。
+	// 隧道起落、内核起停时立即算一次。健康在拦截的锁外算好再交进去，拦截从不回调引擎。
+	if fw := eng.Firewall(); fw != nil {
+		kick := make(chan struct{}, 1)
+		poke := func() {
+			select {
+			case kick <- struct{}{}:
+			default:
+			}
+		}
+		mihomoMgr.OnChange = poke
+		if notifier, ok := tun.(tunnel.StateNotifier); ok {
+			notifier.SetStateHook(poke)
+		}
+		go func() {
+			ticker := time.NewTicker(3 * time.Second)
+			defer ticker.Stop()
+			for {
+				exit, online, detail := eng.ExitHealth()
+				if err := fw.SetExitHealth(firewall.ExitHealth{Exit: exit, Online: online, Detail: detail}); err != nil {
+					eng.Logf("纯良心跳应用规则失败: %v", err)
+				}
+				select {
+				case <-ctx.Done():
+					return
+				case <-ticker.C:
+				case <-kick:
+				}
+			}
+		}()
 	}
 
 	// 信号处理

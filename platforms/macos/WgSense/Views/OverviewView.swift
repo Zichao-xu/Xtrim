@@ -273,22 +273,26 @@ struct OverviewView: View {
                                 detail: Text(verbatim: parts.joined(separator: " · ")))
     }
 
+    /// 纯良：出口在线时休眠，出口不在时才接管（与 op 上的纯良同一语义）。
     private func lockRow(_ fw: FirewallStatus?) -> CoverageRowModel {
         guard let fw else {
-            return CoverageRowModel(symbol: "lock.open", tint: .gray, name: "隧道锁定", value: Text("不可用"),
+            return CoverageRowModel(symbol: "hand.raised", tint: .gray, name: "纯良", value: Text("不可用"),
                                     detail: Text("需要以 root 运行的正式网络服务"))
         }
-        if fw.locked == true {
-            let blocked = fw.blocked_packets ?? 0
-            let detail = blocked == 0
-                ? "物理网卡只放行局域网与 WG 服务器 · 没有程序试图绕开"
-                : "物理网卡只放行局域网与 WG 服务器 · 已拦下 \(blocked) 个绕开隧道的包"
-            return CoverageRowModel(symbol: "lock.fill", tint: blocked == 0 ? .green : .orange,
-                                    name: "隧道锁定", value: Text("已锁定"), detail: Text(verbatim: detail))
+        if let error = fw.error {
+            return CoverageRowModel(symbol: "hand.raised", tint: .orange, name: "纯良", value: Text("应用失败"),
+                                    detail: Text(verbatim: error))
         }
-        let detail = fw.error.map { "应用失败：\($0)" } ?? "设置里已关闭：绑定物理网卡的程序可绕开隧道直连"
-        return CoverageRowModel(symbol: "lock.open", tint: .orange, name: "隧道锁定", value: Text("未锁定"),
-                                detail: Text(verbatim: detail))
+        if fw.dormant == true {
+            return CoverageRowModel(symbol: "moon.zzz", tint: .green, name: "纯良", value: Text("休眠"),
+                                    detail: Text(verbatim: "出口在线（\(fw.exit_detail ?? "")），不干预；出口一断立即接管"))
+        }
+        if fw.active {
+            return CoverageRowModel(symbol: "hand.raised.fill", tint: .orange, name: "纯良", value: Text("接管中"),
+                                    detail: Text(verbatim: fw.reason))
+        }
+        return CoverageRowModel(symbol: "hand.raised", tint: .orange, name: "纯良", value: Text("未启用"),
+                                detail: Text("出口不在时境外连接可从物理网卡直接出去"))
     }
 
     private func dnsRow(_ c: TunnelCoverage) -> CoverageRowModel {

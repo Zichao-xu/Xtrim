@@ -32,13 +32,10 @@ const fakeIPCIDR = "198.18.0.0/15"
 type RuleInput struct {
 	Interfaces  []string // 为空表示所有接口(国内模式)
 	AllowFakeIP bool
-	LockTunnel  bool     // 隧道锁定：不放行国内段，只放行局域网与 WG 服务器
 	Endpoints   []string // WG 服务器 IP
 	CNFile      string   // 国内 IP 段表文件(几千条，不适合内联)
 	// AllowProbes 放行诊断探测：出站 ICMP 回显请求（traceroute -I / ping），其余协议照拦。
 	AllowProbes bool
-	// AllowGroup 放行这个进程组发出的连接（内置代理内核以 nobody 组运行，连节点要从物理网卡出去）。
-	AllowGroup string
 }
 
 // RenderPF 生成加载进 WgSense 锚点的完整规则文本。
@@ -59,14 +56,8 @@ func RenderPF(in RuleInput) string {
 	fmt.Fprintf(&b, "table <wgsense_allow> const { %s }\n", strings.Join(allow, ", "))
 	// no state：生效瞬间不打断已建立的国内长连接，也不占状态表。
 	fmt.Fprintf(&b, "pass out quick%s to <wgsense_allow> no state\n", on)
-	if in.AllowGroup != "" {
-		// 按进程组放行：只认内核自己的连接，其他程序冒用不了
-		fmt.Fprintf(&b, "pass out quick%s proto { tcp udp } group %s keep state\n", on, in.AllowGroup)
-	}
-	if !in.LockTunnel {
-		fmt.Fprintf(&b, "table <wgsense_cn> const persist file %q\n", in.CNFile)
-		fmt.Fprintf(&b, "pass out quick%s to <wgsense_cn> no state\n", on)
-	}
+	fmt.Fprintf(&b, "table <wgsense_cn> const persist file %q\n", in.CNFile)
+	fmt.Fprintf(&b, "pass out quick%s to <wgsense_cn> no state\n", on)
 	if in.AllowProbes {
 		// 只放回显请求本身；路由器回的超时 / 回显应答是入站，不经这个锚点。keep state 让应答与之关联。
 		fmt.Fprintf(&b, "pass out quick%s inet proto icmp icmp-type echoreq keep state\n", on)

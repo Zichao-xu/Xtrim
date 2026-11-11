@@ -18,12 +18,32 @@ enum MihomoSync {
     static func run(client: DaemonClient, includeGeo: Bool) async throws -> MihomoStatus {
         let fetched = try await fetch(includeGeo: includeGeo)
         defer { try? FileManager.default.removeItem(at: fetched.bundle) }
-        return try await client.importMihomo(bundle: fetched.bundle.path, origin: fetched.origin)
+        return try await client.importMihomo(bundle: fetched.bundle.path, origin: fetched.origin,
+                                             selections: fetched.selections)
+    }
+
+    /// op 内核里各手选组当前选中的节点（组名 → 节点名）。
+    /// 这些选择只存在 op 的运行时缓存里，不在 yaml 中；不带过来，本机内核就会按 yaml 里的第一项选（例如把「人工智能」选成美国专线）。
+    @MainActor
+    static func selections(from backend: MihomoBackend) async -> [String: String] {
+        guard let base = backend.baseURL?.appendingPathComponent("proxies") else { return [:] }
+        var req = URLRequest(url: base, timeoutInterval: 8)
+        let secret = MihomoBackendStore.shared.secret(for: backend)
+        if !secret.isEmpty { req.setValue("Bearer \(secret)", forHTTPHeaderField: "Authorization") }
+        guard let (data, resp) = try? await URLSession.shared.data(for: req),
+              (resp as? HTTPURLResponse)?.statusCode == 200,
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let proxies = json["proxies"] as? [String: [String: Any]] else { return [:] }
+        var out: [String: String] = [:]
+        for (name, p) in proxies where (p["type"] as? String) == "Selector" {
+            if let now = p["now"] as? String, !now.isEmpty { out[name] = now }
+        }
+        return out
     }
 
     /// 只拉取打包到本机缓存，不导入（切换出口时要先趁隧道还连着把配置拿到手）。
     @MainActor
-    static func fetch(includeGeo: Bool) async throws -> (bundle: URL, origin: String) {
+    static func fetch(includeGeo: Bool) async throws -> (bundle: URL, origin: String, selections: [String: String]) {
         guard let backend = MihomoBackendStore.shared.remote else {
             throw Failure(message: "「面板」还没有配置路由器后端，不知道从哪里同步")
         }
@@ -51,6 +71,7 @@ enum MihomoSync {
         try FileManager.default.createDirectory(at: cache, withIntermediateDirectories: true)
         let bundle = cache.appendingPathComponent("op-mihomo.tgz")
         try data.write(to: bundle, options: .atomic)
-        return (bundle, "\(backend.sshUser)@\(backend.effectiveSSHHost):\(remoteDir)")
+        let selections = await selections(from: backend)
+        return (bundle, "\(backend.sshUser)@\(backend.effectiveSSHHost):\(remoteDir)", selections)
     }
 }

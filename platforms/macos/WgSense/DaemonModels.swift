@@ -46,8 +46,14 @@ struct FirewallStatus: Codable, Equatable {
     var interfaces: [String]?
     /// 隧道锁定生效中：全局隧道连着，物理网卡只放行局域网与 WG 服务器。
     var locked: Bool?
-    /// 锁定的出口：tunnel（WireGuard）/ proxy（内置 mihomo）。
+    /// 锁定的出口（旧版网络服务）。
     var lock_kind: String?
+    /// 出口在线，纯良休眠（新版网络服务）。
+    var dormant: Bool?
+    /// 当前出口与健康判断（新版网络服务）。
+    var exit: String?
+    var exit_online: Bool?
+    var exit_detail: String?
     /// 本套规则生效以来被拒绝的出站包数。
     var blocked_packets: UInt64?
     /// 放行项当前解析到的地址，普通拦截模式下才有。

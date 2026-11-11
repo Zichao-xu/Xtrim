@@ -1,9 +1,13 @@
 package mihomo
 
 import (
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
@@ -115,5 +119,44 @@ func TestKeepsUserConfig(t *testing.T) {
 	data, _ := os.ReadFile(m.ConfigPath())
 	if string(data) != "mixed-port: 1\n" {
 		t.Fatal("existing config overwritten")
+	}
+}
+
+func TestApplySelectionsOnceThenClear(t *testing.T) {
+	var mu sync.Mutex
+	puts := map[string]string{}
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Authorization") != "Bearer s3" {
+			w.WriteHeader(401)
+			return
+		}
+		if r.Method == http.MethodPut {
+			var body map[string]string
+			_ = json.NewDecoder(r.Body).Decode(&body)
+			mu.Lock()
+			puts[strings.TrimPrefix(r.URL.Path, "/proxies/")] = body["name"]
+			mu.Unlock()
+			if strings.Contains(r.URL.Path, "missing") {
+				w.WriteHeader(404)
+				return
+			}
+			w.WriteHeader(204)
+			return
+		}
+		w.WriteHeader(200)
+	}))
+	defer srv.Close()
+	m := newTestManager(t)
+	m.controller = strings.TrimPrefix(srv.URL, "http://")
+	m.st.Secret = "s3"
+	m.st.Selections = map[string]string{"人工智能": "日本住宅-速率", "missing": "x"}
+	m.applySelections()
+	mu.Lock()
+	defer mu.Unlock()
+	if puts["人工智能"] != "日本住宅-速率" {
+		t.Fatalf("selection not applied: %v", puts)
+	}
+	if m.st.Selections != nil {
+		t.Fatal("selections must be applied once and cleared")
 	}
 }

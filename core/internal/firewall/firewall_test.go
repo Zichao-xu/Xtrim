@@ -149,49 +149,51 @@ func TestCNTableParses(t *testing.T) {
 	}
 }
 
-func TestTunnelLockOnlyWhileTunnelUp(t *testing.T) {
-	up := false
+func TestDormantWhileExitOnline(t *testing.T) {
 	c, b := newTest(t, Settings{Block: true})
-	c.TunnelLocked = func() bool { return up }
-
-	up = true
-	if err := c.Sync(); err != nil {
+	if b.pf == "" || !c.Status().Active {
+		t.Fatal("without an exit purity must take over")
+	}
+	if err := c.SetExitHealth(ExitHealth{Exit: "wireguard", Online: true, Detail: "握手 5 秒前"}); err != nil {
 		t.Fatal(err)
 	}
 	st := c.Status()
-	if !st.Locked || !st.Active {
-		t.Fatalf("tunnel up should lock: %+v", st)
+	if b.pf != "" || st.Active || !st.Dormant || !st.ExitOnline || st.Exit != "wireguard" {
+		t.Fatalf("online exit must put purity to sleep: %+v %q", st, b.pf)
 	}
-	if strings.Contains(b.pf, "wgsense_cn") {
-		t.Fatalf("locked rules must not pass domestic ranges:\n%s", b.pf)
-	}
-	for _, want := range []string{"1.2.3.4", "192.168.0.0/16", "fe80::/10", `label "wgsense-block"`} {
-		if !strings.Contains(b.pf, want) {
-			t.Fatalf("missing %q in:\n%s", want, b.pf)
-		}
-	}
-
-	up = false // 隧道拆除：立即回到普通规则
-	if err := c.Sync(); err != nil {
+	// 出口掉线：立即接管
+	if err := c.SetExitHealth(ExitHealth{Exit: "mihomo", Online: false, Detail: "内核未运行"}); err != nil {
 		t.Fatal(err)
 	}
-	if st := c.Status(); st.Locked || !strings.Contains(b.pf, "wgsense_cn") {
-		t.Fatalf("tunnel down must unlock: %+v\n%s", st, b.pf)
+	if st := c.Status(); !st.Active || st.Dormant || !strings.Contains(b.pf, "block return") {
+		t.Fatalf("offline exit must wake purity: %+v %q", st, b.pf)
 	}
 }
 
-func TestTunnelLockIndependentOfBlockSwitch(t *testing.T) {
+func TestDomesticModeIgnoresExitHealth(t *testing.T) {
+	c, b := newTest(t, Settings{Block: true, ForceDomestic: true})
+	_ = c.SetExitHealth(ExitHealth{Exit: "wireguard", Online: true})
+	if st := c.Status(); !st.Active || st.Dormant || b.pf == "" {
+		t.Fatalf("domestic mode must stay on even with an exit: %+v", st)
+	}
+}
+
+func TestDisabledStaysOffWithoutExit(t *testing.T) {
 	c, b := newTest(t, Settings{})
-	c.TunnelLocked = func() bool { return true }
-	_ = c.Sync()
-	if !c.Status().Locked || b.pf == "" {
-		t.Fatal("lock must apply even when overseas blocking is off")
+	_ = c.SetExitHealth(ExitHealth{Exit: "wireguard", Online: false})
+	if st := c.Status(); st.Active || b.pf != "" {
+		t.Fatalf("purity switched off must not block: %+v", st)
 	}
-	if err := c.Update(Settings{AllowBypass: true}); err != nil {
-		t.Fatal(err)
-	}
-	if c.Status().Locked || b.pf != "" {
-		t.Fatalf("allow_bypass should turn the lock off: %q", b.pf)
+}
+
+func TestExitHealthUnchangedDoesNotTouchPF(t *testing.T) {
+	c, b := newTest(t, Settings{Block: true})
+	h := ExitHealth{Exit: "wireguard", Online: true}
+	_ = c.SetExitHealth(h)
+	calls := b.pfCalls
+	_ = c.SetExitHealth(h)
+	if b.pfCalls != calls {
+		t.Fatal("unchanged health must not reload pf (heartbeat runs every 3 s)")
 	}
 }
 
@@ -286,20 +288,11 @@ func TestAllowHostsFollowDNSAndSurviveFailure(t *testing.T) {
 	}
 }
 
-func TestAllowHostsNotUsedWhenLockedOrDomestic(t *testing.T) {
+func TestAllowHostsNotUsedInDomesticMode(t *testing.T) {
 	resolve := func(string) []string { return []string{"126.1.2.3"} }
 	_, domestic := newHostTest(t, Settings{Block: true, ForceDomestic: true, AllowHosts: []string{"jp4.example.com"}}, resolve)
 	if strings.Contains(domestic.pf, "126.1.2.3") {
 		t.Fatalf("domestic mode must not allow hosts: %q", domestic.pf)
-	}
-
-	c, b := newHostTest(t, Settings{Block: true, AllowHosts: []string{"jp4.example.com"}}, resolve)
-	c.TunnelLocked = func() bool { return true }
-	if err := c.Sync(); err != nil {
-		t.Fatal(err)
-	}
-	if strings.Contains(b.pf, "126.1.2.3") {
-		t.Fatalf("tunnel lock must not allow hosts: %q", b.pf)
 	}
 }
 
@@ -318,18 +311,5 @@ func TestAllowHostsRejectInvalidAndPersist(t *testing.T) {
 	}
 	if empty := New("", &fakeBackend{}, nil).Settings().AllowHosts; empty == nil {
 		t.Fatal("allow_hosts must be non-nil so the UI can detect support")
-	}
-}
-
-func TestRenderProxyLockAllowsKernelGroupOnly(t *testing.T) {
-	rules := RenderPF(RuleInput{Interfaces: []string{"en0"}, LockTunnel: true, AllowGroup: "nobody", CNFile: "/x"})
-	if !strings.Contains(rules, "pass out quick on { en0 } proto { tcp udp } group nobody keep state") {
-		t.Fatalf("kernel group not allowed:\n%s", rules)
-	}
-	if strings.Contains(rules, "wgsense_cn") {
-		t.Fatalf("proxy lock must not allow the CN table:\n%s", rules)
-	}
-	if !strings.Contains(rules, "block return out quick on { en0 } all") {
-		t.Fatalf("missing final block:\n%s", rules)
 	}
 }

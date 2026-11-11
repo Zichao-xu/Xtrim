@@ -16,6 +16,12 @@ type fakeExit struct {
 }
 
 func (f *fakeExit) Ready() error { return f.notReady }
+func (f *fakeExit) Healthy() (bool, string) {
+	if f.running {
+		return true, "内核运行中"
+	}
+	return false, "内核未运行"
+}
 func (f *fakeExit) Start() error { f.running = true; return nil }
 func (f *fakeExit) Stop() error  { f.running = false; return nil }
 
@@ -153,6 +159,37 @@ func TestExitReadableWhileEngineLocked(t *testing.T) {
 	case <-time.After(2 * time.Second):
 		e.opMu.Unlock()
 		t.Fatal("Exit() blocked on opMu: deadlock with firewall sync during policy ticks")
+	}
+	e.opMu.Unlock()
+}
+
+func TestExitHealthFollowsExit(t *testing.T) {
+	e, tun, ex, _ := newExitEngine(t, false)
+	if exit, online, _ := e.ExitHealth(); exit != ExitWireGuard || online {
+		t.Fatalf("mock tunnel has no handshake data: want offline wireguard, got %s %v", exit, online)
+	}
+	_ = e.SetExit(ExitMihomo)
+	if exit, online, _ := e.ExitHealth(); exit != ExitMihomo || !online {
+		t.Fatalf("running kernel must count as online, got %s %v", exit, online)
+	}
+	ex.running = false
+	if _, online, _ := e.ExitHealth(); online {
+		t.Fatal("stopped kernel must count as offline")
+	}
+	_ = tun
+}
+
+// 回归：切换出口时引擎持锁，心跳仍要能算出口健康。
+func TestExitHealthWhileEngineLocked(t *testing.T) {
+	e, _, _, _ := newExitEngine(t, false)
+	done := make(chan struct{})
+	e.opMu.Lock()
+	go func() { e.ExitHealth(); close(done) }()
+	select {
+	case <-done:
+	case <-time.After(2 * time.Second):
+		e.opMu.Unlock()
+		t.Fatal("ExitHealth blocked on opMu")
 	}
 	e.opMu.Unlock()
 }

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/wgsense/core/internal/tunnel"
 )
@@ -25,6 +26,8 @@ const (
 type ExitBackend interface {
 	// Ready 能否作为出口（如配置还没同步时返回原因）。
 	Ready() error
+	// Healthy 正在作为出口时是否健康（纯良据此休眠或接管）。
+	Healthy() (bool, string)
 	Start() error
 	Stop() error
 }
@@ -61,6 +64,39 @@ func (e *Engine) exitLocked() string {
 	}
 	return ExitWireGuard
 }
+
+// ExitHealth 当前出口是否健康，给纯良的心跳用（每 3 秒）。
+// 不拿 opMu：切换出口时引擎正持锁，心跳也必须能算，否则就是自己等自己。
+func (e *Engine) ExitHealth() (exit string, online bool, detail string) {
+	exit = e.exitLocked()
+	if exit == ExitMihomo {
+		if e.mihomoExit == nil {
+			return exit, false, "没有内置内核"
+		}
+		online, detail = e.mihomoExit.Healthy()
+		return exit, online, detail
+	}
+	state, _ := e.tun.Status(e.service)
+	if state != tunnel.StateConnected {
+		return exit, false, "WireGuard 未连接"
+	}
+	if p, ok := e.tun.(tunnel.CoverageProvider); ok && !p.Coverage(e.service).FullTunnel {
+		return exit, false, "分流配置：境外流量不走隧道"
+	}
+	if p, ok := e.tun.(tunnel.RuntimeStatsProvider); ok {
+		if st, err := p.RuntimeStats(e.service); err == nil && st.LastHandshakeUnix > 0 {
+			age := time.Since(time.Unix(st.LastHandshakeUnix, 0))
+			if age > exitHandshakeMaxAge {
+				return exit, false, fmt.Sprintf("握手已 %d 秒未更新", int(age.Seconds()))
+			}
+			return exit, true, fmt.Sprintf("握手 %d 秒前", int(age.Seconds()))
+		}
+	}
+	return exit, false, "等待首次握手"
+}
+
+// WireGuard 每 2 分钟左右重新握手一次；超过 3 分钟没有更新就当它掉了。
+const exitHandshakeMaxAge = 180 * time.Second
 
 // SetExit 手动切换出口：先拆旧出口，再起新出口。
 // 拆与起之间出站拦截照常生效（隧道已断，物理网卡按无出口的规则放行），不会裸奔。

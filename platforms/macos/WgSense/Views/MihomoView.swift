@@ -184,7 +184,7 @@ struct MihomoView: View {
     private func exitDetail(_ m: MihomoPresentation) -> String {
         if takingOver(m) {
             let dns = m.status?.dns_service.map { "DNS 已接管「\($0)」" } ?? "DNS 未接管"
-            return "TUN 接管整机流量 · \(dns) · 纯良只放行内核自己的连接"
+            return "TUN 接管整机流量 · \(dns) · 纯良休眠，内核一停立即接管"
         }
         if m.status?.source == nil { return "先从 op 同步配置，才能作为出口" }
         return "在 VPN 板块切到 mihomo 后接管整机流量与 DNS"

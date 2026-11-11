@@ -47,9 +47,9 @@ struct DaemonControlAPIClient {
         try await api.decode(MihomoStatus.self, path: "api/mihomo", method: "POST", body: ["action": action], timeout: 30)
     }
 
-    func importMihomo(bundle: String, origin: String) async throws -> MihomoStatus {
+    func importMihomo(bundle: String, origin: String, selections: [String: String]) async throws -> MihomoStatus {
         try await api.decode(MihomoStatus.self, path: "api/mihomo/import", method: "POST",
-                             body: ["bundle": bundle, "origin": origin], timeout: 180)
+                             body: ["bundle": bundle, "origin": origin, "selections": selections], timeout: 180)
     }
 
     @discardableResult

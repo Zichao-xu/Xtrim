@@ -1,164 +1,81 @@
 import SwiftUI
 
-// 纯良：一条不变量 ——「去境外的包，要么从可信出口走，要么根本不出去」。
+// 纯良：与 op 上的纯良同一语义——出口在线时完全休眠，全听出口的；出口不在了才接管。
+//   · 休眠：当前出口（WireGuard / mihomo）健康，网络服务不下发任何拦截规则；
+//   · 接管：没有出口、出口掉线或切换空档，物理网卡只放行国内、局域网与出口服务器，境外直连立即拒绝；
+//   · 国内模式：不随出口休眠，所有出口只放行国内。
+// 出口健康由网络服务每 3 秒判断一次（WireGuard 握手新鲜 / 内核在跑且控制接口有响应）。
 //
-// 页面的组织方式与概览页同构（不是照搬内容）：
-//   1. 主视觉条：徽标 + 结论 + 一句事实 + 唯一的主操作；
-//   2. 出口图：本页的主图 —— 五条去向在物理网卡这道闸上各自放行还是拒绝；
-//   3. 卡片网格：每个检查点 / 选项一张卡，开关在卡片右上角；
-//   4. 列表：放行名单、运行信息，只读事实，右侧等宽读数。
-//
-// 三态按「谁是出口」划分：
-//   S1 出口在线：全局隧道连着，物理网卡只放行局域网与 WG 服务器（隧道锁定）；
-//   S2 在家：没有本机出口，境外流量交给家里网关，物理网卡放行国内与局域网；
-//   S3 离家无出口：同样的规则，但没有网关兜底，境外一律拒绝。
+// 页面组织与概览同构：主视觉条 → 出口图 → 卡片网格 → 列表。
 
-/// 当前所在的位置（由隧道与所在网络决定，不由设置决定）。
-enum PurityPosition: Equatable, CaseIterable {
-    case exit, home, away
+/// 接管时所处的位置（决定网关代理那条去向是否可用）。
+enum PurityPosition: Equatable {
+    case home, away
 
-    var code: String {
-        switch self {
-        case .exit: return "S1"
-        case .home: return "S2"
-        case .away: return "S3"
-        }
-    }
-
-    var title: LocalizedStringKey {
-        switch self {
-        case .exit: return "出口在线"
-        case .home: return "在家"
-        case .away: return "离家无出口"
-        }
-    }
-
-    var condition: LocalizedStringKey {
-        switch self {
-        case .exit: return "全局隧道已连接"
-        case .home: return "在受信任网络，隧道按设计保持断开"
-        case .away: return "不在受信任网络，隧道未连接"
-        }
-    }
-
-    /// 这一态下物理网卡放行什么。
-    var allows: LocalizedStringKey {
-        switch self {
-        case .exit: return "只放行局域网与 WG 服务器，其余必须走隧道"
-        case .home: return "放行国内与局域网，境外交给家里网关"
-        case .away: return "放行国内与局域网，境外一律拒绝"
-        }
-    }
+    var code: String { self == .home ? "S2" : "S3" }
+    var title: LocalizedStringKey { self == .home ? "在家" : "离家" }
 }
 
-/// 一个检查点：不变量在某一处是否成立。
-struct PurityCheck: Identifiable, Equatable {
-    enum Verdict: Equatable { case holds, fails, idle }
-    /// 不成立时可执行的动作。
-    enum Fix: Equatable { case enableBlock, enableLock }
-    enum Kind: String { case direct, lock, ipv6, dns }
-
-    var kind: Kind
-    var verdict: Verdict
-    /// 当前事实，一行。
-    var fact: String
-    var fix: Fix? = nil
-
-    var id: String { kind.rawValue }
-
-    var name: LocalizedStringKey {
-        switch kind {
-        case .direct: return "境外直连"
-        case .lock: return "隧道锁定"
-        case .ipv6: return "IPv6"
-        case .dns: return "域名查询"
-        }
-    }
-
-    /// 术语定义，全页只在这里出现一次（悬停显示）。
-    var definition: LocalizedStringKey {
-        switch kind {
-        case .direct: return "境外直连：不经隧道或网关代理、从物理网卡直接发往境外地址的连接。开启后立即拒绝，不等超时。"
-        case .lock: return "隧道锁定：全局隧道连着时，物理网卡只放行局域网与 WG 服务器，绑定物理网卡的程序也不能绕开隧道。隧道断开即解除。"
-        case .ipv6: return "IPv6：与 IPv4 并行的另一套地址。隧道没有 IPv6 出口时直接拒绝，程序退回 IPv4。"
-        case .dns: return "域名查询：连接之前先向 DNS 服务器询问地址。查询发给谁，谁就知道访问目标。"
-        }
-    }
-
-    var fixTitle: LocalizedStringKey? {
-        switch fix {
-        case .enableBlock: return "启用拦截"
-        case .enableLock: return "启用隧道锁定"
-        case nil: return nil
-        }
-    }
-}
-
-/// 页面与磁贴共用的纯良状态，全部由 daemon 的状态推出。
+/// 页面与磁贴共用的纯良状态，全部由网络服务报告推出。
 struct PurityPresentation: Equatable {
     enum Mode: Equatable {
-        case unavailable          // 服务没给出拦截状态
-        case off                  // 没有任何规则在生效
-        case domestic             // 国内模式：所有出口只放行国内
-        case on                   // 按三态规则拦截
+        case unavailable   // 网络服务没给出拦截状态
+        case off           // 纯良未启用
+        case domestic      // 国内模式
+        case dormant       // 出口在线，休眠
+        case guarding      // 无可用出口，接管中
     }
 
     var mode: Mode
     var position: PurityPosition
-    /// 隧道锁定正在生效。
-    var locked: Bool
+    var exit: String
+    var exitOnline: Bool
+    var exitDetail: String
     var blocked: UInt64
     var allowCount: Int
-    var checks: [PurityCheck]
-    /// 出口是内置 mihomo（代理锁定），而不是 WireGuard 隧道。
-    var viaProxy: Bool
 
-    /// `settings` 只有页面拿得到（磁贴只有轮询状态），缺省时少一条「总开关已关」的判断。
     init(status: DaemonStatus?, tunnelUp: Bool, settings: FirewallSettings? = nil, proxyDNSService: String? = nil) {
         let fw = status?.firewall
-        viaProxy = fw?.lock_kind == "proxy" || (status?.exit == "mihomo" && proxyDNSService != nil)
-        if tunnelUp, status?.coverage?.full_tunnel == true {
-            position = .exit
-        } else if viaProxy {
-            position = .exit
-        } else if status?.isTrustedNetwork == true {
-            position = .home
-        } else {
-            position = .away
-        }
-        locked = fw?.locked == true
+        position = status?.isTrustedNetwork == true ? .home : .away
+        exit = fw?.exit ?? status?.exit ?? "wireguard"
+        // 旧版网络服务不报出口健康：用隧道状态近似
+        exitOnline = fw?.exit_online ?? tunnelUp
+        exitDetail = fw?.exit_detail ?? (tunnelUp ? "隧道已连接" : "隧道未连接")
         blocked = fw?.blocked_packets ?? 0
         allowCount = fw?.allowed_hosts?.count ?? 0
-        if let fw {
-            mode = fw.forced ? .domestic : (fw.active ? .on : .off)
+        guard let fw else { mode = .unavailable; return }
+        if fw.forced {
+            mode = .domestic
+        } else if fw.dormant == true {
+            mode = .dormant
+        } else if fw.active {
+            mode = .guarding
         } else {
-            mode = .unavailable
+            mode = .off
         }
-        checks = []
-        guard mode != .unavailable else { return }
-        checks = [
-            Self.directCheck(mode: mode, settings: settings),
-            Self.lockCheck(mode: mode, position: position, locked: locked, blocked: blocked),
-            Self.ipv6Check(mode: mode, position: position, v6: status?.coverage?.ipv6),
-            Self.dnsCheck(mode: mode, position: position,
-                          dns: viaProxy ? proxyDNSService.map { ["内置代理（\($0)）"] } : status?.coverage?.dns),
-        ]
     }
 
-    var failing: [PurityCheck] { checks.filter { $0.verdict == .fails } }
+    var exitTitle: String {
+        switch exit {
+        case "mihomo": return "mihomo"
+        case "tailscale": return "Tailscale"
+        default: return "WireGuard"
+        }
+    }
 
-    /// 结论：磁贴状态行与页面第一层共用。
+    /// 结论：磁贴状态行与主视觉共用。
     var verdict: LocalizedStringKey {
         switch mode {
         case .unavailable: return "不可用"
         case .off: return "未启用"
-        case .domestic, .on:
-            let n = failing.count
-            return n == 0 ? "成立" : "\(n) 项不成立"
+        case .domestic: return "国内模式"
+        case .dormant: return "休眠"
+        case .guarding: return "接管中"
         }
     }
 
-    var needsAttention: Bool { mode == .off || !failing.isEmpty }
+    /// 需要注意：纯良没开，或正在接管（没有可用出口，境外上不去）。
+    var needsAttention: Bool { mode == .off || mode == .guarding }
 
     /// 处境标注（等宽注记用）。
     var code: String {
@@ -166,82 +83,18 @@ struct PurityPresentation: Equatable {
         case .unavailable: return "N/A"
         case .off: return "OFF"
         case .domestic: return "CN"
-        case .on: return position.code
+        case .dormant: return "IDLE"
+        case .guarding: return position.code
         }
     }
 
     var situation: LocalizedStringKey {
         switch mode {
         case .unavailable: return "服务不可用"
-        case .off: return "拦截未启用"
+        case .off: return "纯良未启用"
         case .domestic: return "国内模式"
-        case .on: return position.title
-        }
-    }
-
-    // MARK: 检查点
-
-    private static func directCheck(mode: Mode, settings: FirewallSettings?) -> PurityCheck {
-        switch mode {
-        case .off:
-            return PurityCheck(kind: .direct, verdict: .fails, fact: "未拦截：境外连接可从物理网卡直接出去", fix: .enableBlock)
-        case .domestic:
-            return PurityCheck(kind: .direct, verdict: .holds, fact: "国内模式：所有出口只放行国内")
-        default:
-            if settings?.auto_block == false {
-                return PurityCheck(kind: .direct, verdict: .fails,
-                                   fact: "仅靠隧道锁定在拦，隧道断开后不再拦截", fix: .enableBlock)
-            }
-            return PurityCheck(kind: .direct, verdict: .holds, fact: "物理网卡上的境外直连立即拒绝")
-        }
-    }
-
-    private static func lockCheck(mode: Mode, position: PurityPosition, locked: Bool, blocked: UInt64) -> PurityCheck {
-        guard mode == .on, position == .exit else {
-            return PurityCheck(kind: .lock, verdict: .idle,
-                               fact: mode == .domestic ? "国内模式下不适用" : "全局隧道未连接，不适用")
-        }
-        if locked {
-            return PurityCheck(kind: .lock, verdict: .holds,
-                               fact: blocked == 0 ? "生效：没有程序试图绕开隧道" : "生效：已拒绝 \(blocked) 个绕开隧道的包")
-        }
-        return PurityCheck(kind: .lock, verdict: .fails,
-                           fact: "已关闭：绑定物理网卡的程序可绕开隧道，直连国内段与放行名单", fix: .enableLock)
-    }
-
-    private static func ipv6Check(mode: Mode, position: PurityPosition, v6: TunnelIPv6Status?) -> PurityCheck {
-        guard mode == .on else {
-            return mode == .domestic
-                ? PurityCheck(kind: .ipv6, verdict: .holds, fact: "只放行国内 IPv6 段")
-                : PurityCheck(kind: .ipv6, verdict: .fails, fact: "未拦截：IPv6 同样直接出网")
-        }
-        guard position == .exit, let v6 else {
-            return PurityCheck(kind: .ipv6, verdict: .holds, fact: "与 IPv4 同一套规则：只放行国内段与局域网")
-        }
-        switch v6.state {
-        case "tunnel":
-            return PurityCheck(kind: .ipv6, verdict: .holds, fact: "公网 IPv6 走隧道")
-        case "blocked", "probing":
-            return PurityCheck(kind: .ipv6, verdict: .holds, fact: "隧道无 IPv6 出口：公网 IPv6 立即拒绝，程序改用 IPv4")
-        default:
-            return PurityCheck(kind: .ipv6, verdict: .fails, fact: "隧道未接管 IPv6：公网 IPv6 可能从物理网卡直接出去")
-        }
-    }
-
-    private static func dnsCheck(mode: Mode, position: PurityPosition, dns: [String]?) -> PurityCheck {
-        if mode == .off {
-            return PurityCheck(kind: .dns, verdict: .fails, fact: "发给当前网络的 DNS，访问目标对其可见")
-        }
-        switch position {
-        case .exit:
-            if let dns, !dns.isEmpty {
-                return PurityCheck(kind: .dns, verdict: .holds, fact: "经隧道发给 \(dns.joined(separator: ", "))")
-            }
-            return PurityCheck(kind: .dns, verdict: .fails, fact: "配置未指定 DNS：查询仍发给当前网络")
-        case .home:
-            return PurityCheck(kind: .dns, verdict: .holds, fact: "发给家里网关，由网关代理接管")
-        case .away:
-            return PurityCheck(kind: .dns, verdict: .fails, fact: "发给当前网络的 DNS：连接被拒，但访问目标对其可见；隧道连上后消失")
+        case .dormant: return "出口在线"
+        case .guarding: return position == .home ? "在家 · 无出口" : "离家 · 无出口"
         }
     }
 }
@@ -251,12 +104,10 @@ struct PurityView: View {
     @State private var saving = false
     @State private var hostDraft = ""
 
-    /// 状态优先取轮询里的那份（计数会更新），设置接口那份只在打开和保存时刷新。
     private var status: FirewallStatus? { client.status?.firewall ?? client.firewall?.status }
     private var settings: FirewallSettings? { client.firewall?.settings }
     private var purity: PurityPresentation {
-        PurityPresentation(status: client.status, tunnelUp: client.isTunnelUp, settings: settings,
-                           proxyDNSService: client.mihomo?.dns_service)
+        PurityPresentation(status: client.status, tunnelUp: client.isTunnelUp, settings: settings)
     }
 
     var body: some View {
@@ -269,7 +120,8 @@ struct PurityView: View {
                 columns: [GridItem(.flexible(), spacing: WgSpace.m), GridItem(.flexible(), spacing: WgSpace.m)],
                 spacing: WgSpace.m
             ) {
-                ForEach(p.checks) { check in checkCard(check) }
+                purityCard(p)
+                exitCard(p)
                 optionCards
             }
             allowList(p)
@@ -281,13 +133,13 @@ struct PurityView: View {
         .task { await client.fetchFirewall() }
     }
 
-    // MARK: - 主视觉条：结论 + 唯一主操作
+    // MARK: - 主视觉条
 
     private func hero(_ p: PurityPresentation) -> some View {
         HStack(spacing: WgSpace.m) {
-            StatusOrb(symbol: p.needsAttention ? "hand.raised" : "hand.raised.fill",
+            StatusOrb(symbol: p.mode == .dormant ? "moon.zzz.fill" : "hand.raised.fill",
                       tint: p.needsAttention ? .orange : .green,
-                      isActive: p.mode == .on || p.mode == .domestic, isBusy: saving)
+                      isActive: p.mode != .off && p.mode != .unavailable, isBusy: saving)
             VStack(alignment: .leading, spacing: WgSpace.xs) {
                 Text(p.verdict)
                     .font(.system(size: WgType.readout, weight: .semibold))
@@ -300,12 +152,14 @@ struct PurityView: View {
                     .contentTransition(.opacity)
             }
             Spacer(minLength: 12)
-            // 主操作只有一个：第一项可修复的不成立项
-            if let check = p.failing.first(where: { $0.fix != nil }),
-               let fix = check.fix, let title = check.fixTitle, let current = settings {
-                Button(title) { apply(fix, to: current) }
-                    .buttonStyle(WgCapsuleButtonStyle(tint: .orange))
-                    .disabled(saving)
+            if p.mode == .off, let current = settings {
+                Button("启用纯良") {
+                    var next = current
+                    next.auto_block = true
+                    save(next)
+                }
+                .buttonStyle(WgCapsuleButtonStyle(tint: .orange))
+                .disabled(saving)
             }
         }
         .wgPadding(.m)
@@ -313,62 +167,35 @@ struct PurityView: View {
     }
 
     private func heroDetail(_ p: PurityPresentation) -> String {
+        if let error = status?.error { return "规则应用失败：\(error)" }
         switch p.mode {
         case .unavailable:
             return client.firewallError ?? "需要以 root 运行的正式网络服务"
         case .off:
-            return "没有规则在生效：境外连接可从物理网卡直接出去"
-        case .domestic, .on:
-            if let error = status?.error { return "规则应用失败：\(error)" }
-            if let first = p.failing.first { return first.fact }
-            return "去境外的包只能从可信出口走 · \(p.code)"
+            return "出口不在时，境外连接可以从物理网卡直接出去"
+        case .domestic:
+            return "所有出口（含隧道和代理）只放行国内"
+        case .dormant:
+            return "出口 \(p.exitTitle) 在线（\(p.exitDetail)），纯良不干预，流量全听出口的"
+        case .guarding:
+            return "出口 \(p.exitTitle) 不可用（\(p.exitDetail)）：境外直连一律拒绝，国内与局域网照常"
         }
     }
 
-    private func apply(_ fix: PurityCheck.Fix, to current: FirewallSettings) {
-        var next = client.firewall?.settings ?? current
-        switch fix {
-        case .enableBlock: next.auto_block = true
-        case .enableLock: next.allow_bypass = false
-        }
-        save(next)
-    }
+    // MARK: - 卡片
 
-    // MARK: - 卡片网格：检查点与选项
-
-    private func checkCard(_ check: PurityCheck) -> some View {
-        let (symbol, value): (String, Text) = {
-            let symbol: String = switch check.kind {
-            case .direct: "hand.raised"
-            case .lock: "lock"
-            case .ipv6: "6.circle"
-            case .dns: "text.magnifyingglass"
-            }
-            switch check.verdict {
-            case .holds: return (symbol, Text("成立"))
-            case .fails: return (symbol, Text("不成立").foregroundColor(WgInk.warn))
-            case .idle: return (symbol, Text("不适用").foregroundColor(WgInk.ink3))
-            }
-        }()
-        return InfoCard(symbol: symbol, tint: .gray, title: check.name, value: value,
-                        detail: Text(verbatim: check.fact)) {
-            checkControl(check)
-        }
-        .help(Text(check.definition))
-    }
-
-    @ViewBuilder
-    private func checkControl(_ check: PurityCheck) -> some View {
-        switch check.kind {
-        case .direct:
+    private func purityCard(_ p: PurityPresentation) -> some View {
+        InfoCard(symbol: "hand.raised", tint: .gray, title: "纯良",
+                 value: p.needsAttention ? Text(p.verdict).foregroundColor(WgInk.warn) : Text(p.verdict),
+                 detail: Text("出口在线时休眠，出口不在时拒绝境外直连")) {
             if let block = binding(\.auto_block) { toggle(block) }
-        case .lock:
-            if let bypass = binding(\.allow_bypass) {
-                toggle(Binding(get: { bypass.wrappedValue != true }, set: { bypass.wrappedValue = !$0 }))
-            }
-        case .ipv6, .dns:
-            EmptyView()
         }
+    }
+
+    private func exitCard(_ p: PurityPresentation) -> some View {
+        InfoCard(symbol: "arrow.up.forward", tint: .gray, title: "出口",
+                 value: Text(verbatim: "\(p.exitTitle) · \(p.exitOnline ? "在线" : "不可用")"),
+                 detail: Text(verbatim: p.exitDetail + " · 每 3 秒检查一次"))
     }
 
     @ViewBuilder
@@ -380,14 +207,14 @@ struct PurityView: View {
             let allowed = supported && probes.wrappedValue != true
             InfoCard(symbol: "point.3.connected.trianglepath.dotted", tint: .gray, title: "诊断探测",
                      value: Text(allowed ? "放行" : "拦截"),
-                     detail: Text(supported ? "ping / traceroute 的 ICMP 回显；隧道锁定与国内模式下不放"
+                     detail: Text(supported ? "接管时仍放行 ping / traceroute 的 ICMP 回显；国内模式下不放"
                                             : "当前网络服务不支持，诊断探测仍被拦截")) {
                 toggle(Binding(get: { allowed }, set: { probes.wrappedValue = !$0 }))
                     .disabled(!block.wrappedValue || !supported)
             }
             InfoCard(symbol: "lock.fill", tint: .gray, title: "国内模式",
                      value: Text(domestic.wrappedValue ? "开启" : "关闭"),
-                     detail: Text("隧道与网关代理的境外流量也拒绝")) {
+                     detail: Text("不随出口休眠：隧道与代理的境外流量也拒绝")) {
                 toggle(domestic)
             }
         }
@@ -471,15 +298,16 @@ struct PurityView: View {
     }
 
     private func allowValue(_ host: String) -> String {
-        guard let status, status.active, status.locked != true, !status.forced else { return "未放行" }
+        guard let status, status.active, !status.forced else { return "未放行" }
         let ips = status.allowed_hosts?.first { $0.host == host }?.ips ?? []
         return ips.isEmpty ? "未解析" : ips.joined(separator: "  ")
     }
 
     private func allowDetail(_ host: String) -> String {
-        guard let status, status.active else { return "拦截未启用" }
-        if status.locked == true { return "隧道锁定生效中，放行名单不参与；隧道断开后生效" }
+        guard let status else { return "拦截未启用" }
         if status.forced { return "国内模式下不放行" }
+        if status.dormant == true { return "纯良休眠中，不需要放行；出口不在、纯良接管时生效" }
+        if !status.active { return "纯良未启用" }
         return "每分钟重新解析，跟随 DDNS"
     }
 
@@ -495,7 +323,7 @@ struct PurityView: View {
                 detail: status?.error.map { "规则应用失败：\($0)" } ?? status?.reason ?? "—") { EmptyView() }
             rowRule
             row(symbol: "calendar.badge.clock", name: "国内 IP 段", value: "发版快照",
-                detail: "不随时间更新；隧道锁定生效时不使用这份名单") { EmptyView() }
+                detail: "不随时间更新；纯良接管时用它判断哪些是国内") { EmptyView() }
             rowRule
             row(symbol: "power", name: "未覆盖时段", value: "开机 · pf 关闭",
                 detail: "系统启动到网络服务装好规则之前没有拦截；其他软件整体关闭 pf 时失效且不会察觉") { EmptyView() }
@@ -573,30 +401,36 @@ struct PurityEgressDiagram: View {
 
     private var lanes: [Lane] {
         let p = purity
-        let exit = p.position == .exit
         let home = p.position == .home
         switch p.mode {
         case .unavailable:
             return Self.all(.idle)
         case .off:
+            // 不拦：出口不在时境外直连就是缺口
             var lanes = Self.all(.pass)
-            lanes[0].result = exit ? .pass : .idle
+            lanes[0].result = p.exitOnline ? .pass : .idle
             lanes[3].result = home ? .pass : .idle
-            lanes[4].breach = true
+            lanes[4].breach = !p.exitOnline
             return lanes
         case .domestic:
             var lanes = Self.all(.reject)
             lanes[1].result = .pass
             lanes[2].result = .pass
             return lanes
-        case .on:
+        case .dormant:
+            // 休眠：闸门全开，流量由出口接管
+            var lanes = Self.all(.pass)
+            lanes[3].result = home ? .pass : .idle
+            lanes[4].via = "交给出口 \(p.exitTitle)"
+            return lanes
+        case .guarding:
             var lanes = Self.all(.reject)
-            lanes[0].result = exit ? .pass : .idle
+            lanes[0].result = .idle
+            lanes[0].via = "\(p.exitTitle) 不可用"
             lanes[1].result = .pass
-            lanes[2].result = (exit && p.locked) ? .reject : .pass
-            lanes[2].breach = exit && !p.locked
-            lanes[3].result = exit ? (p.locked ? .reject : .pass) : (home ? .pass : .idle)
-            // 放行名单是「境外直连一律拒绝」的例外，生效时在这一条上写明，不让图说的比规则多
+            lanes[2].result = .pass
+            lanes[3].result = home ? .pass : .idle
+            // 放行名单是「境外直连一律拒绝」的例外，生效时在这一条上写明
             if p.allowCount > 0 { lanes[4].via = "其余全部地址 · 放行名单 \(p.allowCount) 项除外" }
             return lanes
         }

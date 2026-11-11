@@ -253,6 +253,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         }
         followedExit = exit
         MihomoBackendStore.shared.follow(exitIsMihomo: exit == "mihomo")
+        if exit == "mihomo", proxyError != nil { proxyError = nil }
     }
 
     private struct MihomoController: Decodable {
@@ -972,8 +973,8 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
     }
 
     /// 交给网络服务导入配置包。
-    func importMihomo(bundle: String, origin: String) async throws -> MihomoStatus {
-        let next = try await controlAPI.importMihomo(bundle: bundle, origin: origin)
+    func importMihomo(bundle: String, origin: String, selections: [String: String] = [:]) async throws -> MihomoStatus {
+        let next = try await controlAPI.importMihomo(bundle: bundle, origin: origin, selections: selections)
         mihomo = next
         return next
     }
@@ -1025,7 +1026,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         if exit == .mihomo {
             // ① 趁 WireGuard 还连着（在外也能到路由器）先把 op 的配置拉到本机
             exitProgress = "正在从 op 拉取配置"
-            var fetched: (bundle: URL, origin: String)?
+            var fetched: (bundle: URL, origin: String, selections: [String: String])?
             var fetchError: String?
             do {
                 fetched = try await MihomoSync.fetch(includeGeo: mihomo?.source == nil)
@@ -1041,7 +1042,8 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             if let fetched {
                 exitProgress = "正在导入 op 的配置"
                 do {
-                    _ = try await importMihomo(bundle: fetched.bundle.path, origin: fetched.origin)
+                    _ = try await importMihomo(bundle: fetched.bundle.path, origin: fetched.origin,
+                                               selections: fetched.selections)
                 } catch {
                     fetchError = error.localizedDescription
                 }
@@ -1297,6 +1299,12 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
     }
 
     func fetchProxyStatus() async {
+        // 面板接的是本机内核时，网络服务里那个指向路由器的控制器客户端与面板无关：
+        // 不去问它，也不把它连不上路由器的错误显示在面板上
+        if MihomoBackendStore.shared.active?.isLocal == true {
+            if proxyError != nil { proxyError = nil }
+            return
+        }
         do {
             let result = try await proxyAPI.status()
             proxyStatus = result

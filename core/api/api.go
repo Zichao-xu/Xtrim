@@ -411,10 +411,11 @@ func (s *Server) handleMihomoImport(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var req struct {
-		Bundle string `json:"bundle"`
-		Origin string `json:"origin"`
+		Bundle     string            `json:"bundle"`
+		Origin     string            `json:"origin"`
+		Selections map[string]string `json:"selections"`
 	}
-	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 8<<10)).Decode(&req); err != nil {
+	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 256<<10)).Decode(&req); err != nil {
 		writeError(w, err)
 		return
 	}
@@ -422,7 +423,7 @@ func (s *Server) handleMihomoImport(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "缺少 bundle", http.StatusBadRequest)
 		return
 	}
-	if err := s.mihomo.Import(req.Bundle, req.Origin); err != nil {
+	if err := s.mihomo.Import(req.Bundle, req.Origin, req.Selections); err != nil {
 		writeError(w, err)
 		return
 	}

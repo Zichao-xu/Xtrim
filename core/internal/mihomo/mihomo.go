@@ -18,6 +18,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -75,6 +77,9 @@ type state struct {
 	SyncedAt string `json:"synced_at,omitempty"`
 	// Dropped 同步时剔除的、只能在路由器上用的节点。
 	Dropped []string `json:"dropped,omitempty"`
+	// Selections 同步时 op 各策略组当前选中的节点；内核起来后套用一次，套用完清空。
+	// 不靠调整 yaml 列表顺序：op 的多个组共用同一锚点列表，改顺序会连带改掉别的组。
+	Selections map[string]string `json:"selections,omitempty"`
 }
 
 // Manager 管理内核进程。
@@ -91,6 +96,8 @@ type Manager struct {
 	dnsService string
 	// OnChange 内核启动或退出后调用（在锁外），用于让出站拦截立即重算。
 	OnChange func()
+	// controller 覆盖控制接口地址，仅测试用；空 = DefaultController。
+	controller string
 
 	st        state
 	version   string
@@ -140,6 +147,33 @@ func (m *Manager) Controller() (string, string, error) {
 
 // Bundled 报告这份 daemon 是否带了内核。
 func (m *Manager) Bundled() bool { return len(m.binary) > 0 }
+
+// Healthy 作为出口是否健康：内核在跑、配置会接管整机、控制接口一秒内有响应。
+func (m *Manager) Healthy() (bool, string) {
+	m.mu.Lock()
+	running, tun, secret := m.cmd != nil, m.st.Source != "", m.st.Secret
+	m.mu.Unlock()
+	if !running {
+		return false, "内核未运行"
+	}
+	if !tun {
+		return false, "默认配置不接管流量"
+	}
+	req, err := http.NewRequest(http.MethodGet, "http://"+m.controllerAddr()+"/version", nil)
+	if err != nil {
+		return false, err.Error()
+	}
+	req.Header.Set("Authorization", "Bearer "+secret)
+	resp, err := (&http.Client{Timeout: time.Second}).Do(req)
+	if err != nil {
+		return false, "控制接口无响应"
+	}
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return false, fmt.Sprintf("控制接口返回 %d", resp.StatusCode)
+	}
+	return true, "内核运行中"
+}
 
 // TUNEnabled 当前配置会开 TUN 接管整机（从 op 同步过）。
 func (m *Manager) TUNEnabled() bool {
@@ -296,6 +330,9 @@ func (m *Manager) startLocked() error {
 		}
 	}
 	m.notifyChange()
+	if len(m.st.Selections) > 0 {
+		go m.applySelections()
+	}
 	go func() {
 		err := cmd.Wait()
 		if logFile != nil {
@@ -324,6 +361,62 @@ func (m *Manager) startLocked() error {
 		m.notifyChange()
 	}()
 	return nil
+}
+
+// controllerAddr 控制接口地址（测试可替换）。
+func (m *Manager) controllerAddr() string {
+	if m.controller != "" {
+		return m.controller
+	}
+	return DefaultController
+}
+
+// applySelections 等控制接口就绪后，把同步来的 op 选择逐组套用到本机内核，然后清空。
+func (m *Manager) applySelections() {
+	m.mu.Lock()
+	sel, secret := m.st.Selections, m.st.Secret
+	m.mu.Unlock()
+	client := &http.Client{Timeout: 3 * time.Second}
+	do := func(method, path string, body []byte) (int, error) {
+		req, err := http.NewRequest(method, "http://"+m.controllerAddr()+path, bytes.NewReader(body))
+		if err != nil {
+			return 0, err
+		}
+		req.Header.Set("Authorization", "Bearer "+secret)
+		req.Header.Set("Content-Type", "application/json")
+		resp, err := client.Do(req)
+		if err != nil {
+			return 0, err
+		}
+		resp.Body.Close()
+		return resp.StatusCode, nil
+	}
+	ready := false
+	for i := 0; i < 40 && !ready; i++ {
+		if code, err := do(http.MethodGet, "/version", nil); err == nil && code == http.StatusOK {
+			ready = true
+		} else {
+			time.Sleep(250 * time.Millisecond)
+		}
+	}
+	if !ready {
+		m.logf("套用 op 的节点选择失败：控制接口未就绪")
+		return
+	}
+	applied, skipped := 0, 0
+	for group, node := range sel {
+		body, _ := json.Marshal(map[string]string{"name": node})
+		if code, err := do(http.MethodPut, "/proxies/"+url.PathEscape(group), body); err == nil && code/100 == 2 {
+			applied++
+		} else {
+			skipped++ // 该组在 Mac 版里不存在、不是手选组，或节点被剔除
+		}
+	}
+	m.mu.Lock()
+	m.st.Selections = nil
+	_ = m.saveLocked()
+	m.mu.Unlock()
+	m.logf("已套用 op 的节点选择：%d 组，跳过 %d 组", applied, skipped)
 }
 
 func (m *Manager) notifyChange() {

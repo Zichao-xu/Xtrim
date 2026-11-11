@@ -49,7 +49,8 @@ var dropKeys = map[string]string{
 
 // Import 导入配置包（tar.gz）。origin 记录来源（如 root@10.10.1.1:/etc/mihomo）。
 // 内核正在运行时，导入成功后重启内核生效。
-func (m *Manager) Import(bundle, origin string) error {
+// selections 是 op 各策略组当前选中的节点（组名 → 节点名），内核起来后套用一次。
+func (m *Manager) Import(bundle, origin string, selections map[string]string) error {
 	if !m.Bundled() {
 		return errors.New("这份网络服务没有内置代理内核")
 	}
@@ -110,6 +111,9 @@ func (m *Manager) Import(bundle, origin string) error {
 	m.st.Source = origin
 	m.st.SyncedAt = time.Now().Format(time.RFC3339)
 	m.st.Dropped = dropped
+	m.st.Selections = selections
+	// 本地缓存里记着上次的手动选择，会盖过 op 的选择；同步即以 op 为准，清掉
+	_ = os.Remove(filepath.Join(m.dataDir(), "cache.db"))
 	if err := m.saveLocked(); err != nil {
 		return err
 	}
