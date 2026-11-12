@@ -208,7 +208,6 @@ private struct ProxyPageHeader: View {
         .wgPadding(.bottom, .l)
     }
 
-    @ViewBuilder
     /// 本机内核后端的状态由网络服务报告；路由器后端沿用网络服务里的控制器客户端。
     private var isLocal: Bool { backends.active?.isLocal == true }
     private var coreVersion: String {
