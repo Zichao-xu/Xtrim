@@ -1685,7 +1685,7 @@ final class DaemonServiceCoordinator {
         guard let daemon = Bundle.main.path(forResource: "wgsense-daemon", ofType: nil, inDirectory: "libexec"),
               let mover = Bundle.main.path(forResource: "wgsense-receive-mover", ofType: "sh", inDirectory: "packaging"),
               FileManager.default.isExecutableFile(atPath: daemon) else {
-            return .failure("安装包缺少后台服务文件，请重新安装完整的 WgSense App")
+            return .failure("安装包缺少后台服务文件，请重新安装完整的 Xtrim App")
         }
         let expectedHash: String
         do {
@@ -1698,13 +1698,13 @@ final class DaemonServiceCoordinator {
         if let identity = await serviceIdentity() {
             if let mismatch = identityProblem(identity) { return .failure(mismatch) }
             if mode == .stopOnly {
-                return identity.ready ? .ready : .failure("WgSense 服务尚未就绪，无法安全断开")
+                return identity.ready ? .ready : .failure("Xtrim 服务尚未就绪，无法安全断开")
             }
             if identity.binary_sha256.lowercased() == expectedHash && identity.ready { return .ready }
             if identity.binary_sha256.lowercased() != expectedHash {
                 if mode == .readOnly { return .failure("系统服务版本与 App 不一致；请先完成升级") }
                 if let running = try? await controlAPI.status(timeout: 1.5), running.state == "Connected" {
-                    return .failure("旧版 WgSense 隧道仍在运行；请先断开，再升级后台服务")
+                    return .failure("旧版 Xtrim 隧道仍在运行；请先断开，再升级后台服务")
                 }
                 return await submitUpdate(daemon: daemon, mover: mover, expectedHash: expectedHash)
             }
@@ -1744,7 +1744,7 @@ final class DaemonServiceCoordinator {
 
     private func identityProblem(_ identity: ServiceIdentity) -> String? {
         if identity.`protocol` != 1 || !identity.managed || identity.owner_uid != Int(getuid()) {
-            return "当前端口不是本用户可用的 WgSense 系统服务；请检查是否有旧进程占用"
+            return "当前端口不是本用户可用的 Xtrim 系统服务；请检查是否有旧进程占用"
         }
         return nil
     }

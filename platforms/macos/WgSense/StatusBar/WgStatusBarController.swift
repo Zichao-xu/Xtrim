@@ -45,7 +45,7 @@ final class WgStatusBarController: NSObject, NSMenuDelegate, NSWindowDelegate {
     private func configureButton() {
         guard let button = statusItem.button else { return }
         button.title = ""
-        button.setAccessibilityLabel("WgSense")
+        button.setAccessibilityLabel("Xtrim")
         for view in [shieldView, speedView, dateView, timeView] as [NSView] {
             button.addSubview(view)
         }
@@ -143,7 +143,7 @@ final class WgStatusBarController: NSObject, NSMenuDelegate, NSWindowDelegate {
             day: calendar.component(.day, from: now),
             weekday: calendar.component(.weekday, from: now)
         )
-        statusItem.button?.toolTip = "WgSense · 时区：\(displayedTimeZoneName)"
+        statusItem.button?.toolTip = "Xtrim · 时区：\(displayedTimeZoneName)"
     }
 
     private func applyDateStyle() {

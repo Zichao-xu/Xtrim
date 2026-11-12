@@ -123,7 +123,7 @@ struct SystemVPNManager {
         }
         guard let extensionPath = Bundle.main.builtInPlugInsURL?
             .appendingPathComponent("WgSensePacketTunnel.appex", isDirectory: true).path else {
-            throw SystemVPNError.keychainUnavailable("找不到 WgSense 系统 VPN 扩展")
+            throw SystemVPNError.keychainUnavailable("找不到 Xtrim 系统 VPN 扩展")
         }
 
         var extensionApp: SecTrustedApplication?
@@ -134,7 +134,7 @@ struct SystemVPNManager {
         }
         status = SecTrustedApplicationCreateFromPath(nil, &mainApp)
         guard status == errSecSuccess, let mainApp else {
-            throw SystemVPNError.keychainUnavailable("无法授权 WgSense 读取配置：\(status)")
+            throw SystemVPNError.keychainUnavailable("无法授权 Xtrim 读取配置：\(status)")
         }
 
         let itemLabel = "WgSense VPN: \(profileName)"

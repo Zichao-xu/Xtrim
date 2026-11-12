@@ -442,7 +442,7 @@ struct MainView: View {
         let host = NSHostingView(rootView: MenuBarView().environmentObject(client))
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 300, height: 360),
                               styleMask: [.titled, .fullSizeContentView], backing: .buffered, defer: false)
-        window.title = "WgSense Menu Preview"
+        window.title = "Xtrim Menu Preview"
         window.titlebarAppearsTransparent = true
         let effect = NSVisualEffectView()
         effect.material = .menu
@@ -945,7 +945,7 @@ struct SidebarView: View {
                 .frame(width: 28, height: 28)
             if name {
                 VStack(alignment: .leading, spacing: WgSpace.zero) {
-                    Text(verbatim: "WgSense").font(.system(size: WgType.title, weight: .heavy)).tracking(0.6).fixedSize()
+                    XtrimWordmark(height: 12)
                     // 版本行不计入理想宽度：名字放得下就显示这一档，版本行放不下就截断
                     Text(verbatim: "V\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0") · WIREGUARD / MIHOMO")
                         .font(WgInk.mono(.micro)).tracking(1).foregroundStyle(WgInk.ink3).lineLimit(1)
@@ -2431,12 +2431,12 @@ struct AboutView: View {
             VStack(spacing: WgSpace.m) {
                 WgBrandIcon()
                     .frame(width: 88, height: 88)
-                Text("WgSense")
-                    .font(.system(size: WgType.readout, weight: .bold))
+                XtrimWordmark(height: 22)
+                    .wgPadding(.vertical, .xs)
                 Text(verbatim: "版本 \(version)（\(build)）")
                     .font(.system(size: WgType.sub))
                     .foregroundStyle(.secondary)
-                Text("在家自动断开，出门自动连上的 WireGuard 客户端")
+                Text(verbatim: "ネットは広大だわ")
                     .font(.system(size: WgType.body))
                     .foregroundStyle(.secondary)
                     .wgPadding(.top, .zero)
@@ -3182,4 +3182,21 @@ extension EnvironmentValues {
 private extension Double {
     /// 0（从未存过的 UserDefaults 读回来的默认值）当作没有。
     var nonZero: Double? { self == 0 ? nil : self }
+}
+
+
+/// 品牌字标：单色模板图，跟随墨色与深浅色；高度定死，宽度按原比例。
+struct XtrimWordmark: View {
+    var height: CGFloat
+    private static let aspect: CGFloat = 1753.0 / 230.0
+
+    var body: some View {
+        Image("XtrimWordmark")
+            .renderingMode(.template)
+            .resizable()
+            .interpolation(.high)
+            .foregroundStyle(Color.primary)
+            .frame(width: height * Self.aspect, height: height)
+            .accessibilityLabel(Text(verbatim: "Xtrim"))
+    }
 }

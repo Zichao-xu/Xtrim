@@ -272,7 +272,7 @@ private struct ProxyUnavailableView: View {
                     icon: { Image(systemName: client.proxyServiceRunning ? "network.slash" : "gearshape.2") }
                 )
             } description: {
-                Text(LocalizedStringKey(client.proxyServiceRunning ? "请在设置中检查 Mihomo 地址与密钥" : "先启动 WgSense 后台服务，再连接 Mihomo 控制器"))
+                Text(LocalizedStringKey(client.proxyServiceRunning ? "请在设置中检查 Mihomo 地址与密钥" : "先启动 Xtrim 后台服务，再连接 Mihomo 控制器"))
             }
             HStack(spacing: WgSpace.m) {
                 if let startDaemon, !client.proxyServiceRunning {
@@ -285,7 +285,7 @@ private struct ProxyUnavailableView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .disabled(client.isAuthorizingDaemon)
-                    .accessibilityHint("弹出 macOS 管理员授权并启动 WgSense 后台服务")
+                    .accessibilityHint("弹出 macOS 管理员授权并启动 Xtrim 后台服务")
                 }
                 if let onRetry {
                     Button(action: onRetry) {

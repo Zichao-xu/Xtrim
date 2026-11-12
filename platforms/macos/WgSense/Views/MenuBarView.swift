@@ -35,7 +35,7 @@ struct MenuBarView: View {
             Divider().wgPadding(.horizontal, .m)
 
             VStack(spacing: 0) {
-                MenuItemRow(title: "打开 WgSense…", symbol: "macwindow") {
+                MenuItemRow(title: "打开 Xtrim…", symbol: "macwindow") {
                     openWindow(id: "main")
                     NSApplication.shared.activate(ignoringOtherApps: true)
                 }
