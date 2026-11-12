@@ -206,6 +206,8 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
                 await self.fetchStatus()
                 guard visible else { return }
                 if self.status != nil { await self.fetchTransferState() }
+                // 内置代理内核状态只给磁贴用，10 秒一轮足够；代理页打开时自己 2 秒一轮
+                if self.status != nil, tick % 5 == 0 { await self.fetchMihomo() }
                 if self.isTunnelUp {
                     await self.fetchTraffic()
                 } else if self.traffic != nil {
@@ -218,6 +220,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         Task {
             await fetchStatus()
             if status != nil { await fetchTransferState() }
+            if status != nil { await fetchMihomo() }
             await fetchTraffic()
         }
     }
@@ -238,12 +241,33 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         await fetchTraffic()
     }
 
+    private var followedExit: String?
+
+    /// 面板跟随出口：出口变化时把「面板」切到本机内核或路由器。
+    private func followPanelBackend() async {
+        let exit = status?.exit ?? "wireguard"
+        guard exit != followedExit else { return }
+        if exit == "mihomo" {
+            guard let ctl = try? await api.decode(MihomoController.self, path: "api/mihomo/controller", timeout: 5) else { return }
+            MihomoBackendStore.shared.ensureLocal(address: ctl.address, secret: ctl.secret)
+        }
+        followedExit = exit
+        MihomoBackendStore.shared.follow(exitIsMihomo: exit == "mihomo")
+        if exit == "mihomo", proxyError != nil { proxyError = nil }
+    }
+
+    private struct MihomoController: Decodable {
+        var address: String
+        var secret: String
+    }
+
     // 只有数据真的变了才赋值：@Published 每次赋值都会让所有订阅视图重算，
     // 轮询拿回同样的数据时不应触发重绘；@AppStorage 同理还会写磁盘。
     func fetchStatus() async {
         do {
             let next = try await controlAPI.status()
             if status != next { status = next }
+            await followPanelBackend()
             linkMonitor.ingest(handshake: next.last_handshake, handshakeAge: next.last_handshake_age_seconds,
                                tx: next.peer_tx_bytes, rx: next.peer_rx_bytes, rebinds: next.bind_rebinds, tunnelUp: isTunnelUp)
             let wantVPN = next.desired_vpn_enabled ?? (next.state == "Connected")
@@ -602,6 +626,17 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         }
     }
 
+    /// 只在 App 内弹一条轻提示（不发系统通知），3 秒后收起。
+    func showInAppToast(title: String, detail: String, symbol: String) {
+        let toast = ActionToast(id: UUID(), title: title, detail: detail, symbol: symbol, tint: .gray)
+        withAnimation(.snappy(duration: 0.32, extraBounce: 0.16)) { actionToast = toast }
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(3))
+            guard self?.actionToast?.id == toast.id else { return }
+            withAnimation(.snappy(duration: 0.24, extraBounce: 0.05)) { self?.actionToast = nil }
+        }
+    }
+
     private func showActionNotification(title: String, detail: String, category: String, symbol: String, tint: Color) {
         let toast = ActionToast(id: UUID(), title: title, detail: detail, symbol: symbol, tint: tint)
         withAnimation(.snappy(duration: 0.32, extraBounce: 0.16)) {
@@ -829,6 +864,9 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
     @Published var transferDevices: [TransferDevice] = []
     @Published var transferState: TransferReceiveState?
     @Published var firewall: FirewallResponse?
+    /// 内置代理内核状态；nil 且 mihomoError 有值 = 运行中的网络服务还不支持。
+    @Published var mihomo: MihomoStatus?
+    @Published var mihomoError: String?
     @Published var firewallError: String?
     @Published var tunnelIPv6: TunnelIPv6Settings?
     @Published var tunnelIPv6Error: String?
@@ -907,6 +945,180 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             let message = daemonConnectionMessage(error)
             if firewallError != message { firewallError = message }
         }
+    }
+
+    func fetchMihomo() async {
+        do {
+            let next = try await controlAPI.mihomo()
+            if mihomo != next { mihomo = next }
+            if mihomoError != nil { mihomoError = nil }
+        } catch {
+            if mihomo != nil { mihomo = nil }
+            let message = daemonConnectionMessage(error)
+            if mihomoError != message { mihomoError = message }
+        }
+    }
+
+    /// 启停内置代理内核（只影响本机端口，不动路由与 DNS）。
+    func setMihomo(running: Bool) async -> Bool {
+        do {
+            mihomo = try await controlAPI.mihomo(action: running ? "start" : "stop")
+            mihomoError = nil
+            return true
+        } catch {
+            alertMsg = (running ? "启动" : "停止") + "内置代理内核失败: \(error.localizedDescription)"
+            await fetchMihomo()
+            return false
+        }
+    }
+
+    /// 交给网络服务导入配置包。
+    func importMihomo(bundle: String, origin: String, selections: [String: String] = [:]) async throws -> MihomoStatus {
+        let next = try await controlAPI.importMihomo(bundle: bundle, origin: origin, selections: selections)
+        mihomo = next
+        return next
+    }
+
+    @Published var syncingMihomo = false
+
+    /// 从 op 同步配置（代理页按钮与切换前调用）。返回是否成功；失败时 alert 由 showError 决定。
+    @discardableResult
+    func syncMihomoFromOp(showError: Bool = true) async -> Bool {
+        guard !syncingMihomo else { return false }
+        syncingMihomo = true
+        defer { syncingMihomo = false }
+        do {
+            _ = try await MihomoSync.run(client: self, includeGeo: mihomo?.geo_ready != true)
+            return true
+        } catch {
+            if showError { alertMsg = error.localizedDescription }
+            return false
+        }
+    }
+
+    /// 当前出口；旧版网络服务不报 = WireGuard。
+    var currentExit: WgExit { WgExit(rawValue: status?.exit ?? "") ?? .wireguard }
+
+    /// 网络服务是否支持切换出口（新版才报 exit 字段，且带了内核才能选 mihomo）。
+    func exitAvailable(_ exit: WgExit) -> Bool {
+        switch exit {
+        case .wireguard: return true
+        // Tailscale 开发中：按钮可点，点了只提示，不灰显
+        case .tailscale: return true
+        // 运行中的服务还不认识出口时也可以点：点了就是要切，切换流程会先把服务升级到 App 自带的版本
+        case .mihomo: return status?.exit == nil || mihomo?.bundled == true
+        }
+    }
+
+    @Published var switchingExit: WgExit?
+
+    /// 界面显示的出口：点击即切到目标（乐观更新），切换失败再退回实际出口。
+    var displayedExit: WgExit { switchingExit ?? currentExit }
+    /// 切换进行到哪一步，给界面显示。
+    @Published var exitProgress: String?
+
+    /// 手动切换出口（三者互斥）：网络服务先拆旧出口再起新出口。
+    /// 运行中的网络服务太旧、不认识出口时，先断开隧道并升级服务，再切换——用户点了就是要切。
+    func setExit(_ exit: WgExit) async {
+        guard exit != currentExit, switchingExit == nil else { return }
+        switchingExit = exit
+        defer { switchingExit = nil; exitProgress = nil }
+        if exit == .mihomo {
+            // 先判断要不要升级服务：升级后内核目录可能换了、GEO 库可能不在，这时一律带上 GEO 库
+            let outdated = await serviceLacksMihomoImport()
+            // ① 趁 WireGuard 还连着（在外也能到路由器）先把 op 的配置拉到本机
+            exitProgress = outdated || mihomo?.geo_ready != true
+                ? "正在从 op 拉取配置（含 GEO 库，约 13 MB）" : "正在从 op 拉取配置"
+            var fetched: (bundle: URL, origin: String, selections: [String: String])?
+            var fetchError: String?
+            do {
+                fetched = try await MihomoSync.fetch(includeGeo: outdated || mihomo?.geo_ready != true)
+            } catch {
+                fetchError = error.localizedDescription
+            }
+            defer { if let fetched { try? FileManager.default.removeItem(at: fetched.bundle) } }
+            // ② 运行中的网络服务和 App 自带的不是同一份就先升级：升级要求先断开 WireGuard
+            if outdated {
+                guard await upgradeServiceForExit() else { return }
+            }
+            // ③ 导入刚拉到的配置；拉不到但已有上次同步的配置就沿用
+            if let fetched {
+                exitProgress = "正在导入 op 的配置"
+                do {
+                    _ = try await importMihomo(bundle: fetched.bundle.path, origin: fetched.origin,
+                                               selections: fetched.selections)
+                } catch {
+                    fetchError = error.localizedDescription
+                }
+            }
+            await fetchMihomo()
+            if mihomo?.source == nil {
+                alertMsg = "切换到 mihomo 需要 op 的配置：\(fetchError ?? "还没有同步过")"
+                await restoreWireGuardIfNeeded()
+                return
+            }
+        }
+        exitProgress = "正在切换到 \(exit.title)"
+        do {
+            try await controlAPI.setExit(exit.rawValue)
+        } catch {
+            alertMsg = "切换到 \(exit.title) 失败: \(error.localizedDescription)"
+        }
+        await fetchStatus()
+        await fetchMihomo()
+    }
+
+    /// 运行中的网络服务和 App 自带的不是同一份（哈希不同）：切到 mihomo 前要先升级，
+    /// 否则新加的接口（配置导入、控制接口等）在旧服务上不存在。
+    private func serviceLacksMihomoImport() async -> Bool {
+        guard let path = Bundle.main.path(forResource: "wgsense-daemon", ofType: nil, inDirectory: "libexec"),
+              let bytes = try? Data(contentsOf: URL(fileURLWithPath: path)) else { return false }
+        let bundled = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
+        struct Identity: Decodable { var binary_sha256: String }
+        guard let running = try? await api.decode(Identity.self, path: "api/service", timeout: 5) else { return true }
+        return running.binary_sha256.lowercased() != bundled
+    }
+
+    /// 切换中途失败、WireGuard 已被断开时把它连回去。
+    private func restoreWireGuardIfNeeded() async {
+        await fetchStatus()
+        if currentExit == .wireguard && !isTunnelUp {
+            _ = try? await api.request("api/connect", method: "POST", timeout: 60)
+            await fetchStatus()
+        }
+    }
+
+    /// 升级网络服务以支持出口切换。升级要求隧道先断开（保护规则：不在隧道连着时换服务）；
+    /// 切到别的出口本来就要断开 WireGuard，所以这里直接断开。失败则把隧道恢复原状。
+    private func upgradeServiceForExit() async -> Bool {
+        let wasConnected = isTunnelUp
+        if wasConnected {
+            exitProgress = "正在断开 WireGuard"
+            _ = try? await api.request("api/disconnect", method: "POST", timeout: 30)
+            for _ in 0..<20 {
+                await fetchStatus()
+                if !isTunnelUp { break }
+                try? await Task.sleep(for: .milliseconds(500))
+            }
+        }
+        exitProgress = "正在更新网络服务"
+        let ok = await ensureDaemon(requireActive: true, authorizeIfNeeded: true)
+        if ok {
+            // 新服务起来后才会报 exit 字段
+            for _ in 0..<60 {
+                await fetchStatus()
+                if status?.exit != nil { break }
+                try? await Task.sleep(for: .milliseconds(500))
+            }
+            await fetchMihomo()
+        }
+        guard ok, status?.exit != nil else {
+            alertMsg = "更新网络服务失败，未切换出口: \(serviceLifecycleError ?? "新服务未就绪")"
+            if wasConnected { _ = try? await api.request("api/connect", method: "POST", timeout: 60) }
+            await fetchStatus()
+            return false
+        }
+        return true
     }
 
     func fetchTunnelIPv6() async {
@@ -1090,6 +1302,12 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
     }
 
     func fetchProxyStatus() async {
+        // 面板接的是本机内核时，网络服务里那个指向路由器的控制器客户端与面板无关：
+        // 不去问它，也不把它连不上路由器的错误显示在面板上
+        if MihomoBackendStore.shared.active?.isLocal == true {
+            if proxyError != nil { proxyError = nil }
+            return
+        }
         do {
             let result = try await proxyAPI.status()
             proxyStatus = result
@@ -1467,7 +1685,7 @@ final class DaemonServiceCoordinator {
         guard let daemon = Bundle.main.path(forResource: "wgsense-daemon", ofType: nil, inDirectory: "libexec"),
               let mover = Bundle.main.path(forResource: "wgsense-receive-mover", ofType: "sh", inDirectory: "packaging"),
               FileManager.default.isExecutableFile(atPath: daemon) else {
-            return .failure("安装包缺少后台服务文件，请重新安装完整的 WgSense App")
+            return .failure("安装包缺少后台服务文件，请重新安装完整的 Xtrim App")
         }
         let expectedHash: String
         do {
@@ -1480,13 +1698,13 @@ final class DaemonServiceCoordinator {
         if let identity = await serviceIdentity() {
             if let mismatch = identityProblem(identity) { return .failure(mismatch) }
             if mode == .stopOnly {
-                return identity.ready ? .ready : .failure("WgSense 服务尚未就绪，无法安全断开")
+                return identity.ready ? .ready : .failure("Xtrim 服务尚未就绪，无法安全断开")
             }
             if identity.binary_sha256.lowercased() == expectedHash && identity.ready { return .ready }
             if identity.binary_sha256.lowercased() != expectedHash {
                 if mode == .readOnly { return .failure("系统服务版本与 App 不一致；请先完成升级") }
                 if let running = try? await controlAPI.status(timeout: 1.5), running.state == "Connected" {
-                    return .failure("旧版 WgSense 隧道仍在运行；请先断开，再升级后台服务")
+                    return .failure("旧版 Xtrim 隧道仍在运行；请先断开，再升级后台服务")
                 }
                 return await submitUpdate(daemon: daemon, mover: mover, expectedHash: expectedHash)
             }
@@ -1526,7 +1744,7 @@ final class DaemonServiceCoordinator {
 
     private func identityProblem(_ identity: ServiceIdentity) -> String? {
         if identity.`protocol` != 1 || !identity.managed || identity.owner_uid != Int(getuid()) {
-            return "当前端口不是本用户可用的 WgSense 系统服务；请检查是否有旧进程占用"
+            return "当前端口不是本用户可用的 Xtrim 系统服务；请检查是否有旧进程占用"
         }
         return nil
     }

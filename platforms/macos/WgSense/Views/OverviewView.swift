@@ -7,10 +7,14 @@ import SwiftUI
 //   模块     系统设置式分组列表
 struct OverviewView: View {
     @EnvironmentObject var client: DaemonClient
+    /// 嵌进 VPN 板块（WireGuard 子页）时不显示自己的页头。
+    var showsHeader = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: WgSpace.m) {
-            WgPageHeader(title: "概览", subtitleText: "WGSENSE · STATUS", word: "OVERVIEW") { EmptyView() }
+            if showsHeader {
+                WgPageHeader(title: "概览", subtitleText: "WGSENSE · STATUS", word: "OVERVIEW") { EmptyView() }
+            }
 
             hero
 
@@ -28,7 +32,8 @@ struct OverviewView: View {
 
             coverage
 
-            modules
+            // 模块列表只在独立概览里有；并入 VPN 板块后各模块都有自己的磁贴，不再重复
+            if showsHeader { modules }
 
             Spacer(minLength: 0)
         }
@@ -48,7 +53,8 @@ struct OverviewView: View {
     private var hero: some View {
         let vpn = client.vpnPresentation
         return HStack(spacing: WgSpace.m) {
-            StatusOrb(symbol: vpn.symbol, tint: vpn.tint, isActive: vpn.phase == .connected || vpn.phase == .home, isBusy: vpn.isBusy)
+            StatusOrb(symbol: vpn.symbol, tint: vpn.tint, isActive: vpn.phase == .connected || vpn.phase == .home, isBusy: vpn.isBusy,
+                      logo: .wireguard)
 
             VStack(alignment: .leading, spacing: WgSpace.xs) {
                 Text(vpn.title)
@@ -268,22 +274,26 @@ struct OverviewView: View {
                                 detail: Text(verbatim: parts.joined(separator: " · ")))
     }
 
+    /// 纯良：出口在线时休眠，出口不在时才接管（与 op 上的纯良同一语义）。
     private func lockRow(_ fw: FirewallStatus?) -> CoverageRowModel {
         guard let fw else {
-            return CoverageRowModel(symbol: "lock.open", tint: .gray, name: "隧道锁定", value: Text("不可用"),
+            return CoverageRowModel(symbol: "hand.raised", tint: .gray, name: "纯良", value: Text("不可用"),
                                     detail: Text("需要以 root 运行的正式网络服务"))
         }
-        if fw.locked == true {
-            let blocked = fw.blocked_packets ?? 0
-            let detail = blocked == 0
-                ? "物理网卡只放行局域网与 WG 服务器 · 没有程序试图绕开"
-                : "物理网卡只放行局域网与 WG 服务器 · 已拦下 \(blocked) 个绕开隧道的包"
-            return CoverageRowModel(symbol: "lock.fill", tint: blocked == 0 ? .green : .orange,
-                                    name: "隧道锁定", value: Text("已锁定"), detail: Text(verbatim: detail))
+        if let error = fw.error {
+            return CoverageRowModel(symbol: "hand.raised", tint: .orange, name: "纯良", value: Text("应用失败"),
+                                    detail: Text(verbatim: error))
         }
-        let detail = fw.error.map { "应用失败：\($0)" } ?? "设置里已关闭：绑定物理网卡的程序可绕开隧道直连"
-        return CoverageRowModel(symbol: "lock.open", tint: .orange, name: "隧道锁定", value: Text("未锁定"),
-                                detail: Text(verbatim: detail))
+        if fw.dormant == true {
+            return CoverageRowModel(symbol: "moon.zzz", tint: .green, name: "纯良", value: Text("休眠"),
+                                    detail: Text(verbatim: "出口在线（\(fw.exit_detail ?? "")），不干预；出口一断立即接管"))
+        }
+        if fw.active {
+            return CoverageRowModel(symbol: "hand.raised.fill", tint: .orange, name: "纯良", value: Text("接管中"),
+                                    detail: Text(verbatim: fw.reason))
+        }
+        return CoverageRowModel(symbol: "hand.raised", tint: .orange, name: "纯良", value: Text("未启用"),
+                                detail: Text("出口不在时境外连接可从物理网卡直接出去"))
     }
 
     private func dnsRow(_ c: TunnelCoverage) -> CoverageRowModel {
@@ -320,7 +330,7 @@ struct OverviewView: View {
                 )
                 RowDivider()
                 ModuleRow(
-                    symbol: "globe", tint: .purple, name: "代理",
+                    symbol: "rectangle.3.group", tint: .purple, name: "面板",
                     status: Text(client.proxyRunning ? "控制器已连接" : (client.proxyServiceRunning ? "等待认证" : "未连接")),
                     isOn: client.proxyRunning
                 )
@@ -334,13 +344,14 @@ struct OverviewView: View {
 
 /// 状态块：同心方框收束到一枚实心方块（取自图纸的层层等高线）。
 /// 已连接 = 克莱因蓝；在家 = 实墨（安全、无需 VPN）；其余只剩线框。
-private struct StatusOrb: View {
+struct StatusOrb: View {
     var symbol: String
     var tint: Color
     var isActive: Bool
     var isBusy: Bool
+    /// 设了就画出口标识（龙 / 猫）代替 SF 图标。
+    var logo: WgExit? = nil
 
-    @State private var spin = false
 
     var body: some View {
         let normalized = WgInk.normalize(tint)
@@ -355,19 +366,20 @@ private struct StatusOrb: View {
             Rectangle()
                 .fill(isActive ? fill : Color.clear)
                 .frame(width: 48, height: 48)
-            Image(systemName: symbol)
-                .font(.system(size: WgType.readout, weight: .semibold))
-                .foregroundStyle(isActive ? Color(nsColor: .windowBackgroundColor) : Color.primary.opacity(0.6))
-                .contentTransition(.symbolEffect(.replace))
+            Group {
+                if let logo {
+                    WgExitLogo(exit: logo, size: 30)
+                } else {
+                    Image(systemName: symbol)
+                        .font(.system(size: WgType.readout, weight: .semibold))
+                        .contentTransition(.symbolEffect(.replace))
+                }
+            }
+            .foregroundStyle(isActive ? Color(nsColor: .windowBackgroundColor) : Color.primary.opacity(0.6))
             if isBusy {
-                Rectangle()
-                    .trim(from: 0, to: 0.2)
-                    .stroke(fill, style: StrokeStyle(lineWidth: 2))
-                    .frame(width: 72, height: 72)
-                    .rotationEffect(.degrees(spin ? 360 : 0))
-                    .onAppear {
-                        withAnimation(.linear(duration: 1.4).repeatForever(autoreverses: false)) { spin = true }
-                    }
+                // 沿最外一圈方框绕行，与三层框同一几何，不甩出去
+                WgPerimeterRunner(shape: Rectangle().inset(by: 1), color: fill, lineWidth: 2, period: 1.6, length: 0.18)
+                    .frame(width: 84, height: 84)
             }
         }
         .frame(width: 86, height: 86)
@@ -375,7 +387,7 @@ private struct StatusOrb: View {
     }
 }
 
-private struct InfoCard<Accessory: View>: View {
+struct InfoCard<Accessory: View>: View {
     var symbol: String
     var tint: Color
     var title: LocalizedStringKey

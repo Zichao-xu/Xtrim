@@ -1,16 +1,14 @@
-// Package firewall 是整台电脑的出站拦截(pf)，与 WireGuard 链路和所在网络无关。
+// Package firewall 是整台电脑的出站拦截(pf)：纯良模式。
 //
-// 拦截境外直连：物理网卡上只放行国内 IP、局域网、网关 fake-ip 段和 WG 服务器，
-// 其余一律拒绝。于是：
-//   - WG 断开/重连空窗：直连境外(含 AI 服务)全被挡；
-//   - 在家：境外流量解析成 fake-ip 交给网关代理，放行；拿真实境外 IP 直连的被挡；
-//   - IPv6 同理，只放行国内段。
+// 语义与 op 上的纯良一致：出口在线时完全休眠，全听出口的；出口不在了才接管。
+//   - 出口在线（WireGuard 握手新鲜 / 内置 mihomo 内核在跑且控制接口有响应）：不下发任何规则；
+//   - 没有出口、出口不健康、切换空档：物理网卡只放行国内、局域网、网关 fake-ip 段、
+//     WG 服务器与放行名单，其余一律立即拒绝（block return，程序马上失败而不是卡到超时）。
 //
-// 隧道锁定（默认开，与上面的开关独立）：WG 全局隧道连着时，物理网卡只放行
-// 局域网和 WG 服务器。程序绑定物理网卡直连、或走路由表没覆盖到的路径，
-// 都不能绕开隧道。隧道一拆除立即恢复，「有就用，没有就不用」。
+// 出口健康由 daemon 每 3 秒算一次交进来（SetExitHealth），拦截不反过来调用引擎：
+// 之前「锁定」判断回调引擎、而引擎持锁时又来同步拦截，导致过死锁。
 //
-// 国内模式把同一规则作用到所有接口(含隧道)，并且不放行 fake-ip。
+// 国内模式把同一规则作用到所有接口(含隧道)、不放行 fake-ip，且不随出口休眠。
 //
 // 规则是 fail-closed 的：daemon 退出不清理，只有关闭开关、卸载服务或
 // 执行 `wgsense-daemon --firewall-clear` 才会解除。
@@ -38,9 +36,8 @@ type Settings struct {
 	Block bool `json:"auto_block"`
 	// ForceDomestic 国内模式：所有接口(含隧道)都只放行国内。
 	ForceDomestic bool `json:"force_domestic"`
-	// AllowBypass 关闭隧道锁定：隧道连着时仍按上面的规则放行物理网卡直连。
-	// 默认 false（锁定），旧版设置文件没有这个字段，升级后即锁定。
-	AllowBypass bool `json:"allow_bypass"`
+	// AllowBypass 旧版「隧道锁定」开关，已废弃：出口在线时纯良休眠，不再锁定。保留字段以兼容旧设置文件。
+	AllowBypass bool `json:"allow_bypass,omitempty"`
 	// BlockProbes 连诊断探测（出站 ICMP 回显请求，traceroute / ping）也拦。
 	// 默认 false：普通拦截模式下放行探测，路由追踪能看到真实路径；国内模式与隧道锁定始终不放行。
 	BlockProbes bool `json:"block_probes"`
@@ -55,8 +52,12 @@ type Status struct {
 	Forced     bool     `json:"forced"`
 	Reason     string   `json:"reason"`
 	Interfaces []string `json:"interfaces,omitempty"` // 正在使用的网卡，仅供展示
-	// Locked 隧道锁定正在生效（全局隧道连着，物理网卡只放行局域网与 WG 服务器）。
-	Locked bool `json:"locked"`
+	// Dormant 出口在线，纯良休眠（不下发规则）。
+	Dormant bool `json:"dormant"`
+	// Exit 当前出口（wireguard / mihomo），ExitOnline 它是否健康，ExitDetail 判断依据。
+	Exit       string `json:"exit,omitempty"`
+	ExitOnline bool   `json:"exit_online"`
+	ExitDetail string `json:"exit_detail,omitempty"`
 	// BlockedPackets 自本套规则生效以来被拒绝的出站包数，非零说明有程序试图绕开。
 	BlockedPackets uint64 `json:"blocked_packets"`
 	// AllowedHosts 放行项当前解析到的地址，普通拦截模式下才有。
@@ -87,8 +88,7 @@ type Controller struct {
 	PhysicalInterfaces func() []string // 规则覆盖的全部物理网卡
 	ActiveInterfaces   func() []string // 有地址、正在使用的网卡
 	TunnelEndpoints    func() []string
-	// TunnelLocked 报告全局隧道是否连着；为 true 且未关闭锁定时启用隧道锁定。
-	TunnelLocked func() bool
+
 	// ResolveHost 把放行域名解析成地址，失败返回空。
 	ResolveHost func(string) []string
 
@@ -98,6 +98,25 @@ type Controller struct {
 	countedAt   time.Time
 	blockedSeen uint64
 	hostCache   map[string]hostEntry
+	health      ExitHealth
+}
+
+// ExitHealth 是当前出口的健康状况，由 daemon 的心跳计算后交进来。
+type ExitHealth struct {
+	Exit   string
+	Online bool
+	Detail string
+}
+
+// SetExitHealth 更新出口健康；有变化才重算规则。
+func (c *Controller) SetExitHealth(h ExitHealth) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.health == h && c.synced {
+		return nil
+	}
+	c.health = h
+	return c.syncLocked()
 }
 
 // counterInterval 限制读取拦截计数的频率（每次要启动 pfctl）。
@@ -115,7 +134,6 @@ func New(path string, backend Backend, logf func(string, ...interface{})) *Contr
 		PhysicalInterfaces: physicalInterfaces,
 		ActiveInterfaces:   activeInterfaces,
 		TunnelEndpoints:    func() []string { return nil },
-		TunnelLocked:       func() bool { return false },
 		ResolveHost:        lookupHost,
 	}
 	if path != "" {
@@ -161,7 +179,7 @@ func (c *Controller) Update(s Settings) error {
 		return err
 	}
 	c.settings = s
-	c.logf("拦截设置已更新: 拦截=%t 国内模式=%t 隧道锁定=%t 放行探测=%t 放行名单=%v", s.Block, s.ForceDomestic, !s.AllowBypass, !s.BlockProbes, s.AllowHosts)
+	c.logf("拦截设置已更新: 纯良=%t 国内模式=%t 放行探测=%t 放行名单=%v", s.Block, s.ForceDomestic, !s.BlockProbes, s.AllowHosts)
 	return c.syncLocked()
 }
 
@@ -199,18 +217,12 @@ func (c *Controller) syncLocked() error {
 	case s.ForceDomestic:
 		status.Active, status.Reason = true, "国内模式：所有出口只放行国内"
 		rules = RenderPF(RuleInput{Endpoints: c.TunnelEndpoints(), CNFile: CNTablePath()})
-	case !s.AllowBypass && c.TunnelLocked():
-		ifaces := c.PhysicalInterfaces()
-		status.Active, status.Locked = true, true
-		status.Reason = "隧道锁定：物理网卡只放行局域网与 WG 服务器，其余必须走隧道"
-		if len(ifaces) == 0 {
-			status.Reason += "（当前无物理网卡）"
-		} else {
-			rules = RenderPF(RuleInput{Interfaces: ifaces, LockTunnel: true, Endpoints: c.TunnelEndpoints(), CNFile: CNTablePath()})
-		}
+	case s.Block && c.health.Online:
+		status.Dormant = true
+		status.Reason = fmt.Sprintf("出口在线（%s），纯良休眠", exitTitle(c.health.Exit))
 	case s.Block:
 		ifaces := c.PhysicalInterfaces()
-		status.Active, status.Reason = true, "物理网卡只放行国内、局域网与 WG 服务器"
+		status.Active, status.Reason = true, "无可用出口，纯良接管：物理网卡只放行国内、局域网与 WG 服务器"
 		if !s.BlockProbes {
 			status.Reason += "；诊断探测（ICMP 回显）放行"
 		}
@@ -233,6 +245,7 @@ func (c *Controller) syncLocked() error {
 	if status.Active {
 		status.Interfaces = c.ActiveInterfaces()
 	}
+	status.Exit, status.ExitOnline, status.ExitDetail = c.health.Exit, c.health.Online, c.health.Detail
 
 	reload := !c.synced || rules != c.appliedPF
 	var errs []error
@@ -281,6 +294,17 @@ func (c *Controller) syncLocked() error {
 	}
 	c.status = status
 	return err
+}
+
+func exitTitle(exit string) string {
+	switch exit {
+	case "mihomo":
+		return "mihomo"
+	case "tailscale":
+		return "Tailscale"
+	default:
+		return "WireGuard"
+	}
 }
 
 // ClearAll 无条件移除所有拦截(卸载/应急)。

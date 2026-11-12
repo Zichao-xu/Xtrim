@@ -39,3 +39,5 @@ SHA256SUMS.txt
 
 # 测速台自带的 iperf3（构建时拉取，见 platforms/macos/vendor/fetch-iperf3.sh）
 /platforms/macos/vendor/iperf3/
+/platforms/macos/vendor/mihomo/
+/core/internal/mihomo/bin/

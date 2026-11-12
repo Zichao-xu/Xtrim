@@ -8,7 +8,7 @@ struct BrandMedia {
         guard CommandLine.arguments.count == 3,
               let bundle = Bundle(path: CommandLine.arguments[1]),
               bundle.url(forResource: "Assets", withExtension: "car") != nil else {
-            fatalError("Usage: render-brand <built WgSense.app> <output PNG>")
+            fatalError("Usage: render-brand <built Xtrim.app> <output PNG>")
         }
         let view = HStack(spacing: 0) {
             ForEach([ColorScheme.light, .dark], id: \.self) { scheme in

@@ -25,7 +25,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ inputs.tag || github.ref_name }}
         run: |
-          if gh release view "$TAG" -R "$GITHUB_REPOSITORY" --json assets -q '.assets[].name' 2>/dev/null | grep -qx 'WgSense-macOS.dmg'; then
+          if gh release view "$TAG" -R "$GITHUB_REPOSITORY" --json assets -q '.assets[].name' 2>/dev/null | grep -qx 'Xtrim-macOS.dmg'; then
             echo "published=true" >> "$GITHUB_OUTPUT"
           else
             echo "published=false" >> "$GITHUB_OUTPUT"
@@ -72,7 +72,7 @@ jobs:
         run: python3 tests/tokens/tokens.py platforms/macos/WgSense --check
 
       - name: Verify native light and dark brand artwork
-        run: zsh tests/branding/check-appearance.sh platforms/macos/build/Build/Products/Release/WgSense.app "${{ runner.temp }}/wgsense-brand-checks"
+        run: zsh tests/branding/check-appearance.sh platforms/macos/build/Build/Products/Release/Xtrim.app "${{ runner.temp }}/wgsense-brand-checks"
 
       - name: Verify HUD model and motion
         run: |
@@ -84,7 +84,7 @@ jobs:
         env:
           REQUESTED_TAG: ${{ inputs.tag }}
         run: |
-          app="platforms/macos/build/Build/Products/Release/WgSense.app"
+          app="platforms/macos/build/Build/Products/Release/Xtrim.app"
           test -x "$app/Contents/Resources/libexec/wgsense-daemon"
           test -x "$app/Contents/Resources/packaging/wgsense-install-services.sh"
           test -x "$app/Contents/Resources/packaging/wgsense-uninstall-services.sh"
@@ -95,7 +95,7 @@ jobs:
           test -f "docs/releases/$tag.md"
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$app/Contents/Info.plist")" = "${tag#v}"
           widget="$app/Contents/PlugIns/WgSenseWidget.appex"
-          test "$(lipo -archs "$app/Contents/MacOS/WgSense")" = "arm64"
+          test "$(lipo -archs "$app/Contents/MacOS/Xtrim")" = "arm64"
           test "$(lipo -archs "$widget/Contents/MacOS/WgSenseWidget")" = "arm64"
           test "$(lipo -archs "$app/Contents/Resources/libexec/wgsense-daemon")" = "arm64"
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$widget/Contents/Info.plist")" = "${tag#v}"
@@ -107,16 +107,16 @@ jobs:
           brew install create-dmg
           chmod +x packaging/create-dmg.sh
           packaging/create-dmg.sh \
-            platforms/macos/build/Build/Products/Release/WgSense.app \
-            WgSense-macOS.dmg
-          shasum -a 256 WgSense-macOS.dmg > SHA256SUMS.txt
+            platforms/macos/build/Build/Products/Release/Xtrim.app \
+            Xtrim-macOS.dmg
+          shasum -a 256 Xtrim-macOS.dmg > SHA256SUMS.txt
 
       - name: Upload app artifact
         uses: actions/upload-artifact@v4
         with:
-          name: WgSense-macOS
+          name: Xtrim-macOS
           path: |
-            WgSense-macOS.dmg
+            Xtrim-macOS.dmg
             SHA256SUMS.txt
 
   release:
@@ -127,7 +127,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: WgSense-macOS
+          name: Xtrim-macOS
           path: artifacts/
 
       - name: Determine tag
@@ -143,10 +143,10 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
-          name: WgSense ${{ steps.tag.outputs.tag }}
+          name: Xtrim ${{ steps.tag.outputs.tag }}
           body_path: docs/releases/${{ steps.tag.outputs.tag }}.md
           files: |
-            artifacts/WgSense-macOS.dmg
+            artifacts/Xtrim-macOS.dmg
             artifacts/SHA256SUMS.txt
           draft: false
           prerelease: ${{ contains(steps.tag.outputs.tag, '-') }}

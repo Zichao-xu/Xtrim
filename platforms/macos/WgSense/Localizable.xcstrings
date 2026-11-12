@@ -4066,131 +4066,131 @@
         }
       }
     },
-    "WgSense" : {
+    "Xtrim" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSense"
+            "value" : "Xtrim"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSense"
+            "value" : "Xtrim"
           }
         },
         "fa" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSense"
+            "value" : "Xtrim"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSense"
+            "value" : "Xtrim"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSense"
+            "value" : "Xtrim"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSense"
+            "value" : "Xtrim"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSense"
+            "value" : "Xtrim"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSense"
+            "value" : "Xtrim"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSense"
+            "value" : "Xtrim"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSense"
+            "value" : "Xtrim"
           }
         }
       }
     },
-    "WgSense 状态" : {
+    "Xtrim 状态" : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "حالة WgSense"
+            "value" : "حالة Xtrim"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSense Status"
+            "value" : "Xtrim Status"
           }
         },
         "fa" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "وضعیت WgSense"
+            "value" : "وضعیت Xtrim"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSenseステータス"
+            "value" : "Xtrimステータス"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSense 상태"
+            "value" : "Xtrim 상태"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Состояние WgSense"
+            "value" : "Состояние Xtrim"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSense Durumu"
+            "value" : "Xtrim Durumu"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Trạng thái WgSense"
+            "value" : "Trạng thái Xtrim"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSense 状态"
+            "value" : "Xtrim 状态"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSense 狀態"
+            "value" : "Xtrim 狀態"
           }
         }
       }
@@ -5298,7 +5298,7 @@
         }
       }
     },
-    "会停止并删除 WgSense 系统服务与 helper，可保留用户配置和传输数据。" : {
+    "会停止并删除 Xtrim 系统服务与 helper，可保留用户配置和传输数据。" : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -5310,60 +5310,60 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stops and removes WgSense system services and helpers while preserving user profiles and transfer data."
+            "value" : "Stops and removes Xtrim system services and helpers while preserving user profiles and transfer data."
           }
         },
         "fa" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "توقف و حذف خدمات سیستم WgSense و کمک کنندگان در حالی که حفظ پروفایل کاربر و انتقال داده ها."
+            "value" : "توقف و حذف خدمات سیستم Xtrim و کمک کنندگان در حالی که حفظ پروفایل کاربر و انتقال داده ها."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSense システムサービスと helper を停止して削除し、ユーザーの構成と転送データを保持できます。"
+            "value" : "Xtrim システムサービスと helper を停止して削除し、ユーザーの構成と転送データを保持できます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSense 시스템 서비스와 helper가 중단되고 삭제되며, 사용자의 구성과 전송 데이터가 보존될 수 있습니다."
+            "value" : "Xtrim 시스템 서비스와 helper가 중단되고 삭제되며, 사용자의 구성과 전송 데이터가 보존될 수 있습니다."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Остановите и удалите WgSense System Service и helper, чтобы сохранить настройки пользователя и передать данные."
+            "value" : "Остановите и удалите Xtrim System Service и helper, чтобы сохранить настройки пользователя и передать данные."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kullanıcı profillerini ve veri aktarımını korurken WgSense sistem hizmetlerini ve yardımcılarını durdurur ve kaldırır."
+            "value" : "Kullanıcı profillerini ve veri aktarımını korurken Xtrim sistem hizmetlerini ve yardımcılarını durdurur ve kaldırır."
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dừng và gỡ bỏ dịch vụ hệ thống WgSense và trợ giúp trong khi lưu trữ hồ sơ người dùng và truyền dữ liệu."
+            "value" : "Dừng và gỡ bỏ dịch vụ hệ thống Xtrim và trợ giúp trong khi lưu trữ hồ sơ người dùng và truyền dữ liệu."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "会停止并删除 WgSense 系统服务与 helper，可保留用户配置和传输数据。"
+            "value" : "会停止并删除 Xtrim 系统服务与 helper，可保留用户配置和传输数据。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "會停止並刪除 WgSense 系統服務與 helper，可保留用戶配置和傳輸數據。"
+            "value" : "會停止並刪除 Xtrim 系統服務與 helper，可保留用戶配置和傳輸數據。"
           }
         }
       }
     },
-    "会安装 WgSense daemon、接收文件搬运 helper 和 launchd 配置，需要管理员授权。" : {
+    "会安装 Xtrim daemon、接收文件搬运 helper 和 launchd 配置，需要管理员授权。" : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -5375,55 +5375,55 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Installs the WgSense daemon, receive-file helper, and launchd configuration. Administrator authorization is required."
+            "value" : "Installs the Xtrim daemon, receive-file helper, and launchd configuration. Administrator authorization is required."
           }
         },
         "fa" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSense daemon، گیرنده فایل دریافت و پیکربندی راه اندازی شده است. مجوز مدیران لازم است."
+            "value" : "Xtrim daemon، گیرنده فایل دریافت و پیکربندی راه اندازی شده است. مجوز مدیران لازم است."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSense daemonをインストールし、ファイル移動helperとlaunchdを設定し、管理者の許可が必要です。"
+            "value" : "Xtrim daemonをインストールし、ファイル移動helperとlaunchdを設定し、管理者の許可が必要です。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSense daemon을 설치하고 파일 이동 helper와 launchd를 설치하고 관리자의 권한을 필요로 한다."
+            "value" : "Xtrim daemon을 설치하고 파일 이동 helper와 launchd를 설치하고 관리자의 권한을 필요로 한다."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Будут установлены WgSense daemon, helper для приема переноса файлов и конфигурация launchd, требующая авторизации администратора."
+            "value" : "Будут установлены Xtrim daemon, helper для приема переноса файлов и конфигурация launchd, требующая авторизации администратора."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSense servisini, alma dosyası yardımcısını ve launchd yapılandırmasını yükler. Yönetici yetkilendirmesi gereklidir."
+            "value" : "Xtrim servisini, alma dosyası yardımcısını ve launchd yapılandırmasını yükler. Yönetici yetkilendirmesi gereklidir."
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cài đặt trình nền WgSense, hỗ trợ nhận tập tin, và cấu hình đã khởi chạy. Cần phải có giấy phép quản trị."
+            "value" : "Cài đặt trình nền Xtrim, hỗ trợ nhận tập tin, và cấu hình đã khởi chạy. Cần phải có giấy phép quản trị."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "会安装 WgSense daemon、接收文件搬运 helper 和 launchd 配置，需要管理员授权。"
+            "value" : "会安装 Xtrim daemon、接收文件搬运 helper 和 launchd 配置，需要管理员授权。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "會安裝 WgSense daemon、接收文件搬運 helper 和 launchd 配置，需要管理員授權。"
+            "value" : "會安裝 Xtrim daemon、接收文件搬運 helper 和 launchd 配置，需要管理員授權。"
           }
         }
       }
@@ -6402,7 +6402,7 @@
         }
       }
     },
-    "先启动 WgSense 后台服务，再连接 Mihomo 控制器" : {
+    "先启动 Xtrim 后台服务，再连接 Mihomo 控制器" : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -6414,55 +6414,55 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Start the WgSense background service, then connect to the Mihomo controller."
+            "value" : "Start the Xtrim background service, then connect to the Mihomo controller."
           }
         },
         "fa" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "خدمات پس زمینه WgSense را شروع کنید، سپس به کنترل کننده Mihomo متصل شوید."
+            "value" : "خدمات پس زمینه Xtrim را شروع کنید، سپس به کنترل کننده Mihomo متصل شوید."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSenseのバックグラウンドサービスを起動してから、Mihomoコントローラーに接続します"
+            "value" : "Xtrimのバックグラウンドサービスを起動してから、Mihomoコントローラーに接続します"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSense 백엔드 서비스를 먼저 실행한 후 Mihomo 컨트롤러에 연결합니다."
+            "value" : "Xtrim 백엔드 서비스를 먼저 실행한 후 Mihomo 컨트롤러에 연결합니다."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сначала запустите WgSense серверную службу, а затем подключите контроллер Mihomo"
+            "value" : "Сначала запустите Xtrim серверную службу, а затем подключите контроллер Mihomo"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WgSense arka plan servisine başlayın, sonra Mihomo kontrolörüne bağlanır."
+            "value" : "Xtrim arka plan servisine başlayın, sonra Mihomo kontrolörüne bağlanır."
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Khởi động dịch vụ nền WgSense, sau đó kết nối với bộ điều khiển Mihomo."
+            "value" : "Khởi động dịch vụ nền Xtrim, sau đó kết nối với bộ điều khiển Mihomo."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "先启动 WgSense 后台服务，再连接 Mihomo 控制器"
+            "value" : "先启动 Xtrim 后台服务，再连接 Mihomo 控制器"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "先啓動 WgSense 後台服務，再連接 Mihomo 控制器"
+            "value" : "先啓動 Xtrim 後台服務，再連接 Mihomo 控制器"
           }
         }
       }
@@ -14316,7 +14316,7 @@
         }
       }
     },
-    "弹出 macOS 管理员授权并启动 WgSense 后台服务" : {
+    "弹出 macOS 管理员授权并启动 Xtrim 后台服务" : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -14328,55 +14328,55 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Request macOS administrator authorization and start the WgSense background service"
+            "value" : "Request macOS administrator authorization and start the Xtrim background service"
           }
         },
         "fa" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "درخواست مجوز مدیریت macOS و شروع سرویس پس زمینه WgSense"
+            "value" : "درخواست مجوز مدیریت macOS و شروع سرویس پس زمینه Xtrim"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "macOS 管理者が WgSense バックグラウンドサービスを承認して起動するポップアップ"
+            "value" : "macOS 管理者が Xtrim バックグラウンドサービスを承認して起動するポップアップ"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "macOS 관리자 권한을 부여하고 WgSense 백그라운드 서비스를 시작합니다."
+            "value" : "macOS 관리자 권한을 부여하고 Xtrim 백그라운드 서비스를 시작합니다."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "После всплывания авторизация администратора macOS и запуска WgSense"
+            "value" : "После всплывания авторизация администратора macOS и запуска Xtrim"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MacOS yönetici izni talep edin ve WgSense arka plan hizmetine başlayın"
+            "value" : "MacOS yönetici izni talep edin ve Xtrim arka plan hizmetine başlayın"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Yêu cầu quyền quản trị macOS và bắt đầu dịch vụ nền WgSense"
+            "value" : "Yêu cầu quyền quản trị macOS và bắt đầu dịch vụ nền Xtrim"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "弹出 macOS 管理员授权并启动 WgSense 后台服务"
+            "value" : "弹出 macOS 管理员授权并启动 Xtrim 后台服务"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "彈出 macOS 管理員授權並啓動 WgSense 後台服務"
+            "value" : "彈出 macOS 管理員授權並啓動 Xtrim 後台服務"
           }
         }
       }

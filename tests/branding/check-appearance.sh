@@ -1,7 +1,7 @@
 #!/bin/zsh
 set -euo pipefail
 if [[ $# -ne 2 ]]; then
-    print -u2 "Usage: $0 <built WgSense.app> <output-directory>"
+    print -u2 "Usage: $0 <built Xtrim.app> <output-directory>"
     exit 2
 fi
 repo_root="${0:A:h:h:h}"

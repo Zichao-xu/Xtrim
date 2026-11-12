@@ -9,6 +9,7 @@ import (
 	"log"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/wgsense/core/internal/config"
@@ -67,6 +68,9 @@ type Engine struct {
 	autoFailures    int
 	nextAutoAttempt time.Time
 	configPath      string
+	exitPath        string
+	exit            atomic.Value // string，见 exit.go：必须能在持有 opMu 时读
+	mihomoExit      ExitBackend
 	ipv6Path        string
 	networkSnapshot func() string
 	lastNetwork     string
@@ -231,7 +235,7 @@ func (e *Engine) runOnNetworkChangeLocked() error {
 
 	trusted := e.loc.IsHome(e.cfg.TrustedNetworkPrefixes)
 	state, _ := e.tun.Status(e.service)
-	if !trusted && state == tunnel.StateConnected && e.shouldKeepVPNUp(trusted) {
+	if e.exitLocked() == ExitWireGuard && !trusted && state == tunnel.StateConnected && e.shouldKeepVPNUp(trusted) {
 		e.Logf("网络变化后验证隧道健康")
 		e.lastHealthCheck = time.Now()
 		if e.tunnelStale() {
@@ -266,6 +270,10 @@ func (e *Engine) runOnceLocked() error {
 }
 
 func (e *Engine) applyPolicyLocked() error {
+	// 出口不是 WireGuard：保证隧道断开，WireGuard 的自动策略整体不跑。
+	if handled, err := e.enforceExitLocked(); handled {
+		return err
+	}
 	// 没有任何保持连接的用户意图，或显式暂停时，跳过自动管理。VPN/守护意图仍
 	// 保留，失败只进入等待/重试，不把开关意图改回关闭。
 	if (!e.cfg.DesiredGuardEnabled && !e.cfg.DesiredVPNEnabled && !e.cfg.AutoConnectUntrusted) || e.pause.IsPaused() {
@@ -546,6 +554,8 @@ type StatusSnapshot struct {
 	Coverage          *tunnel.Coverage     `json:"coverage,omitempty"`
 	NetworkInterfaces []location.Interface `json:"network_interfaces,omitempty"`
 	Firewall          *firewall.Status     `json:"firewall,omitempty"`
+	// Exit 当前出口：wireguard / mihomo（tailscale 预留）。三者互斥。
+	Exit string `json:"exit"`
 }
 
 // Status 返回当前状态快照。
@@ -567,6 +577,7 @@ func (e *Engine) Status() StatusSnapshot {
 		HealthFailures:       e.healthFailures,
 		AutoFailures:         e.autoFailures,
 		NetworkInterfaces:    e.loc.ActiveInterfaces(),
+		Exit:                 e.exitLocked(),
 	}
 	if e.fw != nil {
 		status := e.fw.Status()
@@ -610,6 +621,9 @@ func (e *Engine) Connect() error {
 	}
 	if e.serviceMaintenance {
 		return ErrServiceMaintenance
+	}
+	if e.exitLocked() != ExitWireGuard {
+		return ErrExitNotWireGuard
 	}
 	e.cfg.DesiredVPNEnabled = true
 	if err := e.saveCurrentConfig(); err != nil {

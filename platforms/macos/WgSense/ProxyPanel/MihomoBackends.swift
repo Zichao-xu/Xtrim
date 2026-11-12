@@ -23,6 +23,9 @@ struct MihomoBackend: Codable, Identifiable, Equatable, Hashable {
 
     var effectiveSSHHost: String { sshHost.isEmpty ? host : sshHost }
 
+    /// 内置的「本机内核」后端（WgSense 自己跑的 mihomo）：不能删，没有 SSH，配置来自 op 同步、只读。
+    var isLocal: Bool { id == MihomoBackendStore.localID }
+
     enum CodingKeys: String, CodingKey {
         case id, label, scheme, host, port, secondaryPath, sshHost, sshPort, sshUser, rulePlugin
     }
@@ -81,11 +84,49 @@ final class MihomoBackendStore: ObservableObject {
 
     @Published private(set) var backends: [MihomoBackend] = []
     @Published var activeID: UUID? {
-        didSet { UserDefaults.standard.set(activeID?.uuidString, forKey: Self.activeKey) }
+        didSet {
+            UserDefaults.standard.set(activeID?.uuidString, forKey: Self.activeKey)
+            // 记住最后一个路由器后端：出口切回 WireGuard 时面板回到它，同步配置也从它拉
+            if let activeID, activeID != Self.localID {
+                UserDefaults.standard.set(activeID.uuidString, forKey: Self.remoteKey)
+            }
+        }
     }
 
     var active: MihomoBackend? {
         backends.first { $0.id == activeID } ?? backends.first
+    }
+
+    /// 本机内核后端上编辑规则时的说明。
+    static let localReadOnlyNote = "本机内核的配置从 op 同步而来，在这里改会被下次同步覆盖：请在 op 上改，再到 VPN 板块的 mihomo 页点「从 op 同步」"
+
+    /// 本机内核后端的固定 ID。
+    static let localID = UUID(uuidString: "00000000-0000-4000-8000-00000000e415")!
+    private static let remoteKey = "proxyPanel.lastRemoteBackend"
+
+    /// 路由器后端：最后一次选中的非本机后端（没有就取第一个非本机后端）。
+    var remote: MihomoBackend? {
+        let remembered = UserDefaults.standard.string(forKey: Self.remoteKey).flatMap(UUID.init(uuidString:))
+        return backends.first { $0.id == remembered && !$0.isLocal } ?? backends.first { !$0.isLocal }
+    }
+
+    /// 写入（或更新）本机内核后端；地址与密钥来自网络服务。
+    func ensureLocal(address: String, secret: String) {
+        let parts = address.split(separator: ":")
+        guard parts.count == 2, let port = Int(parts[1]) else { return }
+        var backend = backends.first { $0.isLocal }
+            ?? MihomoBackend(id: Self.localID, label: "本机内核", scheme: "http", host: String(parts[0]), port: port)
+        backend.host = String(parts[0])
+        backend.port = port
+        let changed = backends.first { $0.isLocal } != backend || MihomoKeychain.secret(for: Self.localID) != secret
+        guard changed else { return }
+        save(backend, secret: secret)
+    }
+
+    /// 面板跟随出口：出口是 mihomo 时接本机内核，否则回到路由器后端。
+    func follow(exitIsMihomo: Bool) {
+        let target = exitIsMihomo ? backends.first { $0.isLocal }?.id : remote?.id
+        if let target, activeID != target { activeID = target }
     }
 
     private static let listKey = "proxyPanel.backends"
@@ -110,6 +151,7 @@ final class MihomoBackendStore: ObservableObject {
     }
 
     func remove(_ backend: MihomoBackend) {
+        guard !backend.isLocal else { return }   // 本机内核后端由 WgSense 维护，不能删
         backends.removeAll { $0.id == backend.id }
         MihomoKeychain.deleteSecret(for: backend.id)
         if activeID == backend.id { activeID = backends.first?.id }

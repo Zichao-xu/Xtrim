@@ -164,22 +164,29 @@ private struct ProxySectionTabs: View {
 
 private struct ProxyPageHeader: View {
     @EnvironmentObject private var client: DaemonClient
+    @ObservedObject private var backends = MihomoBackendStore.shared
     let section: ProxySection
 
+    /// 面板跟随出口自动换后端：标题写明当前连的是本机内核还是路由器。
+    private var subtitle: String {
+        guard let b = backends.active else { return "MIHOMO" }
+        return b.isLocal ? "MIHOMO · 本机内核 \(b.host):\(b.port)" : "MIHOMO · \(b.displayName) \(b.host):\(b.port)"
+    }
+
     var body: some View {
-        WgPageHeader(title: "代理",
-                     subtitleText: client.proxyAddress.isEmpty ? "MIHOMO" : "MIHOMO · \(client.proxyAddress)",
-                     word: "PROXY") {
+        WgPageHeader(title: "面板",
+                     subtitleText: subtitle,
+                     word: "PANEL") {
             // 节点信息块：左上斜切的黑色弱玻璃，等宽两列。
             Grid(alignment: .leading, horizontalSpacing: 14, verticalSpacing: 3) {
                 GridRow {
                     Text(verbatim: "CORE").font(WgInk.mono(.caption)).tracking(1).foregroundStyle(WgInk.ink3)
-                    Text(verbatim: client.mihomoVersion?.version ?? "—").font(WgInk.mono(.caption, .medium)).foregroundStyle(WgInk.ink)
+                    Text(verbatim: coreVersion).font(WgInk.mono(.caption, .medium)).foregroundStyle(WgInk.ink)
                 }
                 GridRow {
                     Text(verbatim: "STATE").font(WgInk.mono(.caption)).tracking(1).foregroundStyle(WgInk.ink3)
                     HStack(spacing: WgSpace.xs) {
-                        Rectangle().fill(client.proxyRunning ? WgInk.ink : WgInk.ink4).frame(width: 6, height: 6)
+                        Rectangle().fill(linked ? WgInk.ink : WgInk.ink4).frame(width: 6, height: 6)
                         statusLabel.font(WgInk.mono(.caption, .medium)).foregroundStyle(WgInk.ink)
                     }
                 }
@@ -201,9 +208,18 @@ private struct ProxyPageHeader: View {
         .wgPadding(.bottom, .l)
     }
 
+    /// 本机内核后端的状态由网络服务报告；路由器后端沿用网络服务里的控制器客户端。
+    private var isLocal: Bool { backends.active?.isLocal == true }
+    private var coreVersion: String {
+        isLocal ? (client.mihomo?.version ?? "—") : (client.mihomoVersion?.version ?? "—")
+    }
+    private var linked: Bool { isLocal ? client.mihomo?.running == true : client.proxyRunning }
+
     @ViewBuilder
     private var statusLabel: some View {
-        if client.proxyRunning {
+        if isLocal {
+            Text(client.mihomo?.running == true ? "本机运行中" : "本机未运行")
+        } else if client.proxyRunning {
             Text(verbatim: "LINKED")
         } else if client.proxyServiceRunning {
             Text("控制器未连接")
@@ -255,7 +271,7 @@ private struct ProxyUnavailableView: View {
                     icon: { Image(systemName: client.proxyServiceRunning ? "network.slash" : "gearshape.2") }
                 )
             } description: {
-                Text(LocalizedStringKey(client.proxyServiceRunning ? "请在设置中检查 Mihomo 地址与密钥" : "先启动 WgSense 后台服务，再连接 Mihomo 控制器"))
+                Text(LocalizedStringKey(client.proxyServiceRunning ? "请在设置中检查 Mihomo 地址与密钥" : "先启动 Xtrim 后台服务，再连接 Mihomo 控制器"))
             }
             HStack(spacing: WgSpace.m) {
                 if let startDaemon, !client.proxyServiceRunning {
@@ -268,7 +284,7 @@ private struct ProxyUnavailableView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .disabled(client.isAuthorizingDaemon)
-                    .accessibilityHint("弹出 macOS 管理员授权并启动 WgSense 后台服务")
+                    .accessibilityHint("弹出 macOS 管理员授权并启动 Xtrim 后台服务")
                 }
                 if let onRetry {
                     Button(action: onRetry) {

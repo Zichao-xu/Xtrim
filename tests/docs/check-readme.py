@@ -52,7 +52,9 @@ for path in sorted(media):
             errors.append(f"Invalid PNG: {path.name}")
             continue
         width, height = struct.unpack('>II', data[16:24])
-        if width < 640 or height < 200:
+        # 尺寸下限只针对截图；branding/ 下的字标等品牌资源本就是扁长条
+        is_brand = path.relative_to(ROOT).parts[0] == "branding"
+        if not is_brand and (width < 640 or height < 200):
             errors.append(f"Screenshot too small: {path.name} {width}x{height}")
     elif path.suffix == ".gif":
         if data[:6] not in (b'GIF87a', b'GIF89a'):

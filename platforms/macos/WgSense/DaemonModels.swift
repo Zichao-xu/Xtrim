@@ -28,6 +28,8 @@ struct DaemonStatus: Codable, Equatable {
     var firewall: FirewallStatus?
     /// 隧道接管了什么、哪些不走隧道以及原因。
     var coverage: TunnelCoverage?
+    /// 当前出口：wireguard / mihomo（tailscale 预留）。旧版网络服务没有这个字段 = 只有 WireGuard。
+    var exit: String?
 
     var isTrustedNetwork: Bool { trusted_network ?? at_home }
 
@@ -44,6 +46,14 @@ struct FirewallStatus: Codable, Equatable {
     var interfaces: [String]?
     /// 隧道锁定生效中：全局隧道连着，物理网卡只放行局域网与 WG 服务器。
     var locked: Bool?
+    /// 锁定的出口（旧版网络服务）。
+    var lock_kind: String?
+    /// 出口在线，纯良休眠（新版网络服务）。
+    var dormant: Bool?
+    /// 当前出口与健康判断（新版网络服务）。
+    var exit: String?
+    var exit_online: Bool?
+    var exit_detail: String?
     /// 本套规则生效以来被拒绝的出站包数。
     var blocked_packets: UInt64?
     /// 放行项当前解析到的地址，普通拦截模式下才有。
@@ -103,6 +113,34 @@ struct TunnelIPv6Settings: Codable, Equatable {
     var mode: String
     var prefix: String
     var probe_targets: [String]
+}
+
+/// 内置代理内核（daemon /api/mihomo）。
+struct MihomoStatus: Codable, Equatable {
+    /// 这份网络服务带了内核。
+    var bundled: Bool
+    var version: String?
+    /// 用户希望它运行（跨服务重启保持）。
+    var desired: Bool
+    var running: Bool
+    var pid: Int?
+    var started_at: String?
+    var controller: String
+    var mixed_port: Int
+    var config_path: String
+    var user: String?
+    /// 上次意外退出的原因。
+    var last_exit: String?
+    var error: String?
+    /// 配置来源（从 op 同步时为 root@host:/etc/mihomo）；nil = 默认配置，不能作为出口。
+    var source: String?
+    var synced_at: String?
+    /// 同步时剔除的、只能在路由器上用的节点。
+    var dropped: [String]?
+    /// GEO 数据库齐全（旧版网络服务不报 = 当作不齐）。
+    var geo_ready: Bool?
+    /// 正在被接管 DNS 的网络服务（如 Wi-Fi）。
+    var dns_service: String?
 }
 
 struct FirewallResponse: Codable, Equatable {

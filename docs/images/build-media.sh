@@ -2,7 +2,7 @@
 # Public product media: production SwiftUI views, synthetic fixtures, no live data.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-APP="${1:?Usage: build-media.sh /absolute/path/WgSense.app /absolute/scratch-directory}"
+APP="${1:?Usage: build-media.sh /absolute/path/Xtrim.app /absolute/scratch-directory}"
 SCRATCH="${2:?Provide an absolute scratch directory outside docs/images}"
 OUT="$ROOT/docs/images"
 case "$APP:$SCRATCH" in /*:/*) ;; *) echo "Both paths must be absolute" >&2; exit 2 ;; esac

@@ -34,7 +34,7 @@ struct BrandAppearanceRegression {
 
     @MainActor static func main() throws {
         guard CommandLine.arguments.count == 3 else {
-            print("Usage: brand-appearance-check <built WgSense.app> <output-directory>")
+            print("Usage: brand-appearance-check <built Xtrim.app> <output-directory>")
             throw Failure.invalidArguments
         }
         let bundlePath = CommandLine.arguments[1]

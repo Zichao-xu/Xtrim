@@ -225,10 +225,10 @@ struct MainView: View {
     @EnvironmentObject var client: DaemonClient
     @AppStorage("appLanguage") private var appLanguageRaw = WgAppLanguage.system.rawValue
     @AppStorage("appAppearance") private var appAppearanceRaw = WgAppAppearance.system.rawValue
-    /// 调试用：`open WgSense.app --args -WgSenseInitialTab settings` 直接停在指定页面（仅命令行参数域，不落盘）。
+    /// 调试用：`open Xtrim.app --args -WgSenseInitialTab settings` 直接停在指定页面（仅命令行参数域，不落盘）。
     @State private var selection: SidebarTab = SidebarTab(
         rawValue: UserDefaults.standard.volatileDomain(forName: UserDefaults.argumentDomain)["WgSenseInitialTab"] as? String ?? ""
-    ) ?? .dashboard
+    ) ?? .vpn
     /// 侧栏宽度：一路拖到最窄（64）就是只剩图标的收起形态，中间无极过渡（见 SidebarView.compactness）。
     /// 调试用：`--args -WgSenseSidebarWidth 120` 指定启动宽度（看中间形态，仅命令行参数域）。
     @State private var sidebarWidth: CGFloat = (UserDefaults.standard.volatileDomain(forName: UserDefaults.argumentDomain)["WgSenseSidebarWidth"] as? String)
@@ -442,7 +442,7 @@ struct MainView: View {
         let host = NSHostingView(rootView: MenuBarView().environmentObject(client))
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 300, height: 360),
                               styleMask: [.titled, .fullSizeContentView], backing: .buffered, defer: false)
-        window.title = "WgSense Menu Preview"
+        window.title = "Xtrim Menu Preview"
         window.titlebarAppearsTransparent = true
         let effect = NSVisualEffectView()
         effect.material = .menu
@@ -499,7 +499,8 @@ private struct MainPageArea: View {
             WgScrollView(content: AnyView(
                 Group {
                     switch selection {
-                    case .dashboard, .wireguard: OverviewView()
+                    // 概览已并入 VPN 板块（WireGuard 子页即原概览内容）；旧入口一律打开 VPN
+                    case .dashboard, .wireguard: VPNView()
                     case .profile: ProfileManagerView()
                     case .transferReceive: TransferReceiveView()
                     case .transferSend: TransferSendView()
@@ -507,6 +508,8 @@ private struct MainPageArea: View {
                     case .about: AboutView()
                     case .speedtest: SpeedLabView()
                     case .trace: TraceView()
+                    case .purity: PurityView()
+                    case .vpn: VPNView()
                     case .proxy, .logs: EmptyView()
                     }
                 }
@@ -606,14 +609,14 @@ private final class SidebarResizeHandleView: NSView {
 // MARK: - Tab 枚举
 
 enum SidebarTab: String, CaseIterable, Identifiable {
-    case dashboard, wireguard, proxy, profile, transferReceive, transferSend, settings, logs, about, speedtest, trace
+    case dashboard, wireguard, proxy, profile, transferReceive, transferSend, settings, logs, about, speedtest, trace, purity, vpn
     var id: String { rawValue }
 
     var label: LocalizedStringKey {
         switch self {
         case .dashboard: return "概览"
         case .wireguard: return "WireGuard"
-        case .proxy: return "代理"
+        case .proxy: return "面板"
         case .profile: return "配置"
         case .transferReceive: return "接收"
         case .transferSend: return "发送"
@@ -622,6 +625,8 @@ enum SidebarTab: String, CaseIterable, Identifiable {
         case .about: return "关于"
         case .speedtest: return "测速"
         case .trace: return "路由追踪"
+        case .purity: return "纯良"
+        case .vpn: return "VPN"
         }
     }
 }
@@ -629,7 +634,7 @@ enum SidebarTab: String, CaseIterable, Identifiable {
 // MARK: - 磁贴数据模型
 
 enum TileKind: String, CaseIterable, Identifiable, Codable {
-    case vpn, pause, stop, transferReceive, transferSend, proxy, profile, logs, about, connection, speedtest, trace
+    case vpn, pause, stop, transferReceive, transferSend, proxy, profile, logs, about, connection, speedtest, trace, purity
     var id: String { rawValue }
 
     var isAddable: Bool {
@@ -643,13 +648,14 @@ enum TileKind: String, CaseIterable, Identifiable, Codable {
         case .stop: return "停止"
         case .transferReceive: return "接收"
         case .transferSend: return "发送"
-        case .proxy: return "代理"
+        case .proxy: return "面板"
         case .profile: return "配置"
         case .logs: return "日志"
         case .about: return "关于"
         case .connection: return "流量"
         case .speedtest: return "测速"
         case .trace: return "路由追踪"
+        case .purity: return "纯良"
         }
     }
 
@@ -660,13 +666,14 @@ enum TileKind: String, CaseIterable, Identifiable, Codable {
         case .stop: return "stop.fill"
         case .transferReceive: return "arrow.down"
         case .transferSend: return "arrow.up"
-        case .proxy: return "globe"
+        case .proxy: return "rectangle.3.group"
         case .profile: return "doc.text.fill"
         case .logs: return "text.alignleft"
         case .about: return "info"
         case .connection: return "arrow.up.arrow.down"
         case .speedtest: return "gauge.with.dots.needle.67percent"
         case .trace: return "point.3.connected.trianglepath.dotted"
+        case .purity: return "hand.raised.fill"
         }
     }
 
@@ -678,13 +685,14 @@ enum TileKind: String, CaseIterable, Identifiable, Codable {
         case .stop: return "ST"
         case .transferReceive: return "RX"
         case .transferSend: return "TX"
-        case .proxy: return "PX"
+        case .proxy: return "PNL"
         case .profile: return "CF"
         case .logs: return "LG"
         case .about: return "AB"
         case .connection: return "NET"
         case .speedtest: return "SPD"
         case .trace: return "TRC"
+        case .purity: return "PUR"
         }
     }
 
@@ -694,7 +702,7 @@ enum TileKind: String, CaseIterable, Identifiable, Codable {
         case .pause: return .orange
         case .stop: return .red
         case .logs, .about: return .gray
-        case .vpn, .transferReceive, .transferSend, .proxy, .profile, .connection, .speedtest, .trace: return WgInk.signal
+        case .vpn, .transferReceive, .transferSend, .proxy, .profile, .connection, .speedtest, .trace, .purity: return WgInk.signal
         }
     }
 
@@ -788,6 +796,10 @@ struct SidebarView: View {
             if !tiles.contains(where: { $0.kind == .trace }) { tiles.append(TileData(kind: .trace)) }
             UserDefaults.standard.set(true, forKey: "tileLayout.seeded.trace")
         }
+        if !UserDefaults.standard.bool(forKey: "tileLayout.seeded.purity") {
+            if !tiles.contains(where: { $0.kind == .purity }) { tiles.append(TileData(kind: .purity)) }
+            UserDefaults.standard.set(true, forKey: "tileLayout.seeded.purity")
+        }
         _tiles = State(initialValue: tiles)
     }
 
@@ -836,6 +848,7 @@ struct SidebarView: View {
             TileData(kind: .connection),
             TileData(kind: .speedtest),
             TileData(kind: .trace),
+            TileData(kind: .purity),
         ]
     }
 
@@ -909,12 +922,12 @@ struct SidebarView: View {
         .transaction { $0.animation = nil }
     }
 
-    /// 品牌栏：细分隔线 + 几何标 + 名称 / 版本，右侧是添加、编辑、设置。
+    /// 品牌栏：细分隔线 + 字标，右侧是添加、编辑、设置。
     private var brandFoot: some View {
-        // 按宽度降级，永不撑出侧栏：完整 → 去掉名字 → 只留标志和设置
+        // 按宽度降级，永不撑出侧栏：字标 + 工具 → 字标 + 设置 → 几何标 + 设置
         ViewThatFits(in: .horizontal) {
             brandFootRow(name: true, tools: true)
-            brandFootRow(name: false, tools: true)
+            brandFootRow(name: true, tools: false)
             brandFootRow(name: false, tools: false)
         }
         .wgPadding(.horizontal, .l)
@@ -928,16 +941,12 @@ struct SidebarView: View {
 
     private func brandFootRow(name: Bool, tools: Bool) -> some View {
         HStack(spacing: WgSpace.m) {
-            WgBrandIcon()
-                .frame(width: 28, height: 28)
+            // 放得下就用字标，放不下退回几何标
             if name {
-                VStack(alignment: .leading, spacing: WgSpace.zero) {
-                    Text(verbatim: "WgSense").font(.system(size: WgType.title, weight: .heavy)).tracking(0.6).fixedSize()
-                    // 版本行不计入理想宽度：名字放得下就显示这一档，版本行放不下就截断
-                    Text(verbatim: "V\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0") · WIREGUARD / MIHOMO")
-                        .font(WgInk.mono(.micro)).tracking(1).foregroundStyle(WgInk.ink3).lineLimit(1)
-                        .frame(idealWidth: 0, maxWidth: .infinity, alignment: .leading)
-                }
+                XtrimWordmark(height: 10)
+            } else {
+                WgBrandIcon()
+                    .frame(width: 28, height: 28)
             }
             Spacer(minLength: 4)
 
@@ -1032,7 +1041,8 @@ struct SidebarView: View {
 
     private func tab(for kind: TileKind) -> SidebarTab? {
         switch kind {
-        case .vpn, .connection: return .dashboard
+        case .vpn: return .vpn
+        case .connection: return .vpn
         case .transferReceive: return .transferReceive
         case .transferSend: return .transferSend
         case .proxy: return .proxy
@@ -1041,6 +1051,7 @@ struct SidebarView: View {
         case .about: return .about
         case .speedtest: return .speedtest
         case .trace: return .trace
+        case .purity: return .purity
         case .pause, .stop: return nil
         }
     }
@@ -1102,6 +1113,11 @@ struct SidebarView: View {
             let tile = traceTile
             return ModuleInfo(symbol: kind.icon, tint: kind.activeColor, isOn: tile.running,
                               status: tile.text.map { Text(verbatim: $0) } ?? Text("世界航线"))
+        case .purity:
+            // 状态行只给结论（休眠 / 接管中 / 未启用），与页面主视觉同源；接管中或未启用着警示色
+            let purity = PurityPresentation(status: client.status, tunnelUp: client.isTunnelUp)
+            return ModuleInfo(symbol: kind.icon, tint: WgInk.warn, isOn: purity.mode != .off && purity.mode != .unavailable,
+                              status: Text(purity.verdict), highlight: purity.needsAttention)
         case .vpn, .connection, .speedtest:
             return ModuleInfo(symbol: kind.icon, tint: kind.activeColor, isOn: false, status: Text(""))
         }
@@ -1111,23 +1127,48 @@ struct SidebarView: View {
         // 磁贴：左上白色短竖条 + 右上等宽代号 + 标题 / 状态 + 右下放大淡出的图标（只做辨识度）。
         let info = moduleInfo(tile.kind)
         let compact = tile.size == .small
-        return VStack(alignment: .leading, spacing: WgSpace.m) {
-            VStack(alignment: .leading, spacing: WgSpace.xs) {
-                Text(tile.kind.title)
-                    .font(.system(size: WgType.title, weight: .bold))
-                    .lineLimit(1)
-                info.status
-                    .font(.system(size: WgType.body, weight: .medium))
-                    .foregroundStyle(info.highlight ? info.tint : WgInk.ink3)
-                    .lineLimit(1)
-            }
-            if !compact {
-                moduleDetail(tile)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        // 中号磁贴只有一行高：详情排在标题右侧；排在下方放不下，会把标题顶出磁贴。
+        let wide = tile.size == .medium
+        let heading = VStack(alignment: .leading, spacing: WgSpace.xs) {
+            Text(tile.kind.title)
+                .font(.system(size: WgType.title, weight: .bold))
+                .lineLimit(1)
+            info.status
+                .font(.system(size: WgType.body, weight: .medium))
+                .foregroundStyle(info.highlight ? info.tint : WgInk.ink3)
+                .lineLimit(1)
+        }
+        return Group {
+            if wide {
+                // 侧栏宽窄不定：宽时详情列让出水印图标的位置；窄一档贴右排；再窄只留标题与结论，不显示截断的半截字。
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .center, spacing: WgSpace.l) {
+                        heading.fixedSize()
+                        Spacer(minLength: 0)
+                        VStack(alignment: .leading, spacing: WgSpace.xs) { moduleDetail(tile) }
+                            .frame(width: 120)
+                            .wgInset(.trailing, 52)
+                    }
+                    HStack(alignment: .center, spacing: WgSpace.l) {
+                        heading.fixedSize()
+                        Spacer(minLength: 0)
+                        VStack(alignment: .leading, spacing: WgSpace.xs) { moduleDetail(tile) }
+                            .frame(width: 88)
+                    }
+                    heading
+                }
+            } else {
+                VStack(alignment: .leading, spacing: WgSpace.m) {
+                    heading
+                    if !compact {
+                        moduleDetail(tile)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    }
+                }
             }
         }
-        .wgPadding(.leading, .l).wgPadding(.trailing, .m).wgPadding(.vertical, compact ? .m : .l)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: compact ? .leading : .topLeading)
+        .wgPadding(.leading, .l).wgPadding(.trailing, wide ? .l : .m).wgPadding(.vertical, compact || wide ? .m : .l)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: compact || wide ? .leading : .topLeading)
         .background(alignment: .bottomTrailing) {
             WgGhostSymbol(symbol: info.symbol, size: compact ? 58 : 72, opacity: info.isOn ? 0.2 : 0.12)
                 .offset(x: 12, y: 16)
@@ -1165,6 +1206,13 @@ struct SidebarView: View {
                     detailLine(name, name == client.status?.service ? "当前" : "")
                 }
             }
+        case .purity:
+            let purity = PurityPresentation(status: client.status, tunnelUp: client.isTunnelUp)
+            detailLine("处境", purity.code)
+            detailLine("已拒绝", "\(purity.blocked) 包")
+            if tile.size == .large {
+                detailLine("网卡", client.status?.firewall?.interfaces?.joined(separator: " ") ?? "—")
+            }
         default:
             EmptyView()
         }
@@ -1184,51 +1232,54 @@ struct SidebarView: View {
 
     private func vpnModule(_ tile: TileData) -> some View {
         let vpn = client.vpnPresentation
+        // 代号与状态跟随点击立即变化；切换进行中显示「切换中」
+        let exit = client.displayedExit
+        let switching = client.switchingExit != nil
+        let mh = MihomoPresentation(status: client.mihomo, error: client.mihomoError)
         let compact = tile.size == .small
+        // 出口不是 WireGuard 时，徽标与状态跟随当前出口；守护 / 暂停只属于 WireGuard
+        let isOn = exit == .mihomo ? mh.phase == .running : vpn.isConnected
+        let statusText: Text = switching ? Text("切换中") : (exit == .mihomo ? Text(mh.title) : Text(vpn.title))
+        let statusTint: Color = exit == .mihomo ? (mh.phase == .crashed ? WgInk.warn : (isOn ? vpn.tint : .secondary)) : (vpn.isConnected ? vpn.tint : .secondary)
         return VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .center, spacing: compact ? WgSpace.m : WgSpace.m) {
+            HStack(alignment: .center, spacing: WgSpace.m) {
                 Button(action: toggleVPN) {
                     WgCircleBadge(
-                        symbol: vpn.symbol,
-                        tint: vpn.tint,
-                        isOn: vpn.isConnected,
+                        symbol: exit == .mihomo ? "globe" : vpn.symbol,
+                        tint: exit == .mihomo ? .green : vpn.tint,
+                        isOn: isOn,
                         size: compact ? 36 : 46,
-                        isBusy: vpn.isBusy
+                        isBusy: switching || (exit == .wireguard && vpn.isBusy),
+                        logo: exit
                     )
                 }
                 .buttonStyle(.plain)
-                .disabled(isEditMode)
+                // 切换出口进行中：不允许并行开关出口
+                .disabled(isEditMode || switching)
                 .help(vpnToggleHelp(vpn))
 
                 VStack(alignment: .leading, spacing: 1) {
+                    // 当前出口由左侧徽章里的标识表示，标题旁不再重复
                     Text("VPN")
                         .font(.system(size: compact ? WgType.body : WgType.title, weight: .semibold))
-                    Text(vpn.title)
-                        .font(.system(size: compact ? WgType.body : WgType.sub, weight: vpn.isConnected ? .medium : .regular))
-                        .foregroundStyle(vpn.isConnected ? vpn.tint : Color.secondary)
+                    statusText
+                        .font(.system(size: compact ? WgType.body : WgType.sub, weight: isOn ? .medium : .regular))
+                        .foregroundStyle(statusTint)
                         .contentTransition(.opacity)
                 }
+                .fixedSize()
                 Spacer(minLength: 0)
 
                 if tile.size == .medium {
-                    HStack(spacing: WgSpace.zero) {
-                        Button { Task { await client.setGuardEnabled(!guardRunning) } } label: {
-                            Image(systemName: guardRunning ? "shield.fill" : "shield.slash")
-                        }
-                        .buttonStyle(WgToolbarIconButtonStyle(isActive: guardRunning))
-                        .help(guardRunning ? "关闭守护" : "开启守护")
-                        Button(action: toggleVPNPause) {
-                            Image(systemName: client.isPauseOn ? "play.fill" : "pause.fill")
-                        }
-                        .buttonStyle(WgToolbarIconButtonStyle(isActive: client.isPauseOn))
-                        .help(client.isPauseOn ? "继续并重新连接" : "暂停 \(client.pauseMinutes) 分钟")
-                    }
-                    .disabled(isEditMode)
+                    wgGuardPauseIcons
+                        .disabled(isEditMode || exit != .wireguard)
                 }
             }
 
             if tile.size == .large {
-                Text(vpn.detail)
+                // 出口切换只在 VPN 板块里做；磁贴只显示当前出口（徽章标识）与常用操作
+                // 切换条移走后，详情行回到原位
+                (exit == .mihomo ? Text(verbatim: mihomoTileDetail(mh)) : Text(vpn.detail))
                     .font(.system(size: WgType.body))
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
@@ -1236,16 +1287,47 @@ struct SidebarView: View {
                     .wgPadding(.top, .m)
                 Spacer(minLength: 8)
                 vpnActions
+                    .disabled(exit != .wireguard)
+                    .opacity(exit == .wireguard ? 1 : 0.4)
             }
         }
         .wgPadding(compact ? .m : .l)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: compact ? .leading : .topLeading)
-        .wgInteractiveSurface(isSelected: selection == .dashboard, isEnabled: !isEditMode) {
-            withAnimation(.easeInOut(duration: 0.15)) { selection = .dashboard }
+        .wgInteractiveSurface(isSelected: selection == .vpn, isEnabled: !isEditMode) {
+            withAnimation(.easeInOut(duration: 0.15)) { selection = .vpn }
+        }
+    }
+
+    private var wgGuardPauseIcons: some View {
+        HStack(spacing: WgSpace.zero) {
+            Button { Task { await client.setGuardEnabled(!guardRunning) } } label: {
+                Image(systemName: guardRunning ? "shield.fill" : "shield.slash")
+            }
+            .buttonStyle(WgToolbarIconButtonStyle(isActive: guardRunning))
+            .help(guardRunning ? "关闭守护" : "开启守护")
+            Button(action: toggleVPNPause) {
+                Image(systemName: client.isPauseOn ? "play.fill" : "pause.fill")
+            }
+            .buttonStyle(WgToolbarIconButtonStyle(isActive: client.isPauseOn))
+            .help(client.isPauseOn ? "继续并重新连接" : "暂停 \(client.pauseMinutes) 分钟")
+        }
+    }
+
+    private func mihomoTileDetail(_ mh: MihomoPresentation) -> String {
+        switch mh.phase {
+        case .running: return "内核运行中 · 只监听本机端口，尚未接管流量"
+        case .crashed: return mh.status?.last_exit ?? "内核意外退出"
+        case .stopped: return "内核已停止"
+        case .notBundled, .unsupported: return "内核不可用"
         }
     }
 
     private func toggleVPN() {
+        if client.currentExit == .mihomo {
+            let running = client.mihomo?.running == true
+            Task { _ = await client.setMihomo(running: !running) }
+            return
+        }
         let vpn = client.vpnPresentation
         if vpn.phase == .setupFailed {
             Task { await client.retryServiceInstall() }
@@ -1255,6 +1337,7 @@ struct SidebarView: View {
     }
 
     private func vpnToggleHelp(_ vpn: WgVPNPresentation) -> LocalizedStringKey {
+        if client.currentExit == .mihomo { return client.mihomo?.running == true ? "停止 mihomo 内核" : "启动 mihomo 内核" }
         if vpn.canDisconnect { return "断开 VPN" }
         if vpn.phase == .setupFailed { return "重试安装后台服务（会弹一次密码框）" }
         if vpn.phase == .home { return "在家由守护保持断开；关闭守护后可手动连接" }
@@ -1361,7 +1444,7 @@ struct SidebarView: View {
         .wgPadding(compact ? .m : .l)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: tile.size == .large ? .topLeading : .leading)
         .wgInteractiveSurface(isSelected: false, isEnabled: !isEditMode) {
-            withAnimation(.easeInOut(duration: 0.15)) { selection = .dashboard }
+            withAnimation(.easeInOut(duration: 0.15)) { selection = .vpn }
         }
     }
 
@@ -1379,7 +1462,7 @@ struct SidebarView: View {
     // MARK: - Tab 行
 
     private var tabRow: some View {
-        let topTabs: [SidebarTab] = [.dashboard, .profile, .settings]  // 概览 + 配置 + 设置
+        let topTabs: [SidebarTab] = [.vpn, .profile, .settings]  // VPN（原概览）+ 配置 + 设置
         return HStack(spacing: WgSpace.s) {
             ForEach(topTabs) { tab in
                 Button {
@@ -1407,7 +1490,8 @@ struct SidebarView: View {
     private func handleSmallTileTap(_ tile: TileData) {
         withAnimation(.easeInOut(duration: 0.15)) {
             switch tile.kind {
-            case .vpn, .connection: selection = .dashboard
+            case .vpn: selection = .vpn
+            case .connection: selection = .vpn
             case .proxy: selection = .proxy
             case .profile: selection = .profile
             case .transferReceive: selection = .transferReceive
@@ -1416,6 +1500,7 @@ struct SidebarView: View {
             case .about: selection = .about
             case .speedtest: selection = .speedtest
             case .trace: selection = .trace
+            case .purity: selection = .purity
             case .stop: stopAllServices()
             case .pause: break
             }
@@ -2342,12 +2427,12 @@ struct AboutView: View {
             VStack(spacing: WgSpace.m) {
                 WgBrandIcon()
                     .frame(width: 88, height: 88)
-                Text("WgSense")
+                Text(verbatim: "Xtrim")
                     .font(.system(size: WgType.readout, weight: .bold))
                 Text(verbatim: "版本 \(version)（\(build)）")
                     .font(.system(size: WgType.sub))
                     .foregroundStyle(.secondary)
-                Text("在家自动断开，出门自动连上的 WireGuard 客户端")
+                Text(verbatim: "ネットは広大だわ")
                     .font(.system(size: WgType.body))
                     .foregroundStyle(.secondary)
                     .wgPadding(.top, .zero)
@@ -2384,7 +2469,7 @@ struct AboutView: View {
                 WgRowDivider()
                 WgRow(symbol: "chevron.left.forwardslash.chevron.right", tint: .gray, title: "源代码") {
                     Button {
-                        if let url = URL(string: "https://github.com/Zichao-xu/WgSense") { NSWorkspace.shared.open(url) }
+                        if let url = URL(string: "https://github.com/Zichao-xu/Xtrim") { NSWorkspace.shared.open(url) }
                     } label: { Label("GitHub", systemImage: "arrow.up.forward") }
                         .buttonStyle(WgPillButtonStyle())
                 }
@@ -3093,4 +3178,21 @@ extension EnvironmentValues {
 private extension Double {
     /// 0（从未存过的 UserDefaults 读回来的默认值）当作没有。
     var nonZero: Double? { self == 0 ? nil : self }
+}
+
+
+/// 品牌字标：单色模板图，跟随墨色与深浅色；高度定死，宽度按原比例。
+struct XtrimWordmark: View {
+    var height: CGFloat
+    private static let aspect: CGFloat = 1753.0 / 230.0
+
+    var body: some View {
+        Image("XtrimWordmark")
+            .renderingMode(.template)
+            .resizable()
+            .interpolation(.high)
+            .foregroundStyle(Color.primary)
+            .frame(width: height * Self.aspect, height: height)
+            .accessibilityLabel(Text(verbatim: "Xtrim"))
+    }
 }

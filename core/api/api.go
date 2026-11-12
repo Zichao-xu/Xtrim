@@ -15,6 +15,7 @@ import (
 
 	"github.com/wgsense/core/internal/config"
 	"github.com/wgsense/core/internal/firewall"
+	"github.com/wgsense/core/internal/mihomo"
 	"github.com/wgsense/core/internal/policy"
 	"github.com/wgsense/core/internal/proxy"
 	"github.com/wgsense/core/internal/transfer"
@@ -31,7 +32,11 @@ type Server struct {
 	serviceInfo    func() service.Info
 	updateService  func(context.Context, service.Request) (service.Request, error)
 	restartService func()
+	mihomo         *mihomo.Manager
 }
+
+// SetMihomo 接上内置代理内核；不接时 /api/mihomo 报不可用。
+func (s *Server) SetMihomo(m *mihomo.Manager) { s.mihomo = m }
 
 func (s *Server) SetService(info func() service.Info, update func(context.Context, service.Request) (service.Request, error), restart func()) {
 	s.serviceInfo, s.updateService, s.restartService = info, update, restart
@@ -72,6 +77,10 @@ func (s *Server) Serve(listener net.Listener) error {
 	mux.HandleFunc("/api/config", s.handleConfig)
 	mux.HandleFunc("/api/firewall", s.handleFirewall)
 	mux.HandleFunc("/api/tunnel/ipv6", s.handleTunnelIPv6)
+	mux.HandleFunc("/api/mihomo", s.handleMihomo)
+	mux.HandleFunc("/api/exit", s.handleExit)
+	mux.HandleFunc("/api/mihomo/import", s.handleMihomoImport)
+	mux.HandleFunc("/api/mihomo/controller", s.handleMihomoController)
 	mux.HandleFunc("/api/logs", s.handleLogs)
 	mux.HandleFunc("/api/traffic", s.handleTraffic)
 	mux.HandleFunc("/api/shutdown", s.handleShutdown)
@@ -346,6 +355,125 @@ func (s *Server) handleFirewall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, firewallResponse{Settings: fw.Settings(), Status: fw.Status()})
+}
+
+// handleMihomo GET 返回内置代理内核状态；POST {"action":"start"|"stop"} 启停。
+func (s *Server) handleMihomo(w http.ResponseWriter, r *http.Request) {
+	if s.mihomo == nil {
+		http.Error(w, "这份网络服务没有接入内置代理内核", http.StatusConflict)
+		return
+	}
+	switch r.Method {
+	case http.MethodGet:
+	case http.MethodPost:
+		var req struct {
+			Action string `json:"action"`
+		}
+		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4<<10)).Decode(&req); err != nil {
+			writeError(w, err)
+			return
+		}
+		var err error
+		switch req.Action {
+		case "start":
+			// 启动内核 = 把出口切到 mihomo：与 WireGuard 互斥由引擎保证
+			if s.eng.Exit() == policy.ExitMihomo {
+				err = s.mihomo.Start()
+			} else {
+				err = s.eng.SetExit(policy.ExitMihomo)
+			}
+		case "stop":
+			err = s.mihomo.Stop()
+		default:
+			http.Error(w, "action 只能是 start 或 stop", http.StatusBadRequest)
+			return
+		}
+		if err != nil {
+			writeError(w, err)
+			return
+		}
+	default:
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	writeJSON(w, s.mihomo.Status())
+}
+
+// handleMihomoImport POST {"bundle": "<tar.gz 路径>", "origin": "root@host:/etc/mihomo"}：
+// 导入从 op 同步来的配置包（App 用 SSH 打包后落在本机），改写成 Mac 版并校验后替换。
+func (s *Server) handleMihomoImport(w http.ResponseWriter, r *http.Request) {
+	if s.mihomo == nil {
+		http.Error(w, "这份网络服务没有接入内置代理内核", http.StatusConflict)
+		return
+	}
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	var req struct {
+		Bundle     string            `json:"bundle"`
+		Origin     string            `json:"origin"`
+		Selections map[string]string `json:"selections"`
+	}
+	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 256<<10)).Decode(&req); err != nil {
+		writeError(w, err)
+		return
+	}
+	if req.Bundle == "" {
+		http.Error(w, "缺少 bundle", http.StatusBadRequest)
+		return
+	}
+	if err := s.mihomo.Import(req.Bundle, req.Origin, req.Selections); err != nil {
+		writeError(w, err)
+		return
+	}
+	writeJSON(w, s.mihomo.Status())
+}
+
+// handleMihomoController GET 返回本机内核控制接口地址与密钥，供 App 的「面板」接到本机内核。
+// 只监听 127.0.0.1，和其余接口同一信任边界。
+func (s *Server) handleMihomoController(w http.ResponseWriter, r *http.Request) {
+	if s.mihomo == nil {
+		http.Error(w, "这份网络服务没有接入内置代理内核", http.StatusConflict)
+		return
+	}
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	addr, secret, err := s.mihomo.Controller()
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+	writeJSON(w, map[string]string{"address": addr, "secret": secret})
+}
+
+// handleExit GET 返回当前出口；POST {"exit":"wireguard"|"mihomo"} 手动切换（三者互斥）。
+func (s *Server) handleExit(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+	case http.MethodPost:
+		var req struct {
+			Exit string `json:"exit"`
+		}
+		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4<<10)).Decode(&req); err != nil {
+			writeError(w, err)
+			return
+		}
+		if err := s.eng.SetExit(req.Exit); err != nil {
+			writeError(w, err)
+			return
+		}
+	default:
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	available := []string{policy.ExitWireGuard}
+	if s.mihomo != nil && s.mihomo.Bundled() {
+		available = append(available, policy.ExitMihomo)
+	}
+	writeJSON(w, map[string]interface{}{"exit": s.eng.Exit(), "available": available})
 }
 
 // handleTunnelIPv6 GET 返回全局隧道的公网 IPv6 设置，POST 更新并立即生效

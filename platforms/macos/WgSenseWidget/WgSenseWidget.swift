@@ -76,7 +76,7 @@ private struct WgSenseWidgetView: View {
                 Image(systemName: connected ? "shield.fill" : "shield.slash")
                     .font(.title2)
                     .foregroundStyle(statusColor)
-                Text("WgSense")
+                Text("Xtrim")
                     .font(.headline)
                 Spacer(minLength: 0)
                 Circle()
@@ -139,7 +139,7 @@ struct WgSenseWidget: Widget {
         StaticConfiguration(kind: kind, provider: WgSenseWidgetProvider()) { entry in
             WgSenseWidgetView(entry: entry)
         }
-        .configurationDisplayName("WgSense 状态")
+        .configurationDisplayName("Xtrim 状态")
         .description("快速查看 VPN、配置与当前网络状态。")
         .supportedFamilies([.systemSmall, .systemMedium])
     }

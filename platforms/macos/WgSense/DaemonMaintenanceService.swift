@@ -91,13 +91,13 @@ enum MaintenanceAction: String, Identifiable {
     var message: LocalizedStringKey {
         switch self {
         case .installSystemHelper:
-            return "会安装 WgSense daemon、接收文件搬运 helper 和 launchd 配置，需要管理员授权。"
+            return "会安装 Xtrim daemon、接收文件搬运 helper 和 launchd 配置，需要管理员授权。"
         case .uninstallSystemHelper:
-            return "会停止并删除 WgSense 系统服务与 helper，可保留用户配置和传输数据。"
+            return "会停止并删除 Xtrim 系统服务与 helper，可保留用户配置和传输数据。"
         case .restartSystemHelper:
             return "会重启 com.wgsense.daemon。若当前正在连接 WireGuard，连接会短暂中断。"
         case .cleanupNetworkState:
-            return "会请求在线的 WgSense 服务断开并清理它管理的隧道、DNS 和路由。服务不在线时只报告诊断，不改动系统网络设置。"
+            return "会请求在线的 Xtrim 服务断开并清理它管理的隧道、DNS 和路由。服务不在线时只报告诊断，不改动系统网络设置。"
         }
     }
 
@@ -188,14 +188,14 @@ struct DaemonMaintenanceService {
         guard verified.ok else {
             return ShellCommandResult(
                 status: -1,
-                output: "WgSense 服务不在线，未触碰系统 DNS 或路由；请导出诊断后单独处理：\(verified.message)"
+                output: "Xtrim 服务不在线，未触碰系统 DNS 或路由；请导出诊断后单独处理：\(verified.message)"
             )
         }
         do {
             try await controlAPI.command("disconnect", timeout: 30)
-            return ShellCommandResult(status: 0, output: "已请求 WgSense 清理它自身管理的隧道、DNS 和路由")
+            return ShellCommandResult(status: 0, output: "已请求 Xtrim 清理它自身管理的隧道、DNS 和路由")
         } catch {
-            return ShellCommandResult(status: -1, output: "WgSense 清理失败；未执行通用 DNS/路由删除：\(error.localizedDescription)")
+            return ShellCommandResult(status: -1, output: "Xtrim 清理失败；未执行通用 DNS/路由删除：\(error.localizedDescription)")
         }
     }
 

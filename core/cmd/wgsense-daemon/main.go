@@ -21,6 +21,7 @@ import (
 	"github.com/wgsense/core/internal/firewall"
 	"github.com/wgsense/core/internal/healthcheck"
 	"github.com/wgsense/core/internal/location"
+	"github.com/wgsense/core/internal/mihomo"
 	"github.com/wgsense/core/internal/pause"
 	"github.com/wgsense/core/internal/policy"
 	"github.com/wgsense/core/internal/proxy"
@@ -191,14 +192,7 @@ func main() {
 	if !*passive && os.Geteuid() == 0 {
 		fw := firewall.New(filepath.Join(rtDir, "firewall.json"), firewall.System{}, eng.Logf)
 		fw.TunnelEndpoints = liveEndpoints(tun, endpointResolver(tun, "default"))
-		if provider, ok := tun.(tunnel.CoverageProvider); ok {
-			fw.TunnelLocked = func() bool { return provider.Coverage("").FullTunnel }
-		}
-		// 隧道建立/拆除后立即同步：锁定只在隧道连着时生效，拆除后马上放开。
-		if notifier, ok := tun.(tunnel.StateNotifier); ok {
-			notifier.SetStateHook(func() { _ = fw.Sync() })
-		}
-		// 先于隧道和其他服务装上规则：开机/重启后不留无拦截的空窗。
+		// 先于隧道和其他服务装上规则：开机/重启后不留无拦截的空窗（心跳确认出口在线前纯良处于接管状态）。
 		_ = fw.Sync()
 		eng.SetFirewall(fw)
 	}
@@ -242,12 +236,65 @@ func main() {
 		log.Printf("代理服务启动失败(非致命): %v", err)
 	}
 
+	// 内置代理内核：只管本机进程与本机端口，不改路由 / DNS，被动模式也可安全使用。
+	// root 服务放在 root 专属目录（二进制会以 nobody 身份运行），其余放运行目录下。
+	// 正式服务（root、受 launchd 管理）的内核放在 root 专属目录：
+	// 运行目录在登录用户名下，root 不能执行放在用户可改位置的程序。
+	mihomoDir := filepath.Join(rtDir, "mihomo")
+	if os.Geteuid() == 0 && *managed {
+		mihomoDir = mihomo.DefaultRootDir
+	}
+	mihomoMgr := mihomo.New(mihomoDir, eng.Logf)
+	eng.SetExitStore(filepath.Join(rtDir, "exit.json"))
+	if mihomoMgr.Bundled() {
+		eng.SetMihomoExit(mihomoMgr)
+	}
+	// 出口与内核运行状态对齐：出口是 mihomo 才恢复内核，否则保证它不在跑（三者互斥）。
+	if eng.Exit() == policy.ExitMihomo {
+		mihomoMgr.Restore()
+	} else if mihomoMgr.Status().Desired {
+		_ = mihomoMgr.Stop()
+	}
+
+	// 纯良心跳：每 3 秒算一次当前出口是否健康交给出站拦截——出口在线就休眠，不在就接管。
+	// 隧道起落、内核起停时立即算一次。健康在拦截的锁外算好再交进去，拦截从不回调引擎。
+	if fw := eng.Firewall(); fw != nil {
+		kick := make(chan struct{}, 1)
+		poke := func() {
+			select {
+			case kick <- struct{}{}:
+			default:
+			}
+		}
+		mihomoMgr.OnChange = poke
+		if notifier, ok := tun.(tunnel.StateNotifier); ok {
+			notifier.SetStateHook(poke)
+		}
+		go func() {
+			ticker := time.NewTicker(3 * time.Second)
+			defer ticker.Stop()
+			for {
+				exit, online, detail := eng.ExitHealth()
+				if err := fw.SetExitHealth(firewall.ExitHealth{Exit: exit, Online: online, Detail: detail}); err != nil {
+					eng.Logf("纯良心跳应用规则失败: %v", err)
+				}
+				select {
+				case <-ctx.Done():
+					return
+				case <-ticker.C:
+				case <-kick:
+				}
+			}
+		}()
+	}
+
 	// 信号处理
 	var shutdownOnce sync.Once
 	stopDaemon := func(code int) {
 		shutdownOnce.Do(func() {
 			cancel()
 			apiListener.Close()
+			mihomoMgr.Shutdown()
 			if err := eng.ShutdownCleanup(); err != nil {
 				log.Printf("退出前清理隧道失败: %v", err)
 			}
@@ -287,6 +334,7 @@ func main() {
 	// 前台启动 API server
 	log.Printf("WgSense daemon 启动 interval=%ds api=%s mihomo=%s passive=%t auto_connect_untrusted=%t app_owned=%t", cfg.IntervalSeconds, *apiAddr, proxyCfg.Address, *passive, cfg.AutoConnectUntrusted, *appOwned)
 	apiSrv := api.New(*apiAddr, eng, transSvc, proxySvc)
+	apiSrv.SetMihomo(mihomoMgr)
 	if *managed {
 		apiSrv.SetService(func() service.Info { return service.RuntimeInfo(managedOwner, binaryHash) }, func(_ context.Context, req service.Request) (service.Request, error) {
 			req.Owner = managedOwner
