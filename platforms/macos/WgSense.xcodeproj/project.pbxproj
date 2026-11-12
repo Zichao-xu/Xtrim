@@ -48,7 +48,6 @@
 		8060823AEE7C39F03BB54D23 /* SpeedLabTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91EB61A900F3588E951CF76B /* SpeedLabTile.swift */; };
 		80955297821C82C39FE5C9A8 /* TraceMetalMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A98FCC223E24076B4D92EF /* TraceMetalMap.swift */; };
 		80D283F2D9F26F374C273E94 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB8BEADBFB4F30FEA8CAE2D2 /* MenuBarView.swift */; };
-		8128CADD9C9CA5D1E0A9A420 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 2D8563E92315DD6E64447EB9 /* InfoPlist.xcstrings */; };
 		85FC1CBD1AC639C275B65736 /* ProxyModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C415A763228416E61BA81E86 /* ProxyModels.swift */; };
 		882F34D0761960552EDAA758 /* MihomoBackends.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08446624B46672875126EF07 /* MihomoBackends.swift */; };
 		886B72719A189B081AB800E8 /* PPOverviewStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 940829B6D2F7309278E8000C /* PPOverviewStore.swift */; };
@@ -136,7 +135,6 @@
 		23E71D9C541002874711CBA9 /* WgInk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WgInk.swift; sourceTree = "<group>"; };
 		25978E89B4CCD23B64EA7345 /* DaemonModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaemonModels.swift; sourceTree = "<group>"; };
 		2B3455C78FB99740D40CFE98 /* DaemonAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaemonAPIClient.swift; sourceTree = "<group>"; };
-		2D8563E92315DD6E64447EB9 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		2DD912714A25B416A90A641D /* SpeedLabStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedLabStore.swift; sourceTree = "<group>"; };
 		3354F508C0653A08D63DBEEC /* MihomoModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MihomoModels.swift; sourceTree = "<group>"; };
 		33584D349600AEC079B8873A /* WgHUDDisplayClock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WgHUDDisplayClock.swift; sourceTree = "<group>"; };
@@ -226,7 +224,6 @@
 				C3B95572549041E76B3DBD63 /* DaemonControlAPIClient.swift */,
 				13C4756EC6DAF2B9C8E8EC93 /* DaemonMaintenanceService.swift */,
 				25978E89B4CCD23B64EA7345 /* DaemonModels.swift */,
-				2D8563E92315DD6E64447EB9 /* InfoPlist.xcstrings */,
 				BD8D739D3B0B49B54B3F0C39 /* Localizable.xcstrings */,
 				D09D8E0489F86402A6AED1C6 /* MihomoSync.swift */,
 				0C8CD7D8ADC89A97CD38C8D1 /* ProfileFileStore.swift */,
@@ -482,7 +479,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				FA09F9B661FA4BBEF66444BA /* Assets.xcassets in Resources */,
-				8128CADD9C9CA5D1E0A9A420 /* InfoPlist.xcstrings in Resources */,
 				EA45E94FFA4E175DB33049A1 /* Localizable.xcstrings in Resources */,
 				FF0720246E8311E94ACD18D1 /* TraceGeo.bin in Resources */,
 				D1105B190420CE11C124425B /* TraceRegions.bin in Resources */,
@@ -733,6 +729,8 @@
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 41;
 				PRODUCT_BUNDLE_IDENTIFIER = com.wgsense.macos;
+				PRODUCT_MODULE_NAME = WgSense;
+				PRODUCT_NAME = Xtrim;
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -848,6 +846,8 @@
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 41;
 				PRODUCT_BUNDLE_IDENTIFIER = com.wgsense.macos;
+				PRODUCT_MODULE_NAME = WgSense;
+				PRODUCT_NAME = Xtrim;
 				SDKROOT = macosx;
 			};
 			name = Release;

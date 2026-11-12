@@ -225,7 +225,7 @@ struct MainView: View {
     @EnvironmentObject var client: DaemonClient
     @AppStorage("appLanguage") private var appLanguageRaw = WgAppLanguage.system.rawValue
     @AppStorage("appAppearance") private var appAppearanceRaw = WgAppAppearance.system.rawValue
-    /// 调试用：`open WgSense.app --args -WgSenseInitialTab settings` 直接停在指定页面（仅命令行参数域，不落盘）。
+    /// 调试用：`open Xtrim.app --args -WgSenseInitialTab settings` 直接停在指定页面（仅命令行参数域，不落盘）。
     @State private var selection: SidebarTab = SidebarTab(
         rawValue: UserDefaults.standard.volatileDomain(forName: UserDefaults.argumentDomain)["WgSenseInitialTab"] as? String ?? ""
     ) ?? .vpn

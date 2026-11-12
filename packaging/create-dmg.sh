@@ -1,8 +1,8 @@
 #!/bin/zsh
 set -euo pipefail
 
-app_path="${1:?usage: create-dmg.sh /path/to/WgSense.app [/path/to/WgSense.dmg]}"
-output_path="${2:-$PWD/WgSense.dmg}"
+app_path="${1:?usage: create-dmg.sh /path/to/Xtrim.app [/path/to/Xtrim.dmg]}"
+output_path="${2:-$PWD/Xtrim.dmg}"
 
 if [[ ! -d "$app_path" ]]; then
   echo "App bundle not found: $app_path" >&2
@@ -12,18 +12,18 @@ fi
 staging_dir="$(mktemp -d "${TMPDIR:-/tmp}/wgsense-dmg.XXXXXX")"
 trap 'rm -rf "$staging_dir"' EXIT
 
-/usr/bin/ditto "$app_path" "$staging_dir/WgSense.app"
+/usr/bin/ditto "$app_path" "$staging_dir/Xtrim.app"
 /bin/ln -s /Applications "$staging_dir/Applications"
 /bin/rm -f "$output_path"
 
 if command -v create-dmg >/dev/null 2>&1; then
   if create-dmg \
-    --volname "WgSense" \
+    --volname "Xtrim" \
     --window-pos 200 120 \
     --window-size 600 400 \
     --icon-size 112 \
-    --icon "WgSense.app" 155 190 \
-    --hide-extension "WgSense.app" \
+    --icon "Xtrim.app" 155 190 \
+    --hide-extension "Xtrim.app" \
     --app-drop-link 445 190 \
     --no-internet-enable \
     "$output_path" \
@@ -34,7 +34,7 @@ if command -v create-dmg >/dev/null 2>&1; then
 fi
 
 /usr/bin/hdiutil create \
-  -volname "WgSense" \
+  -volname "Xtrim" \
   -srcfolder "$staging_dir" \
   -ov \
   -format UDZO \

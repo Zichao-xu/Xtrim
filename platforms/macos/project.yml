@@ -51,6 +51,9 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.wgsense.macos
+        # 对外品牌名 Xtrim（包名、进程名、菜单名）；模块名与标识沿用 WgSense，内部代码和服务不受影响。
+        PRODUCT_NAME: Xtrim
+        PRODUCT_MODULE_NAME: WgSense
         MARKETING_VERSION: "41"
         CURRENT_PROJECT_VERSION: "41"
         MACOSX_DEPLOYMENT_TARGET: "26.0"
