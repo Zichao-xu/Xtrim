@@ -17,11 +17,11 @@
 <p align="center"><sub>原名 WgSense。</sub></p>
 
 <p align="center">
-  <a href="https://github.com/Zichao-xu/WgSense/releases/latest"><strong>下载 macOS 版</strong></a> ·
+  <a href="https://github.com/Zichao-xu/Xtrim/releases/latest"><strong>下载 macOS 版</strong></a> ·
   <a href="#开始使用">开始使用</a> ·
   <a href="#常见问题">常见问题</a> ·
-  <a href="https://github.com/Zichao-xu/WgSense/releases">更新记录</a> ·
-  <a href="https://github.com/Zichao-xu/WgSense/issues">反馈问题</a>
+  <a href="https://github.com/Zichao-xu/Xtrim/releases">更新记录</a> ·
+  <a href="https://github.com/Zichao-xu/Xtrim/issues">反馈问题</a>
 </p>
 
 <p align="center">Apple Silicon · macOS 26 或更新 · SwiftUI 原生界面 · Apache 2.0</p>
@@ -80,7 +80,7 @@
 
 ### 1. 安装
 
-从 [最新发布页](https://github.com/Zichao-xu/WgSense/releases/latest) 下载 **Xtrim-macOS.dmg**，打开后将 **Xtrim.app** 拖入「应用程序」，再从「应用程序」启动。安装包已包含所需后台组件与 mihomo 内核。
+从 [最新发布页](https://github.com/Zichao-xu/Xtrim/releases/latest) 下载 **Xtrim-macOS.dmg**，打开后将 **Xtrim.app** 拖入「应用程序」，再从「应用程序」启动。安装包已包含所需后台组件与 mihomo 内核。
 
 从 WgSense 升级：装好 Xtrim.app 后删除「应用程序」里的旧 WgSense.app。配置、设置和后台服务都会沿用，不需要重新导入。
 
@@ -155,7 +155,7 @@ Xtrim 的菜单栏图标依次显示盾牌状态、实时网速（上传在上�
 <details>
 <summary><strong>出现连接异常，反馈什么最有帮助？</strong></summary>
 
-先在「设置 → 后台服务」查看诊断，再到 [Issues](https://github.com/Zichao-xu/WgSense/issues) 说明 App 版本、macOS 版本、操作步骤，以及预期和实际结果。注明是有线、Wi-Fi 还是多网卡环境，会更容易定位。
+先在「设置 → 后台服务」查看诊断，再到 [Issues](https://github.com/Zichao-xu/Xtrim/issues) 说明 App 版本、macOS 版本、操作步骤，以及预期和实际结果。注明是有线、Wi-Fi 还是多网卡环境，会更容易定位。
 
 导出日志或诊断后，请先检查并隐去私钥、控制器密钥、个人地址和配置名称。不要把整份 WireGuard 配置直接贴到公开 Issue。异常动画表示遥测推断，不等同于已完成网络连通性检测。
 

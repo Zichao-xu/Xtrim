@@ -2469,7 +2469,7 @@ struct AboutView: View {
                 WgRowDivider()
                 WgRow(symbol: "chevron.left.forwardslash.chevron.right", tint: .gray, title: "源代码") {
                     Button {
-                        if let url = URL(string: "https://github.com/Zichao-xu/WgSense") { NSWorkspace.shared.open(url) }
+                        if let url = URL(string: "https://github.com/Zichao-xu/Xtrim") { NSWorkspace.shared.open(url) }
                     } label: { Label("GitHub", systemImage: "arrow.up.forward") }
                         .buttonStyle(WgPillButtonStyle())
                 }
