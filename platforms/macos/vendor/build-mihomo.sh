@@ -9,13 +9,14 @@
 #
 # 用法：build-mihomo.sh <core 目录>；成功时输出一行 "mihomo_embed"，供调用方加构建标签。
 set -uo pipefail
-COMMIT="${MIHOMO_COMMIT:-aa0b5220}"
-VERSION="alpha-smart-tp-$COMMIT"
+# 完整提交号：GitHub 只接受完整 SHA 的按提交浅拉取
+COMMIT="${MIHOMO_COMMIT:-aa0b522050d9a03973b176ee3c35d5324772b015}"
+VERSION="alpha-smart-tp-${COMMIT:0:8}"
 REPO="${MIHOMO_REPO:-https://github.com/Zichao-xu/mihomo.git}"
 SRC="${MIHOMO_SRC:-$HOME/code/mihomo}"
 CORE="${1:?core 目录}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
-CACHE="$HERE/mihomo/$COMMIT"
+CACHE="$HERE/mihomo/${COMMIT:0:8}"
 BIN="$CACHE/mihomo-darwin-arm64"
 OUT="$CORE/internal/mihomo/bin"
 
@@ -29,7 +30,7 @@ if [ ! -x "$BIN" ]; then
 	else
 		git -C "$work" init -q && git -C "$work" remote add origin "$REPO" &&
 			git -C "$work" fetch -q --depth 1 origin "$COMMIT" && git -C "$work" checkout -q FETCH_HEAD ||
-			{ warn "拉取内核源码失败（$REPO@$COMMIT），这次构建不带内置代理内核"; exit 0; }
+			{ warn "拉取内核源码失败（${REPO}@${COMMIT}），这次构建不带内置代理内核"; exit 0; }
 	fi
 	mkdir -p "$CACHE"
 	( cd "$work" && GOPROXY="${GOPROXY:-https://goproxy.cn,direct}" CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 \
