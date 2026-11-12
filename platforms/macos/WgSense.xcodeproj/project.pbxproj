@@ -633,7 +633,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 42;
+				CURRENT_PROJECT_VERSION = 43;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = WgSenseWidget/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -642,7 +642,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 42;
+				MARKETING_VERSION = 43;
 				PRODUCT_BUNDLE_IDENTIFIER = com.wgsense.macos.widget;
 				PRODUCT_NAME = WgSenseWidget;
 				SDKROOT = macosx;
@@ -716,7 +716,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 42;
+				CURRENT_PROJECT_VERSION = 43;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Xtrim;
@@ -727,7 +727,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 42;
+				MARKETING_VERSION = 43;
 				PRODUCT_BUNDLE_IDENTIFIER = com.wgsense.macos;
 				PRODUCT_MODULE_NAME = WgSense;
 				PRODUCT_NAME = Xtrim;
@@ -743,7 +743,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 42;
+				CURRENT_PROJECT_VERSION = 43;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = WgSenseWidget/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -752,7 +752,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 42;
+				MARKETING_VERSION = 43;
 				PRODUCT_BUNDLE_IDENTIFIER = com.wgsense.macos.widget;
 				PRODUCT_NAME = WgSenseWidget;
 				SDKROOT = macosx;
@@ -833,7 +833,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 42;
+				CURRENT_PROJECT_VERSION = 43;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Xtrim;
@@ -844,7 +844,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 42;
+				MARKETING_VERSION = 43;
 				PRODUCT_BUNDLE_IDENTIFIER = com.wgsense.macos;
 				PRODUCT_MODULE_NAME = WgSense;
 				PRODUCT_NAME = Xtrim;
