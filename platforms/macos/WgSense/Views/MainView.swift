@@ -922,12 +922,12 @@ struct SidebarView: View {
         .transaction { $0.animation = nil }
     }
 
-    /// 品牌栏：细分隔线 + 几何标 + 名称 / 版本，右侧是添加、编辑、设置。
+    /// 品牌栏：细分隔线 + 字标，右侧是添加、编辑、设置。
     private var brandFoot: some View {
-        // 按宽度降级，永不撑出侧栏：完整 → 去掉名字 → 只留标志和设置
+        // 按宽度降级，永不撑出侧栏：字标 + 工具 → 字标 + 设置 → 几何标 + 设置
         ViewThatFits(in: .horizontal) {
             brandFootRow(name: true, tools: true)
-            brandFootRow(name: false, tools: true)
+            brandFootRow(name: true, tools: false)
             brandFootRow(name: false, tools: false)
         }
         .wgPadding(.horizontal, .l)
@@ -941,16 +941,12 @@ struct SidebarView: View {
 
     private func brandFootRow(name: Bool, tools: Bool) -> some View {
         HStack(spacing: WgSpace.m) {
-            WgBrandIcon()
-                .frame(width: 28, height: 28)
+            // 放得下就用字标，放不下退回几何标
             if name {
-                VStack(alignment: .leading, spacing: WgSpace.zero) {
-                    XtrimWordmark(height: 12)
-                    // 版本行不计入理想宽度：名字放得下就显示这一档，版本行放不下就截断
-                    Text(verbatim: "V\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0") · WIREGUARD / MIHOMO")
-                        .font(WgInk.mono(.micro)).tracking(1).foregroundStyle(WgInk.ink3).lineLimit(1)
-                        .frame(idealWidth: 0, maxWidth: .infinity, alignment: .leading)
-                }
+                XtrimWordmark(height: 10)
+            } else {
+                WgBrandIcon()
+                    .frame(width: 28, height: 28)
             }
             Spacer(minLength: 4)
 
@@ -2431,8 +2427,8 @@ struct AboutView: View {
             VStack(spacing: WgSpace.m) {
                 WgBrandIcon()
                     .frame(width: 88, height: 88)
-                XtrimWordmark(height: 22)
-                    .wgPadding(.vertical, .xs)
+                Text(verbatim: "Xtrim")
+                    .font(.system(size: WgType.readout, weight: .bold))
                 Text(verbatim: "版本 \(version)（\(build)）")
                     .font(.system(size: WgType.sub))
                     .foregroundStyle(.secondary)
