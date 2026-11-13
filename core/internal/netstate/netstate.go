@@ -18,22 +18,22 @@ func Fingerprint() string {
 	if network := location.NetworkFingerprint(); network != "" {
 		parts = append(parts, "physical="+network)
 	}
-	if route := defaultRoute(); route != "" {
-		parts = append(parts, "route="+route)
+	if iface, gw := DefaultRoute(); iface != "" || gw != "" {
+		parts = append(parts, "route="+iface+"@"+gw)
 	}
 	return strings.Join(parts, "|")
 }
 
-// defaultRoute 读内核路由表（sysctl，不 fork route 命令），取未绑定网卡的 IPv4 默认路由。
-// 网络变化检测会频繁调用，必须足够便宜。
-func defaultRoute() string {
+// DefaultRoute 读内核路由表（sysctl，不 fork route 命令），取未绑定网卡的 IPv4 默认路由：
+// 出口网卡名与网关地址。网络变化检测和纯良心跳会频繁调用，必须足够便宜。
+func DefaultRoute() (iface, gateway string) {
 	rib, err := route.FetchRIB(syscall.AF_INET, route.RIBType(syscall.NET_RT_FLAGS), syscall.RTF_GATEWAY)
 	if err != nil {
-		return ""
+		return "", ""
 	}
 	msgs, err := route.ParseRIB(route.RIBTypeRoute, rib)
 	if err != nil {
-		return ""
+		return "", ""
 	}
 	for _, msg := range msgs {
 		rm, ok := msg.(*route.RouteMessage)
@@ -47,20 +47,19 @@ func defaultRoute() string {
 		if mask, ok := rm.Addrs[syscall.RTAX_NETMASK].(*route.Inet4Addr); ok && mask.IP != [4]byte{} {
 			continue
 		}
-		gateway := ""
+		gateway, iface = "", ""
 		if gw, ok := rm.Addrs[syscall.RTAX_GATEWAY].(*route.Inet4Addr); ok {
 			gateway = net.IP(gw.IP[:]).String()
 		}
-		iface := ""
 		if ifi, err := net.InterfaceByIndex(rm.Index); err == nil {
 			iface = ifi.Name
 		}
 		if gateway == "" && iface == "" {
 			continue
 		}
-		return iface + "@" + gateway
+		return iface, gateway
 	}
-	return ""
+	return "", ""
 }
 
 // rtfIfScope 是 macOS 的 RTF_IFSCOPE：每张网卡各自的作用域默认路由，不是系统主默认路由。

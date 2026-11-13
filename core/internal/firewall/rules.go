@@ -3,6 +3,7 @@ package firewall
 import (
 	_ "embed"
 	"fmt"
+	"github.com/wgsense/core/internal/gatewayproxy"
 	"net"
 	"net/netip"
 	"sort"
@@ -26,7 +27,8 @@ var localCIDRs = []string{
 
 // fakeIPCIDR 是 Clash/OpenClash 的 fake-ip 段：发往这里的连接由网关代理，
 // 不是真实出境地址。国内模式不放行，否则在家仍可经代理出境。
-const fakeIPCIDR = "198.18.0.0/15"
+// 与网关代理探测共用同一个定义。
+const fakeIPCIDR = gatewayproxy.FakeIPCIDR
 
 // RuleInput 是渲染 pf 规则的输入。
 type RuleInput struct {

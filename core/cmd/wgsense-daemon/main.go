@@ -19,6 +19,7 @@ import (
 	"github.com/wgsense/core/api"
 	"github.com/wgsense/core/internal/config"
 	"github.com/wgsense/core/internal/firewall"
+	"github.com/wgsense/core/internal/gatewayproxy"
 	"github.com/wgsense/core/internal/healthcheck"
 	"github.com/wgsense/core/internal/location"
 	"github.com/wgsense/core/internal/mihomo"
@@ -259,6 +260,7 @@ func main() {
 	// 纯良心跳：每 3 秒算一次当前出口是否健康交给出站拦截——出口在线就休眠，不在就接管。
 	// 隧道起落、内核起停时立即算一次。健康在拦截的锁外算好再交进去，拦截从不回调引擎。
 	if fw := eng.Firewall(); fw != nil {
+		eng.SetGatewayProbe(gatewayproxy.New())
 		kick := make(chan struct{}, 1)
 		poke := func() {
 			select {

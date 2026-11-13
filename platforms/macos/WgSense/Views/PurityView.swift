@@ -58,6 +58,7 @@ struct PurityPresentation: Equatable {
     var exitTitle: String {
         switch exit {
         case "mihomo": return "mihomo"
+        case "gateway": return "网关代理"
         case "tailscale": return "Tailscale"
         default: return "WireGuard"
         }

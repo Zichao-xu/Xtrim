@@ -3,10 +3,12 @@ package policy
 import (
 	"errors"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/wgsense/core/internal/config"
+	"github.com/wgsense/core/internal/gatewayproxy"
 	"github.com/wgsense/core/internal/tunnel"
 )
 
@@ -192,4 +194,40 @@ func TestExitHealthWhileEngineLocked(t *testing.T) {
 		t.Fatal("ExitHealth blocked on opMu")
 	}
 	e.opMu.Unlock()
+}
+
+type stubGateway struct {
+	result         gatewayproxy.Result
+	probes, resets int
+}
+
+func (s *stubGateway) Probe() gatewayproxy.Result { s.probes++; return s.result }
+func (s *stubGateway) Reset()                     { s.resets++ }
+
+// 所选出口不在时，网关代理在线也算出口；所选出口在线时不去探测网关。
+func TestExitHealthFallsBackToGatewayProxy(t *testing.T) {
+	e, _, ex, _ := newExitEngine(t, false)
+	gw := &stubGateway{result: gatewayproxy.Result{Online: true, Detail: "网关 10.10.1.1 代理在线"}}
+	e.SetGatewayProbe(gw)
+
+	exit, online, detail := e.ExitHealth()
+	if exit != ExitGateway || !online || !strings.Contains(detail, "WireGuard 不可用") || !strings.Contains(detail, "网关 10.10.1.1") {
+		t.Fatalf("WireGuard 不在而网关代理在线应休眠: %s %v %q", exit, online, detail)
+	}
+
+	gw.result = gatewayproxy.Result{Detail: "网关 192.168.1.1 不是代理"}
+	if exit, online, _ := e.ExitHealth(); exit != ExitWireGuard || online {
+		t.Fatalf("网关不是代理应接管: %s %v", exit, online)
+	}
+
+	_ = e.SetExit(ExitMihomo)
+	probes := gw.probes
+	if exit, online, _ := e.ExitHealth(); exit != ExitMihomo || !online || gw.probes != probes || gw.resets == 0 {
+		t.Fatalf("所选出口在线时应直接用它并重置探测: %s %v probes=%d resets=%d", exit, online, gw.probes-probes, gw.resets)
+	}
+	ex.running = false
+	gw.result = gatewayproxy.Result{Online: true, Detail: "ok"}
+	if exit, online, detail := e.ExitHealth(); exit != ExitGateway || !online || !strings.Contains(detail, "mihomo 不可用") {
+		t.Fatalf("内置内核停了而网关代理在线应休眠: %s %v %q", exit, online, detail)
+	}
 }

@@ -24,7 +24,8 @@ func TestDefaultRouteMatchesRouteCommand(t *testing.T) {
 			iface = strings.TrimSpace(value)
 		}
 	}
-	if got, want := defaultRoute(), iface+"@"+gateway; got != want {
+	if gi, gg := DefaultRoute(); gi+"@"+gg != iface+"@"+gateway {
+		got, want := gi+"@"+gg, iface+"@"+gateway
 		t.Fatalf("defaultRoute() = %q, route command = %q", got, want)
 	}
 }

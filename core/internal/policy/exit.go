@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/wgsense/core/internal/gatewayproxy"
 	"github.com/wgsense/core/internal/tunnel"
 )
 
@@ -20,7 +21,19 @@ const (
 	ExitWireGuard = "wireguard"
 	ExitTailscale = "tailscale"
 	ExitMihomo    = "mihomo"
+	// ExitGateway 不是可选的出口，只出现在纯良心跳里：所选出口不在、但网关在做透明代理，
+	// 境外流量本来就会被网关接走，纯良照样休眠。
+	ExitGateway = "gateway"
 )
+
+// GatewayProbe 探测网关代理，由 daemon 注入（gatewayproxy.Prober）。
+type GatewayProbe interface {
+	Probe() gatewayproxy.Result
+	Reset()
+}
+
+// SetGatewayProbe 接上网关代理探测；nil 表示不认网关代理（纯良只看所选出口）。
+func (e *Engine) SetGatewayProbe(p GatewayProbe) { e.gatewayProbe = p }
 
 // ExitBackend 是 WireGuard 以外的出口（目前只有内置 mihomo）。
 type ExitBackend interface {
@@ -66,8 +79,31 @@ func (e *Engine) exitLocked() string {
 }
 
 // ExitHealth 当前出口是否健康，给纯良的心跳用（每 3 秒）。
+// 所选出口不在时再看网关代理：在家守护按设计断开隧道时，网关的透明代理就是实际出口。
 // 不拿 opMu：切换出口时引擎正持锁，心跳也必须能算，否则就是自己等自己。
 func (e *Engine) ExitHealth() (exit string, online bool, detail string) {
+	exit, online, detail = e.selectedExitHealth()
+	if e.gatewayProbe == nil {
+		return exit, online, detail
+	}
+	if online {
+		e.gatewayProbe.Reset()
+		return exit, online, detail
+	}
+	if r := e.gatewayProbe.Probe(); r.Online {
+		return ExitGateway, true, fmt.Sprintf("%s 不可用（%s）；%s", exitName(exit), detail, r.Detail)
+	}
+	return exit, online, detail
+}
+
+func exitName(exit string) string {
+	if exit == ExitMihomo {
+		return "mihomo"
+	}
+	return "WireGuard"
+}
+
+func (e *Engine) selectedExitHealth() (exit string, online bool, detail string) {
 	exit = e.exitLocked()
 	if exit == ExitMihomo {
 		if e.mihomoExit == nil {

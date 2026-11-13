@@ -71,6 +71,7 @@ type Engine struct {
 	exitPath        string
 	exit            atomic.Value // string，见 exit.go：必须能在持有 opMu 时读
 	mihomoExit      ExitBackend
+	gatewayProbe    GatewayProbe
 	ipv6Path        string
 	networkSnapshot func() string
 	lastNetwork     string

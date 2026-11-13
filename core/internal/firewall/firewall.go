@@ -300,6 +300,8 @@ func exitTitle(exit string) string {
 	switch exit {
 	case "mihomo":
 		return "mihomo"
+	case "gateway":
+		return "网关代理"
 	case "tailscale":
 		return "Tailscale"
 	default:
