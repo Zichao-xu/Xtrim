@@ -173,7 +173,7 @@ struct OverviewView: View {
                 ? Text(verbatim: "↓ \(WgFormat.speed(t?.rx_speed ?? 0))   ↑ \(WgFormat.speed(t?.tx_speed ?? 0))")
                 : Text(verbatim: "—"),
             detail: up
-                ? Text(verbatim: "累计 ↓ \(WgFormat.size(t?.rx_bytes ?? 0)) · ↑ \(WgFormat.size(t?.tx_bytes ?? 0))")
+                ? Text(verbatim: String(localized: "累计 ↓ \(WgFormat.size(t?.rx_bytes ?? 0)) · ↑ \(WgFormat.size(t?.tx_bytes ?? 0))", bundle: .wgLocalized))
                 : Text("隧道未建立")
         )
     }
@@ -238,7 +238,7 @@ struct OverviewView: View {
         for path in c.bypass ?? [] {
             rows.append(CoverageRowModel(symbol: "arrow.uturn.right", tint: .gray, name: "不走隧道",
                                          value: Text(verbatim: path.destination),
-                                         detail: Text(verbatim: path.via.isEmpty ? path.reason : "\(path.reason) · 经 \(path.via)")))
+                                         detail: Text(verbatim: path.via.isEmpty ? path.reason : String(localized: "\(path.reason) · 经 \(path.via)", bundle: .wgLocalized))))
         }
         return rows
     }
@@ -246,15 +246,15 @@ struct OverviewView: View {
     private func ipv6Row(_ v6: TunnelIPv6Status) -> CoverageRowModel {
         var parts: [String] = []
         if let address = v6.address {
-            parts.append(v6.derived == true ? "隧道地址 \(address)（按约定推出）" : "隧道地址 \(address)")
+            parts.append(v6.derived == true ? String(localized: "隧道地址 \(address)（按约定推出）", bundle: .wgLocalized) : String(localized: "隧道地址 \(address)", bundle: .wgLocalized))
         }
         if let last = WgCoverageFormat.clock(v6.last_probe) {
-            parts.append("\(last) 探测\(v6.last_probe_ok == true ? "可出网" : "不通")")
+            parts.append(String(localized: "\(last) 探测\(v6.last_probe_ok == true ? String(localized: "可出网", bundle: .wgLocalized) : String(localized: "不通", bundle: .wgLocalized))", bundle: .wgLocalized))
         }
         if let next = WgCoverageFormat.clock(v6.next_probe), v6.state != "tunnel" || v6.last_probe != nil {
-            parts.append("下次 \(next)")
+            parts.append(String(localized: "下次 \(next)", bundle: .wgLocalized))
         }
-        if let error = v6.error { parts.append("路由切换失败：\(error)") }
+        if let error = v6.error { parts.append(String(localized: "路由切换失败：\(error)", bundle: .wgLocalized)) }
         let value: Text, tint: Color, symbol: String
         switch v6.state {
         case "tunnel":
@@ -263,10 +263,10 @@ struct OverviewView: View {
             value = Text("已拦截 · 探测中"); tint = .orange; symbol = "hourglass"
         case "blocked" where v6.mode == "block":
             value = Text("始终拦截"); tint = .blue; symbol = "nosign"
-            parts.insert("设置为始终拦截，程序全部改用 IPv4 走隧道", at: 0)
+            parts.insert(String(localized: "设置为始终拦截，程序全部改用 IPv4 走隧道", bundle: .wgLocalized), at: 0)
         case "blocked":
             value = Text("已拦截 · 改用 IPv4"); tint = .blue; symbol = "nosign"
-            parts.insert("隧道暂无 IPv6 出口，程序立即改用 IPv4 走隧道", at: 0)
+            parts.insert(String(localized: "隧道暂无 IPv6 出口，程序立即改用 IPv4 走隧道", bundle: .wgLocalized), at: 0)
         default:
             value = Text("未接管"); tint = .gray; symbol = "questionmark.circle"
         }
@@ -286,7 +286,7 @@ struct OverviewView: View {
         }
         if fw.dormant == true {
             return CoverageRowModel(symbol: "moon.zzz", tint: .green, name: "纯良", value: Text("休眠"),
-                                    detail: Text(verbatim: "出口在线（\(fw.exit_detail ?? "")），不干预；出口一断立即接管"))
+                                    detail: Text(verbatim: String(localized: "出口在线（\(fw.exit_detail ?? "")），不干预；出口一断立即接管", bundle: .wgLocalized)))
         }
         if fw.active {
             return CoverageRowModel(symbol: "hand.raised.fill", tint: .orange, name: "纯良", value: Text("接管中"),
@@ -298,10 +298,10 @@ struct OverviewView: View {
 
     private func dnsRow(_ c: TunnelCoverage) -> CoverageRowModel {
         if let dns = c.dns, !dns.isEmpty {
-            let service = c.dns_service.map { "接管「\($0)」的 DNS，断开时恢复" } ?? "断开时恢复"
+            let service = c.dns_service.map { String(localized: "接管「\($0)」的 DNS，断开时恢复", bundle: .wgLocalized) } ?? String(localized: "断开时恢复", bundle: .wgLocalized)
             return CoverageRowModel(symbol: "text.magnifyingglass", tint: .green, name: "DNS",
                                     value: Text(verbatim: dns.joined(separator: ", ")),
-                                    detail: Text(verbatim: "查询经隧道 · \(service)"))
+                                    detail: Text(verbatim: String(localized: "查询经隧道 · \(service)", bundle: .wgLocalized)))
         }
         return CoverageRowModel(symbol: "text.magnifyingglass", tint: .orange, name: "DNS",
                                 value: Text("未接管"),

@@ -92,8 +92,9 @@ extension View {
         modifier(WgSettingsPanelSurfaceModifier())
     }
 
+    /// 滚动容器接入页面刻度条（见 WgScrollView.swift）。
     func wgTimelineScroller() -> some View {
-        self
+        modifier(WgTimelineScrollerModifier())
     }
 }
 
@@ -338,6 +339,7 @@ struct MainView: View {
             // 页面区单独成一个子视图，输入只有当前页与语言：拖侧栏时 MainView 每帧重算（sidebarWidth 在变），
             // 子视图输入不变就整体跳过，不再每帧把整页内容重新塞进原生滚动容器（测速页曾因此拖动掉帧 70%+）。
             MainPageArea(selection: selection, language: selectedLanguage, client: client)
+            .wgPageScrollRail()
             .wgPageSurface()
             .wgSurfaceRegion(.content)
         }
@@ -487,12 +489,14 @@ private struct MainPageArea: View {
         } else if selection == .speedtest {
             // Own the viewport: lazy drawers/sections stay lazy, including during live resize.
             ScrollView { SpeedLabView().wgPadding(.xl) }
+                .wgTimelineScroller()
                 .environmentObject(client)
                 .modifier(WgLocaleOverride(language: language))
                 .tint(WgInk.control)
         } else if selection == .logs {
             // 日志页内部自带滚动区（跟随最新一行），保留 SwiftUI 容器。
             ScrollView { LogsView().wgPadding(.xl) }
+                .wgTimelineScroller()
         } else {
             // 普通页面统一用原生滚动容器（见 WgScrollView）：滚动时 SwiftUI 不再逐帧布局。
             // 内容是独立宿主根，环境需显式注入。
@@ -1090,7 +1094,7 @@ struct SidebarView: View {
         case .proxy:
             let status: Text
             if client.proxyRunning {
-                status = Text(client.mihomoVersion?.version ?? "运行中")
+                status = Text(client.mihomoVersion?.version ?? String(localized: "运行中", bundle: .wgLocalized))
             } else {
                 status = Text(client.proxyServiceRunning ? "等待认证" : "未连接")
             }
@@ -1189,8 +1193,8 @@ struct SidebarView: View {
         switch tile.kind {
         case .transferReceive:
             if let state = client.transferState {
-                detailLine("设备名", state.alias)
-                if tile.size == .large { detailLine("端口", ":\(state.port)") }
+                detailLine(String(localized: "设备名", bundle: .wgLocalized), state.alias)
+                if tile.size == .large { detailLine(String(localized: "端口", bundle: .wgLocalized), ":\(state.port)") }
             }
         case .transferSend:
             if tile.size == .large {
@@ -1199,19 +1203,19 @@ struct SidebarView: View {
                 }
             }
         case .proxy:
-            if !client.proxyAddress.isEmpty { detailLine("控制器", client.proxyAddress) }
+            if !client.proxyAddress.isEmpty { detailLine(String(localized: "控制器", bundle: .wgLocalized), client.proxyAddress) }
         case .profile:
             if tile.size == .large {
                 ForEach(client.profiles.prefix(3), id: \.self) { name in
-                    detailLine(name, name == client.status?.service ? "当前" : "")
+                    detailLine(name, name == client.status?.service ? String(localized: "当前", bundle: .wgLocalized) : "")
                 }
             }
         case .purity:
             let purity = PurityPresentation(status: client.status, tunnelUp: client.isTunnelUp)
-            detailLine("处境", purity.code)
-            detailLine("已拒绝", "\(purity.blocked) 包")
+            detailLine(String(localized: "处境", bundle: .wgLocalized), purity.code)
+            detailLine(String(localized: "已拒绝", bundle: .wgLocalized), String(localized: "\(purity.blocked) 包", bundle: .wgLocalized))
             if tile.size == .large {
-                detailLine("网卡", client.status?.firewall?.interfaces?.joined(separator: " ") ?? "—")
+                detailLine(String(localized: "网卡", bundle: .wgLocalized), client.status?.firewall?.interfaces?.joined(separator: " ") ?? "—")
             }
         default:
             EmptyView()
@@ -1315,10 +1319,10 @@ struct SidebarView: View {
 
     private func mihomoTileDetail(_ mh: MihomoPresentation) -> String {
         switch mh.phase {
-        case .running: return "内核运行中 · 只监听本机端口，尚未接管流量"
-        case .crashed: return mh.status?.last_exit ?? "内核意外退出"
-        case .stopped: return "内核已停止"
-        case .notBundled, .unsupported: return "内核不可用"
+        case .running: return String(localized: "内核运行中 · 只监听本机端口，尚未接管流量", bundle: .wgLocalized)
+        case .crashed: return mh.status?.last_exit ?? String(localized: "内核意外退出", bundle: .wgLocalized)
+        case .stopped: return String(localized: "内核已停止", bundle: .wgLocalized)
+        case .notBundled, .unsupported: return String(localized: "内核不可用", bundle: .wgLocalized)
         }
     }
 
@@ -1429,12 +1433,12 @@ struct SidebarView: View {
             }
             if tile.size == .large {
                 VStack(spacing: WgSpace.xs) {
-                    detailLine("累计下载", WgFormat.size(client.traffic?.rx_bytes ?? 0))
-                    detailLine("累计上传", WgFormat.size(client.traffic?.tx_bytes ?? 0))
+                    detailLine(String(localized: "累计下载", bundle: .wgLocalized), WgFormat.size(client.traffic?.rx_bytes ?? 0))
+                    detailLine(String(localized: "累计上传", bundle: .wgLocalized), WgFormat.size(client.traffic?.tx_bytes ?? 0))
                     if let s = client.status {
-                        detailLine("配置", s.service.isEmpty ? "—" : s.service)
+                        detailLine(String(localized: "配置", bundle: .wgLocalized), s.service.isEmpty ? "—" : s.service)
                         if let age = s.last_handshake_age_seconds, up {
-                            detailLine("最近握手", WgFormat.age(age))
+                            detailLine(String(localized: "最近握手", bundle: .wgLocalized), WgFormat.age(age))
                         }
                     }
                 }
@@ -2429,7 +2433,7 @@ struct AboutView: View {
                     .frame(width: 88, height: 88)
                 Text(verbatim: "Xtrim")
                     .font(.system(size: WgType.readout, weight: .bold))
-                Text(verbatim: "版本 \(version)（\(build)）")
+                Text(verbatim: String(localized: "版本 \(version)（\(build)）", bundle: .wgLocalized))
                     .font(.system(size: WgType.sub))
                     .foregroundStyle(.secondary)
                 Text(verbatim: "ネットは広大だわ")
@@ -2445,12 +2449,12 @@ struct AboutView: View {
                 WgRow(symbol: "server.rack", tint: client.status != nil ? .green : .gray, title: "后台服务") {
                     HStack(spacing: WgSpace.s) {
                         WgStatusDot(color: .green, isOn: client.status != nil)
-                        WgValue(client.status == nil ? "未运行" : (client.status?.app_owned == true ? "临时服务" : "系统服务"))
+                        WgValue(client.status == nil ? String(localized: "未运行", bundle: .wgLocalized) : (client.status?.app_owned == true ? String(localized: "临时服务", bundle: .wgLocalized) : String(localized: "系统服务", bundle: .wgLocalized)))
                     }
                 }
                 WgRowDivider()
                 WgRow(symbol: "lock.shield.fill", tint: client.isTunnelUp ? .green : .gray, title: "隧道") {
-                    WgValue(client.isTunnelUp ? "已连接" : "未连接")
+                    WgValue(client.isTunnelUp ? String(localized: "已连接", bundle: .wgLocalized) : String(localized: "未连接", bundle: .wgLocalized))
                 }
                 WgRowDivider()
                 WgRow(symbol: "doc.text.fill", tint: .orange, title: "当前配置") {
@@ -2525,9 +2529,9 @@ struct TileDragContainer<Content: View>: View {
 
     private func sizeLabel(_ size: TileSize) -> String {
         switch size {
-        case .small: return "小"
-        case .medium: return "中"
-        case .large: return "大"
+        case .small: return String(localized: "小", bundle: .wgLocalized)
+        case .medium: return String(localized: "中", bundle: .wgLocalized)
+        case .large: return String(localized: "大", bundle: .wgLocalized)
         }
     }
 }
@@ -2594,7 +2598,7 @@ struct TransferReceiveView: View {
                 WgSection(title: nil) {
                     WgRow(symbol: client.transferError == nil ? "hourglass" : "exclamationmark.triangle.fill",
                           tint: client.transferError == nil ? .gray : .orange,
-                          title: LocalizedStringKey(client.transferError ?? "正在连接后台服务…")) {
+                          title: LocalizedStringKey(client.transferError ?? String(localized: "正在连接后台服务…", bundle: .wgLocalized))) {
                         if client.transferError != nil {
                             Button {
                                 Task {
@@ -2603,7 +2607,7 @@ struct TransferReceiveView: View {
                                     startingDaemon = false
                                 }
                             } label: {
-                                Text(LocalizedStringKey(startingDaemon ? "正在启动…" : "启动后台服务"))
+                                Text(LocalizedStringKey(startingDaemon ? String(localized: "正在启动…", bundle: .wgLocalized) : String(localized: "启动后台服务", bundle: .wgLocalized)))
                             }
                             .buttonStyle(WgCapsuleButtonStyle(tint: WgInk.signal))
                             .disabled(startingDaemon)
@@ -2746,7 +2750,7 @@ struct TransferReceiveView: View {
                 Text(progress.fileName).font(.callout.weight(.medium)).lineLimit(1)
                 Text(progress.status == "completed"
                      ? "\(progress.sender) · \(formattedBytes(progress.doneBytes))"
-                     : "\(progress.sender) · \(progress.error ?? "传输失败")")
+                     : "\(progress.sender) · \(progress.error ?? String(localized: "传输失败", bundle: .wgLocalized))")
                     .font(.caption).foregroundStyle(.secondary).lineLimit(1)
             }
             Spacer()
@@ -2782,7 +2786,7 @@ struct TransferSendView: View {
     @State private var showFolderPicker = false
     @State private var selectedDevice: DaemonClient.TransferDevice?
     @State private var isStartingSend = false
-    @State private var lastSendResult: String?
+    @State private var lastSendResult: WgNotice?
     @State private var isScanning = false
     @State private var showAddDeviceSheet = false
     @State private var addDeviceAddr = ""
@@ -2817,10 +2821,10 @@ struct TransferSendView: View {
             if let device = selectedDevice { selectedDeviceActions(device) }
 
             if let result = lastSendResult {
-                Label(LocalizedStringKey(result),
-                      systemImage: result.contains("失败") || result.contains("未") ? "exclamationmark.circle.fill" : "checkmark.circle.fill")
+                Label(result.text,
+                      systemImage: result.failed ? "exclamationmark.circle.fill" : "checkmark.circle.fill")
                     .font(.system(size: WgType.sub))
-                    .foregroundStyle(result.contains("失败") || result.contains("未") ? .orange : .green)
+                    .foregroundStyle(result.failed ? .orange : .green)
                     .wgPadding(.leading, .xs)
                     .transition(.opacity)
             }
@@ -2860,9 +2864,9 @@ struct TransferSendView: View {
     private var deviceEmptyCard: some View {
         VStack(spacing: WgSpace.m) {
             WgSquareBadge(symbol: "antenna.radiowaves.left.and.right", tint: .indigo, size: 44, dimmed: true)
-            Text(LocalizedStringKey(client.transferError ?? "还没有发现设备"))
+            Text(LocalizedStringKey(client.transferError ?? String(localized: "还没有发现设备", bundle: .wgLocalized)))
                 .font(.system(size: WgType.title, weight: .semibold))
-            Text(LocalizedStringKey(client.transferError == nil ? "点右上角的放大镜扫描，或用 + 手动添加隧道内设备的 IP" : "传输功能需要后台服务"))
+            Text(LocalizedStringKey(client.transferError == nil ? String(localized: "点右上角的放大镜扫描，或用 + 手动添加隧道内设备的 IP", bundle: .wgLocalized) : String(localized: "传输功能需要后台服务", bundle: .wgLocalized)))
                 .font(.system(size: WgType.sub))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -2874,7 +2878,7 @@ struct TransferSendView: View {
                             _ = await client.startDaemonForTransfer()
                             startingDaemon = false
                         }
-                    } label: { Text(LocalizedStringKey(startingDaemon ? "正在启动…" : "启动后台服务")) }
+                    } label: { Text(LocalizedStringKey(startingDaemon ? String(localized: "正在启动…", bundle: .wgLocalized) : String(localized: "启动后台服务", bundle: .wgLocalized))) }
                         .buttonStyle(WgCapsuleButtonStyle(tint: WgInk.signal))
                         .disabled(startingDaemon)
                 } else {
@@ -2934,8 +2938,8 @@ struct TransferSendView: View {
                     let addr = addDeviceAddr.trimmingCharacters(in: .whitespacesAndNewlines); guard !addr.isEmpty else { return }
                     Task {
                         if let _ = await client.addManualDevice(addr: addr) {
-                            await MainActor.run { showAddDeviceSheet = false; addDeviceAddr = ""; lastSendResult = "设备已添加"; DispatchQueue.main.asyncAfter(deadline: .now() + 3) { lastSendResult = nil } }
-                        } else { await MainActor.run { lastSendResult = "连接失败，检查地址后重试"; DispatchQueue.main.asyncAfter(deadline: .now() + 4) { lastSendResult = nil } } }
+                            await MainActor.run { showAddDeviceSheet = false; addDeviceAddr = ""; lastSendResult = .ok(String(localized: "设备已添加", bundle: .wgLocalized)); DispatchQueue.main.asyncAfter(deadline: .now() + 3) { lastSendResult = nil } }
+                        } else { await MainActor.run { lastSendResult = .fail(String(localized: "连接失败，检查地址后重试", bundle: .wgLocalized)); DispatchQueue.main.asyncAfter(deadline: .now() + 4) { lastSendResult = nil } } }
                     }
                 } label: { Text("添加") }.buttonStyle(.borderedProminent).disabled(addDeviceAddr.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
@@ -2951,7 +2955,7 @@ struct TransferSendView: View {
         await client.fetchTransferTasks()
     }
     private func refreshDevices() async { isScanning = true; await client.fetchTransferDevices(timeoutSec: 5); try? await Task.sleep(for: .seconds(1)); isScanning = false }
-    private func scanSubnetDevices() async { isScanning = true; let found = await client.scanSubnet(timeoutSec: 10); try? await Task.sleep(for: .seconds(1)); isScanning = false; if found.isEmpty { lastSendResult = "扫描完成，未发现 LocalSend 设备"; DispatchQueue.main.asyncAfter(deadline: .now() + 4) { lastSendResult = nil } } else { lastSendResult = "扫描发现 \(found.count) 个设备"; DispatchQueue.main.asyncAfter(deadline: .now() + 4) { lastSendResult = nil } } }
+    private func scanSubnetDevices() async { isScanning = true; let found = await client.scanSubnet(timeoutSec: 10); try? await Task.sleep(for: .seconds(1)); isScanning = false; if found.isEmpty { lastSendResult = .fail(String(localized: "扫描完成，未发现 LocalSend 设备", bundle: .wgLocalized)); DispatchQueue.main.asyncAfter(deadline: .now() + 4) { lastSendResult = nil } } else { lastSendResult = .ok(String(localized: "扫描发现 \(found.count) 个设备", bundle: .wgLocalized)); DispatchQueue.main.asyncAfter(deadline: .now() + 4) { lastSendResult = nil } } }
     private func selectSendType(_ type: SendType) { withAnimation(.easeInOut(duration: 0.15)) { sendType = type } }
     private func triggerSend(target: DaemonClient.TransferDevice) {
         guard sendType != nil else { return }
@@ -2959,18 +2963,18 @@ struct TransferSendView: View {
             if sendType == .file { showFilePicker = true } else { showFolderPicker = true }
             return
         }
-        lastSendResult = "当前版本仅支持发送文件和文件夹"
+        lastSendResult = .fail(String(localized: "当前版本仅支持发送文件和文件夹", bundle: .wgLocalized))
     }
 
     private func handleFileSelection(_ result: Result<[URL], Error>) {
         guard case .success(let urls) = result else {
-            lastSendResult = "选择文件失败"
+            lastSendResult = .fail(String(localized: "选择文件失败", bundle: .wgLocalized))
             return
         }
         guard let target = selectedDevice else { return }
         let paths = urls.map(\.path)
         guard !paths.isEmpty else {
-            lastSendResult = "无法获取文件路径"
+            lastSendResult = .fail(String(localized: "无法获取文件路径", bundle: .wgLocalized))
             return
         }
 
@@ -2980,7 +2984,7 @@ struct TransferSendView: View {
             let success = await client.startFileSend(to: target.id, paths: paths) != nil
             await MainActor.run {
                 isStartingSend = false
-                lastSendResult = success ? "等待对方确认" : "发送任务创建失败"
+                lastSendResult = success ? .ok(String(localized: "等待对方确认", bundle: .wgLocalized)) : .fail(String(localized: "发送任务创建失败", bundle: .wgLocalized))
                 DispatchQueue.main.asyncAfter(deadline: .now() + 4) { lastSendResult = nil }
             }
         }
@@ -3025,7 +3029,7 @@ struct TransferSendView: View {
             VStack(alignment: .leading, spacing: WgSpace.zero) {
                 Text(task.deviceAlias).font(.callout.weight(.medium)).lineLimit(1)
                 Text(task.status == "completed"
-                     ? "\(task.completedFiles) 个文件 · \(formattedSendBytes(task.doneBytes))"
+                     ? String(localized: "\(task.completedFiles) 个文件 · \(formattedSendBytes(task.doneBytes))", bundle: .wgLocalized)
                      : task.error ?? sendStatusLabel(task.status))
                     .font(.caption).foregroundStyle(.secondary).lineLimit(1)
             }
@@ -3039,13 +3043,13 @@ struct TransferSendView: View {
 
     private func sendStatusLabel(_ status: String) -> String {
         switch status {
-        case "preparing": return "正在整理文件"
-        case "waiting": return "等待对方确认"
-        case "sending": return "发送中"
-        case "cancelling": return "正在取消"
-        case "completed": return "已完成"
-        case "cancelled": return "已取消"
-        case "failed": return "失败"
+        case "preparing": return String(localized: "正在整理文件", bundle: .wgLocalized)
+        case "waiting": return String(localized: "等待对方确认", bundle: .wgLocalized)
+        case "sending": return String(localized: "发送中", bundle: .wgLocalized)
+        case "cancelling": return String(localized: "正在取消", bundle: .wgLocalized)
+        case "completed": return String(localized: "已完成", bundle: .wgLocalized)
+        case "cancelled": return String(localized: "已取消", bundle: .wgLocalized)
+        case "failed": return String(localized: "失败", bundle: .wgLocalized)
         default: return status
         }
     }
@@ -3078,7 +3082,7 @@ struct TransferSendView: View {
                     Task {
                         let ok = await client.removeManualDevice(deviceID: device.id)
                         if selectedDevice?.id == device.id { selectedDevice = nil }
-                        lastSendResult = ok ? "设备已移除" : "只能移除手动添加的设备"
+                        lastSendResult = ok ? .ok(String(localized: "设备已移除", bundle: .wgLocalized)) : .fail(String(localized: "只能移除手动添加的设备", bundle: .wgLocalized))
                     }
                 } label: { Image(systemName: "trash") }
                     .buttonStyle(WgToolbarIconButtonStyle())
@@ -3094,7 +3098,7 @@ struct TransferSendView: View {
         .onTapGesture { withAnimation(WgDesign.spring) { selectedDevice = device } }
     }
 
-    private func sourceBadgeLabel(_ source: String) -> String { switch source { case "manual": return "手动"; case "scan": return "扫描"; default: return "多播" } }
+    private func sourceBadgeLabel(_ source: String) -> String { switch source { case "manual": return String(localized: "手动", bundle: .wgLocalized); case "scan": return String(localized: "扫描", bundle: .wgLocalized); default: return String(localized: "多播", bundle: .wgLocalized) } }
     private func colorForDeviceSource(_ source: String) -> Color { switch source { case "manual": return .orange; case "scan": return .blue; default: return .green } }
     private func iconForOS(_ dt: String) -> String { let d = dt.lowercased(); if d.contains("mac") || d.contains("ios") { return "desktopcomputer" }; if d.contains("android") { return "smartphone" }; if d.contains("windows") { return "pc" }; return "laptopcomputer" }
     private func colorForOS(_ dt: String) -> Color { let d = dt.lowercased(); if d.contains("mac") || d.contains("ios") { return .blue }; if d.contains("android") { return .green }; if d.contains("windows") { return .cyan }; return .purple }

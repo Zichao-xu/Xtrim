@@ -60,7 +60,7 @@ final class SLSourceCatalog: ObservableObject {
 
     func refresh() async {
         guard let target = URL(string: url.trimmingCharacters(in: .whitespaces)), target.scheme?.hasPrefix("http") == true else {
-            fetchError = url.isEmpty ? nil : "地址无效"
+            fetchError = url.isEmpty ? nil : String(localized: "地址无效", bundle: .wgLocalized)
             return
         }
         fetching = true
@@ -70,7 +70,7 @@ final class SLSourceCatalog: ObservableObject {
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
             guard (response as? HTTPURLResponse)?.statusCode == 200 else {
-                fetchError = "HTTP \((response as? HTTPURLResponse)?.statusCode ?? 0)，继续用缓存"
+                fetchError = String(localized: "HTTP \((response as? HTTPURLResponse)?.statusCode ?? 0)，继续用缓存", bundle: .wgLocalized)
                 return
             }
             let parsed = try JSONDecoder().decode(SLCatalogFile.self, from: data)
@@ -80,9 +80,9 @@ final class SLSourceCatalog: ObservableObject {
             UserDefaults.standard.set(fetchedAt, forKey: Keys.fetchedAt)
             try? data.write(to: Self.cacheURL, options: .atomic)
         } catch is DecodingError {
-            fetchError = "格式不对（需要 download / upload 两个数组），继续用缓存"
+            fetchError = String(localized: "格式不对（需要 download / upload 两个数组），继续用缓存", bundle: .wgLocalized)
         } catch {
-            fetchError = "拉取失败：\(error.localizedDescription)，继续用缓存"
+            fetchError = String(localized: "拉取失败：\(error.localizedDescription)，继续用缓存", bundle: .wgLocalized)
         }
     }
 

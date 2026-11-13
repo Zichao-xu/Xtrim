@@ -179,7 +179,8 @@ struct PPStreamChart: View {
                     }
                 }
             }
-            .frame(minHeight: 110)
+            // 绘图区高度走档位；标题行按内容自然撑开，总高 = 两者之和，外面不再套固定高度。
+            .frame(height: WgLayout.chartPlot)
         }
     }
 
@@ -331,7 +332,9 @@ private struct PPChartAxis: View, Equatable {
                 if major {
                     let label = s == 0 ? "NOW" : "−\(s)s"
                     context.draw(Text(verbatim: label).font(WgInk.mono(.micro)).foregroundStyle(Color.primary.opacity(0.4)),
-                                 at: CGPoint(x: x, y: base + 7), anchor: s == 0 ? .topTrailing : .top)
+                                 at: CGPoint(x: x, y: base + 7),
+                                 // 两端标签向内对齐：最左的 −60s 若居中会伸进纵轴刻度区，压住最底一格读数。
+                                 anchor: s == 0 ? .topTrailing : (s == Int(window) ? .topLeading : .top))
                 }
             }
         }

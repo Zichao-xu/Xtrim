@@ -239,7 +239,7 @@ final class ProxyPanelStore: ObservableObject {
     }
 
     func fetchAll() async {
-        guard let api else { lastError = "未配置后端"; return }
+        guard let api else { lastError = String(localized: "未配置后端", bundle: .wgLocalized); return }
         async let cfg = try? api.config()
         async let ver = try? api.version()
         await fetchProxies()
@@ -607,7 +607,7 @@ final class ProxyPanelStore: ObservableObject {
             }
             await fetchProxies()
         } catch {
-            post(PPNotice(id: "select", title: "切换失败", detail: error.localizedDescription, kind: .error))
+            post(PPNotice(id: "select", title: String(localized: "切换失败", bundle: .wgLocalized), detail: error.localizedDescription, kind: .error))
         }
     }
 
@@ -618,7 +618,7 @@ final class ProxyPanelStore: ObservableObject {
             config?.mode = mode
             await fetchProxies()
         } catch {
-            post(PPNotice(id: "mode", title: "切换模式失败", detail: error.localizedDescription, kind: .error))
+            post(PPNotice(id: "mode", title: String(localized: "切换模式失败", bundle: .wgLocalized), detail: error.localizedDescription, kind: .error))
         }
     }
 
@@ -656,7 +656,7 @@ final class ProxyPanelStore: ObservableObject {
         let result = await latencyForSingle(api, name, url: url, timeout: speedtestTimeout)
         await fetchProxies()
         if !result.ok {
-            post(PPNotice(id: "single:\(name)", title: noticeName(name, url: url), detail: "测速超时", kind: .error), autoDismiss: 3)
+            post(PPNotice(id: "single:\(name)", title: noticeName(name, url: url), detail: String(localized: "测速超时", bundle: .wgLocalized), kind: .error), autoDismiss: 3)
         }
     }
 
@@ -682,12 +682,12 @@ final class ProxyPanelStore: ObservableObject {
                 if !ok { failed += 1 }
                 appendLocalHistory(name, delay: ok ? delay : mihomoNotConnected)
                 done += 1
-                post(PPNotice(id: noticeID, title: noticeName(displayName, url: url), detail: "\(done)/\(total) 测试完成", kind: .info))
+                post(PPNotice(id: noticeID, title: noticeName(displayName, url: url), detail: String(localized: "\(done)/\(total) 测试完成", bundle: .wgLocalized), kind: .info))
                 addNext()
             }
         }
         post(PPNotice(id: noticeID, title: noticeName(displayName, url: url),
-                      detail: "测试完成：\(total - failed) 成功，\(failed) 超时",
+                      detail: String(localized: "测试完成：\(total - failed) 成功，\(failed) 超时", bundle: .wgLocalized),
                       kind: failed > 0 ? .warning : .success), autoDismiss: 3)
         await fetchProxies()
     }
@@ -726,7 +726,7 @@ final class ProxyPanelStore: ObservableObject {
         await fetchProxies()
         let failed = all.filter { latency($0, group: group) == mihomoNotConnected }.count
         post(PPNotice(id: "test:\(group)", title: noticeName(group, url: url),
-                      detail: "测试完成：\(all.count - failed) 成功，\(failed) 超时",
+                      detail: String(localized: "测试完成：\(all.count - failed) 成功，\(failed) 超时", bundle: .wgLocalized),
                       kind: failed > 0 ? .warning : .success), autoDismiss: 3)
     }
 
@@ -758,7 +758,7 @@ final class ProxyPanelStore: ObservableObject {
             return
         }
         let nodes = proxyMap.keys.filter { !isProxyGroupLike($0) }.sorted()
-        await testOneByOne(scope: "all", nodes: nodes, url: testURL(for: nil), displayName: "全部", keyName: "all")
+        await testOneByOne(scope: "all", nodes: nodes, url: testURL(for: nil), displayName: String(localized: "全部", bundle: .wgLocalized), keyName: "all")
     }
 
     func isTesting(_ key: String) -> Bool { testingKeys.contains(key) }
@@ -771,7 +771,7 @@ final class ProxyPanelStore: ObservableObject {
         defer { testingKeys.remove("update:\(name)") }
         do {
             try await api.updateProvider(name)
-            post(PPNotice(id: "update:\(name)", title: name, detail: "更新完成", kind: .success), autoDismiss: 3)
+            post(PPNotice(id: "update:\(name)", title: name, detail: String(localized: "更新完成", bundle: .wgLocalized), kind: .success), autoDismiss: 3)
         } catch {
             post(PPNotice(id: "update:\(name)", title: name, detail: error.localizedDescription, kind: .error), autoDismiss: 4)
         }
@@ -785,9 +785,9 @@ final class ProxyPanelStore: ObservableObject {
         for provider in providers where provider.vehicleType != "Inline" {
             await updateProvider(provider.name)
             done += 1
-            post(PPNotice(id: "updateAll", title: "订阅", detail: "\(done) 更新完成", kind: .info))
+            post(PPNotice(id: "updateAll", title: String(localized: "订阅", bundle: .wgLocalized), detail: String(localized: "\(done) 更新完成", bundle: .wgLocalized), kind: .info))
         }
-        post(PPNotice(id: "updateAll", title: "订阅", detail: "\(done) 更新完成", kind: .success), autoDismiss: 3)
+        post(PPNotice(id: "updateAll", title: String(localized: "订阅", bundle: .wgLocalized), detail: String(localized: "\(done) 更新完成", bundle: .wgLocalized), kind: .success), autoDismiss: 3)
     }
 
     func healthCheckProvider(_ name: String) async {
@@ -948,14 +948,14 @@ final class ProxyPanelStore: ObservableObject {
         var totals: [String: Int] = [:]
         var alive: [String: Int] = [:]
         for name in all {
-            let c = Self.categoryName(name, wildcard: wildcard, fallback: "其他")
+            let c = Self.categoryName(name, wildcard: wildcard, fallback: String(localized: "其他", bundle: .wgLocalized))
             totals[c, default: 0] += 1
             if latency(name) != mihomoNotConnected { alive[c, default: 0] += 1 }
         }
         var order: [String] = []
         var grouped: [String: [String]] = [:]
         for name in proxies {
-            let c = Self.categoryName(name, wildcard: wildcard, fallback: "其他")
+            let c = Self.categoryName(name, wildcard: wildcard, fallback: String(localized: "其他", bundle: .wgLocalized))
             if grouped[c] == nil { order.append(c) }
             grouped[c, default: []].append(name)
         }

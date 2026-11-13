@@ -76,7 +76,7 @@ struct TransferAPIClient {
             body: ["id": deviceID, "paths": paths],
             timeout: 15
         )
-        guard response.ok else { throw DaemonAPIError.response("创建发送任务失败") }
+        guard response.ok else { throw DaemonAPIError.response(String(localized: "创建发送任务失败", bundle: .wgLocalized)) }
         return response.task
     }
 

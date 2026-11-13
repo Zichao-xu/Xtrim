@@ -143,11 +143,11 @@ struct PPLatencyTag: View {
     private var historyTip: String {
         guard let name else { return "" }
         let items = store.history(name, group: group)
-        guard !items.isEmpty else { return "测速" }
+        guard !items.isEmpty else { return String(localized: "测速", bundle: .wgLocalized) }
         let fmt = Self.tipFormatter
         return items.suffix(10).map { item in
             let time = PPPersist.parseDate(item.time).map { fmt.string(from: $0) } ?? item.time
-            return "\(time)  \(item.delay == 0 ? "超时" : "\(item.delay)ms")"
+            return String(localized: "\(time)  \(item.delay == 0 ? String(localized: "超时", bundle: .wgLocalized) : "\(item.delay)ms")", bundle: .wgLocalized)
         }.joined(separator: "\n")
     }
 }
@@ -452,7 +452,7 @@ struct PPNodeCard: View {
         let fmt = PPNodeCard.tipFormatter
         return ([name] + items.suffix(10).map { item in
             let time = PPPersist.parseDate(item.time).map { fmt.string(from: $0) } ?? item.time
-            return "\(time)  \(item.delay == 0 ? "超时" : "\(item.delay)ms")"
+            return String(localized: "\(time)  \(item.delay == 0 ? String(localized: "超时", bundle: .wgLocalized) : "\(item.delay)ms")", bundle: .wgLocalized)
         }).joined(separator: "\n")
     }
 
@@ -522,9 +522,9 @@ struct PPNodeCard: View {
         let udp = node.udp ? (node.xudp ? "xudp" : "udp") : ""
         let smart: String = {
             switch store.smartWeights[group]?[name] {
-            case "MostUsed": return "经常使用"
-            case "OccasionalUsed": return "偶尔使用"
-            case "RarelyUsed": return "很少使用"
+            case "MostUsed": return String(localized: "经常使用", bundle: .wgLocalized)
+            case "OccasionalUsed": return String(localized: "偶尔使用", bundle: .wgLocalized)
+            case "RarelyUsed": return String(localized: "很少使用", bundle: .wgLocalized)
             default: return ""
             }
         }()

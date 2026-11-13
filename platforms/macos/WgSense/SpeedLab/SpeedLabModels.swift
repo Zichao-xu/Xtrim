@@ -40,11 +40,11 @@ struct SLEndpoint: Codable, Identifiable, Hashable {
     var name: String { !label.isEmpty ? label : !hostname.isEmpty ? hostname : address }
 
     static func local(hostname: String) -> SLEndpoint {
-        SLEndpoint(id: "local", kind: .local, hostname: hostname, via: "本机探测")
+        SLEndpoint(id: "local", kind: .local, hostname: hostname, via: String(localized: "本机探测", bundle: .wgLocalized))
     }
 
     static func publicNet(sources: Int) -> SLEndpoint {
-        SLEndpoint(id: "public", kind: .publicNet, via: "测速源列表 · \(sources) 个源")
+        SLEndpoint(id: "public", kind: .publicNet, via: String(localized: "测速源列表 · \(sources) 个源", bundle: .wgLocalized))
     }
 
     static func ssh(host: String, port: Int, user: String, via: String) -> SLEndpoint {
@@ -61,16 +61,16 @@ struct SLEndpoint: Codable, Identifiable, Hashable {
         case .local: return "localhost"
         case .ssh: return "\(sshUser)@\(host):\(sshPort)"
         case .peer: return host
-        case .publicNet: return "公网"
+        case .publicNet: return String(localized: "公网", bundle: .wgLocalized)
         }
     }
 
     /// 能做什么。
     var ability: String {
         switch kind {
-        case .local, .ssh: return "可执行 · 可当目标"
-        case .peer: return "仅目标 · 需自备 iperf3 服务端"
-        case .publicNet: return "仅目标 · HTTP 测速"
+        case .local, .ssh: return String(localized: "可执行 · 可当目标", bundle: .wgLocalized)
+        case .peer: return String(localized: "仅目标 · 需自备 iperf3 服务端", bundle: .wgLocalized)
+        case .publicNet: return String(localized: "仅目标 · HTTP 测速", bundle: .wgLocalized)
         }
     }
 }
@@ -98,9 +98,9 @@ enum SLDirections: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .both: return "双向"
-        case .down: return "仅下行"
-        case .up: return "仅上行"
+        case .both: return String(localized: "双向", bundle: .wgLocalized)
+        case .down: return String(localized: "仅下行", bundle: .wgLocalized)
+        case .up: return String(localized: "仅上行", bundle: .wgLocalized)
         }
     }
     var script: String {
@@ -230,7 +230,7 @@ struct SLParams: Codable, Equatable {
 enum SLRateSource: String, Codable, CaseIterable, Identifiable {
     case nic, tool
     var id: String { rawValue }
-    var title: String { self == .nic ? "网卡计数" : "iperf3 自报" }
+    var title: String { self == .nic ? String(localized: "网卡计数", bundle: .wgLocalized) : String(localized: "iperf3 自报", bundle: .wgLocalized) }
 }
 
 /// 上行读数在哪一端量的。发送端的数字是写进发送缓冲的量，会比链路实际到达的更抖、峰值更高；
@@ -239,14 +239,14 @@ enum SLRateSide: String, Codable {
     case receiver, sender
     /// HUD 用。
     var key: String { rawValue }
-    var title: String { self == .receiver ? "接收端" : "发送端" }
+    var title: String { self == .receiver ? String(localized: "接收端", bundle: .wgLocalized) : String(localized: "发送端", bundle: .wgLocalized) }
 }
 
 /// 稳定值取什么统计量。
 enum SLStatistic: String, Codable, CaseIterable, Identifiable {
     case median, mean
     var id: String { rawValue }
-    var title: String { self == .median ? "中位数" : "平均值" }
+    var title: String { self == .median ? String(localized: "中位数", bundle: .wgLocalized) : String(localized: "平均值", bundle: .wgLocalized) }
 }
 
 // MARK: - 测量过程
@@ -255,12 +255,12 @@ enum SLPhase: String, Codable {
     case prepare, idle, pick, dl, ul, done
     var title: String {
         switch self {
-        case .prepare: return "准备"
-        case .idle: return "空载延迟"
-        case .pick: return "选源"
-        case .dl: return "下行"
-        case .ul: return "上行"
-        case .done: return "完成"
+        case .prepare: return String(localized: "准备", bundle: .wgLocalized)
+        case .idle: return String(localized: "空载延迟", bundle: .wgLocalized)
+        case .pick: return String(localized: "选源", bundle: .wgLocalized)
+        case .dl: return String(localized: "下行", bundle: .wgLocalized)
+        case .ul: return String(localized: "上行", bundle: .wgLocalized)
+        case .done: return String(localized: "完成", bundle: .wgLocalized)
         }
     }
 }

@@ -3,7 +3,7 @@ import QuartzCore
 
 // Continuous, display-synchronised motion; event and pointer driven, idle clock paused.
 enum WgHUDFocus: String, CaseIterable { case all, receive, send
-    var title: String { switch self { case .all: return "全部"; case .receive: return "接收"; case .send: return "发送" } }
+    var title: String { switch self { case .all: return String(localized: "全部", bundle: .wgLocalized); case .receive: return String(localized: "接收", bundle: .wgLocalized); case .send: return String(localized: "发送", bundle: .wgLocalized) } }
 }
 
 struct WgLinkStage: View {
@@ -122,7 +122,7 @@ struct WgLinkStage: View {
                                     .wgPadding(.horizontal, .s).frame(height: 23)
                                     .background(displayedFocus == item ? Color.primary.opacity(0.12) : Color.clear)
                             }.buttonStyle(.plain).accessibilityAddTraits(displayedFocus == item ? .isSelected : [])
-                                .help(item == .all ? "显示完整收发构成" : "聚焦" + item.title + "，再次点击恢复全部")
+                                .help(item == .all ? String(localized: "显示完整收发构成", bundle: .wgLocalized) : String(localized: "聚焦", bundle: .wgLocalized) + item.title + String(localized: "，再次点击恢复全部", bundle: .wgLocalized))
                         }
                     }.wgPadding(.leading, .m).wgPadding(.bottom, .s)
                 }
@@ -201,9 +201,9 @@ struct WgLinkStage: View {
         let title = WgLinkComposition.status(phase: phase, snapshot: s)
         guard phase == .linked else { return title }
         let rates = s.trafficAvailable
-            ? "，最近 30 秒平均接收 \(WgFormat.speed(s.rxRate))，发送 \(WgFormat.speed(s.txRate))"
-            : "，等待流量采样"
-        return title + rates + "，距上次握手 \(s.handshakeAge.map { "\($0) 秒" } ?? "未知")，本次观测最近一小时重绑 \(s.rebindsLastHour) 次"
+            ? String(localized: "，最近 30 秒平均接收 \(WgFormat.speed(s.rxRate))，发送 \(WgFormat.speed(s.txRate))", bundle: .wgLocalized)
+            : String(localized: "，等待流量采样", bundle: .wgLocalized)
+        return title + rates + String(localized: "，距上次握手 \(s.handshakeAge.map { String(localized: "\($0) 秒", bundle: .wgLocalized) } ?? String(localized: "未知", bundle: .wgLocalized))，本次观测最近一小时重绑 \(s.rebindsLastHour) 次", bundle: .wgLocalized)
     }
 }
 
@@ -268,14 +268,14 @@ private struct WgLinkComposition {
 
     static func status(phase: WgLinkPhase, snapshot s: WgLinkSnapshot) -> String {
         switch phase {
-        case .home: return "受信任网络 · 已自动断开"
-        case .offline: return "等待后台服务"
-        case .idle: return "隧道待命"
-        case .connecting: return "正在建立链路"
+        case .home: return String(localized: "受信任网络 · 已自动断开", bundle: .wgLocalized)
+        case .offline: return String(localized: "等待后台服务", bundle: .wgLocalized)
+        case .idle: return String(localized: "隧道待命", bundle: .wgLocalized)
+        case .connecting: return String(localized: "正在建立链路", bundle: .wgLocalized)
         case .linked:
-            if s.alarm == .transmitStall { return "发送疑似停滞" }
-            if s.alarm == .unstable { return "链路反复重绑" }
-            return s.trafficAvailable ? "链路遥测中" : "等待遥测数据"
+            if s.alarm == .transmitStall { return String(localized: "发送疑似停滞", bundle: .wgLocalized) }
+            if s.alarm == .unstable { return String(localized: "链路反复重绑", bundle: .wgLocalized) }
+            return s.trafficAvailable ? String(localized: "链路遥测中", bundle: .wgLocalized) : String(localized: "等待遥测数据", bundle: .wgLocalized)
         }
     }
 
@@ -314,7 +314,7 @@ private struct WgLinkComposition {
 
     private func header(_ g: inout GraphicsContext) {
         polygon(&g, [CGPoint(x: 20, y: 20), CGPoint(x: 28, y: 20), CGPoint(x: 32, y: 28), CGPoint(x: 24, y: 28)], ink)
-        text(&g, "链路舞台", 42, 24, 13, ink, weight: .semibold)
+        text(&g, String(localized: "链路舞台", bundle: .wgLocalized), 42, 24, 13, ink, weight: .semibold)
         if size.width >= 680 { text(&g, "W G S E N S E   /   T E L E M E T R Y", 116, 24, 8, ink.opacity(0.42), mono: true) }
         let title = Self.status(phase: phase, snapshot: s)
         text(&g, title, size.width - 20, 24, 11, accent.opacity(linked ? 1 : 0.68), anchor: .trailing)
@@ -383,8 +383,8 @@ private struct WgLinkComposition {
         polygon(&base, [CGPoint(x: c.x + r + 15, y: c.y - 9), CGPoint(x: c.x + r + 23, y: c.y - 9),
                        CGPoint(x: c.x + r + 15, y: c.y - 1)], accent.opacity(0.72 * fade))
         if (alarm == nil || alarmLanded) && (reduceMotion || entryFrame >= 5) {
-            annotation(&base, "接收", at: CGPoint(x: 34, y: 90), to: CGPoint(x: c.x - rxLength * 0.25, y: c.y - 33), trailing: false)
-            annotation(&base, "发送", at: CGPoint(x: railX - 35, y: 221), to: CGPoint(x: c.x + txLength * 0.26, y: c.y + 34), trailing: true)
+            annotation(&base, String(localized: "接收", bundle: .wgLocalized), at: CGPoint(x: 34, y: 90), to: CGPoint(x: c.x - rxLength * 0.25, y: c.y - 33), trailing: false)
+            annotation(&base, String(localized: "发送", bundle: .wgLocalized), at: CGPoint(x: railX - 35, y: 221), to: CGPoint(x: c.x + txLength * 0.26, y: c.y + 34), trailing: true)
         }
         if alarm != nil && alarmFrame >= 1 && alarmFrame < 2 && !reduceMotion {
             stroke(&base, [(c.x - 32, c.y + 64), (c.x + 35, c.y - 64)], accent, 3)
@@ -394,19 +394,19 @@ private struct WgLinkComposition {
     }
 
     func fixedAnnotations(_ g: inout GraphicsContext) {
-        text(&g, "接收", 34, 90, 10, ink.opacity(0.66))
-        text(&g, "发送", railX - 35, 221, 10, ink.opacity(0.66), anchor: .trailing)
+        text(&g, String(localized: "接收", bundle: .wgLocalized), 34, 90, 10, ink.opacity(0.66))
+        text(&g, String(localized: "发送", bundle: .wgLocalized), railX - 35, 221, 10, ink.opacity(0.66), anchor: .trailing)
         let x = railX - 95, y: CGFloat = 84
         stroke(&g, [(x - 7, y - 18), (x - 7, y + 31), (x + 64, y + 31)], ink.opacity(0.18))
-        text(&g, "自愈记录", x + 59, y - 11, 8, ink.opacity(0.62), anchor: .trailing)
+        text(&g, String(localized: "自愈记录", bundle: .wgLocalized), x + 59, y - 11, 8, ink.opacity(0.62), anchor: .trailing)
         // 相位说明位于安全的固定区域，永远不压住数据图例。
         let note: String
         switch phase {
-        case .home: note = "守护已接管 · 无需连接"
-        case .offline: note = "数据暂不可用"
-        case .idle: note = "等待下一次连接"
-        case .connecting: note = "等待握手确认"
-        case .linked: note = alarmLanded ? (alarm == .transmitStall ? "接收有增长 · 发送超过 35 秒未增长" : "60 秒内至少 3 次重绑") : "长度 / 收发强度     刻度 / 握手新鲜度"
+        case .home: note = String(localized: "守护已接管 · 无需连接", bundle: .wgLocalized)
+        case .offline: note = String(localized: "数据暂不可用", bundle: .wgLocalized)
+        case .idle: note = String(localized: "等待下一次连接", bundle: .wgLocalized)
+        case .connecting: note = String(localized: "等待握手确认", bundle: .wgLocalized)
+        case .linked: note = alarmLanded ? (alarm == .transmitStall ? String(localized: "接收有增长 · 发送超过 35 秒未增长", bundle: .wgLocalized) : String(localized: "60 秒内至少 3 次重绑", bundle: .wgLocalized)) : String(localized: "长度 / 收发强度     刻度 / 握手新鲜度", bundle: .wgLocalized)
         }
         text(&g, note, 34, 244, 9, alarmLanded ? accent : ink.opacity(0.46))
     }
@@ -470,29 +470,29 @@ private struct WgLinkComposition {
         let available = linked && s.trafficAvailable
         if compact {
             let left: CGFloat = 22, right = size.width / 2 + 14
-            text(&g, "接收 · 30 秒平均", left, 274, 10, ink.opacity(0.55))
-            text(&g, "发送 · 30 秒平均", right, 274, 10, ink.opacity(0.55))
+            text(&g, String(localized: "接收 · 30 秒平均", bundle: .wgLocalized), left, 274, 10, ink.opacity(0.55))
+            text(&g, String(localized: "发送 · 30 秒平均", bundle: .wgLocalized), right, 274, 10, ink.opacity(0.55))
             readout(&g, available ? WgFormat.speed(s.rxRate) : "—", left, 297, emphasized: true, end: size.width / 2 - 18)
             readout(&g, available ? WgFormat.speed(s.txRate) : "—", right, 297, emphasized: false, end: size.width - 22)
             meter(&g, left, 319, level: available ? s.rxLevel : 0, color: ink.opacity(0.8), end: size.width / 2 - 18)
             meter(&g, right, 319, level: available ? s.txLevel : 0, color: alarm == .transmitStall ? red : ink.opacity(0.55), end: size.width - 22)
-            text(&g, "握手", left, 340, 10, ink.opacity(0.55))
-            text(&g, linked ? (s.handshakeAge.map { $0 >= 86400 ? "超过一天" : WgFormat.age($0) } ?? "未采集") : "—", left + 38, 340, 11, ink, mono: true)
-            text(&g, "重绑 \(rebindCount) 次 · 本次观测近 1 小时", size.width - 22, 340, 9, ink.opacity(0.55), anchor: .trailing)
+            text(&g, String(localized: "握手", bundle: .wgLocalized), left, 340, 10, ink.opacity(0.55))
+            text(&g, linked ? (s.handshakeAge.map { $0 >= 86400 ? String(localized: "超过一天", bundle: .wgLocalized) : WgFormat.age($0) } ?? String(localized: "未采集", bundle: .wgLocalized)) : "—", left + 38, 340, 11, ink, mono: true)
+            text(&g, String(localized: "重绑 \(rebindCount) 次 · 本次观测近 1 小时", bundle: .wgLocalized), size.width - 22, 340, 9, ink.opacity(0.55), anchor: .trailing)
             stroke(&g, [(22, 354), (size.width - 22, 354)], ink.opacity(0.13))
         } else {
             let x = railX + 22
-            text(&g, "30 秒平均", x, 72, 10, ink.opacity(0.5))
-            text(&g, "接收", x, 96, 10, ink.opacity(0.65))
+            text(&g, String(localized: "30 秒平均", bundle: .wgLocalized), x, 72, 10, ink.opacity(0.5))
+            text(&g, String(localized: "接收", bundle: .wgLocalized), x, 96, 10, ink.opacity(0.65))
             readout(&g, available ? WgFormat.speed(s.rxRate) : "—", x, 118, emphasized: true)
             meter(&g, x, 140, level: available ? s.rxLevel : 0, color: ink.opacity(0.8))
-            text(&g, "发送", x, 161, 10, ink.opacity(0.65))
+            text(&g, String(localized: "发送", bundle: .wgLocalized), x, 161, 10, ink.opacity(0.65))
             readout(&g, available ? WgFormat.speed(s.txRate) : "—", x, 182, emphasized: false)
             meter(&g, x, 204, level: available ? s.txLevel : 0, color: alarm == .transmitStall ? red : ink.opacity(0.55))
             stroke(&g, [(x, 218), (size.width - 22, 218)], ink.opacity(0.13))
-            text(&g, "握手", x, 237, 10, ink.opacity(0.55))
-            text(&g, linked ? (s.handshakeAge.map { $0 >= 86400 ? "超过一天" : WgFormat.age($0) } ?? "未采集") : "—", x + 37, 237, 11, ink, mono: true)
-            text(&g, "\(rebindCount) 次重绑", size.width - 22, 237, 10, s.rebindsLastHour > 0 ? accent : ink.opacity(0.55), anchor: .trailing)
+            text(&g, String(localized: "握手", bundle: .wgLocalized), x, 237, 10, ink.opacity(0.55))
+            text(&g, linked ? (s.handshakeAge.map { $0 >= 86400 ? String(localized: "超过一天", bundle: .wgLocalized) : WgFormat.age($0) } ?? String(localized: "未采集", bundle: .wgLocalized)) : "—", x + 37, 237, 11, ink, mono: true)
+            text(&g, String(localized: "\(rebindCount) 次重绑", bundle: .wgLocalized), size.width - 22, 237, 10, s.rebindsLastHour > 0 ? accent : ink.opacity(0.55), anchor: .trailing)
         }
     }
 
@@ -500,12 +500,12 @@ private struct WgLinkComposition {
         let left: CGFloat = 22, right = size.width - 22, top: CGFloat = compact ? 371 : 275, mid: CGFloat = compact ? 385 : 289
         if let inspection, linked {
             let age = max(0, Int((s.history.last?.at ?? now).timeIntervalSince(inspection.at)))
-            let detail = inspection.available ? "\(age) 秒前  接收 \(WgFormat.speed(inspection.rxRate))  /  发送 \(WgFormat.speed(inspection.txRate))" : "\(age) 秒前 · 此处没有有效采样"
+            let detail = inspection.available ? String(localized: "\(age) 秒前  接收 \(WgFormat.speed(inspection.rxRate))  /  发送 \(WgFormat.speed(inspection.txRate))", bundle: .wgLocalized) : String(localized: "\(age) 秒前 · 此处没有有效采样", bundle: .wgLocalized)
             text(&g, detail, left, top - 6, 9, ink.opacity(0.84))
         } else {
-            text(&g, "流量轨迹", left, top - 6, 9, ink.opacity(0.52))
-            text(&g, "30 秒前", left + 65, top - 6, 8, ink.opacity(0.36), mono: true)
-            text(&g, linked && s.trafficAvailable ? "现在" : "暂无采样", right, top - 6, 8, ink.opacity(0.50), anchor: .trailing)
+            text(&g, String(localized: "流量轨迹", bundle: .wgLocalized), left, top - 6, 9, ink.opacity(0.52))
+            text(&g, String(localized: "30 秒前", bundle: .wgLocalized), left + 65, top - 6, 8, ink.opacity(0.36), mono: true)
+            text(&g, linked && s.trafficAvailable ? String(localized: "现在", bundle: .wgLocalized) : String(localized: "暂无采样", bundle: .wgLocalized), right, top - 6, 8, ink.opacity(0.50), anchor: .trailing)
         }
         let start = left + 67, width = right - start
         stroke(&g, [(start, mid), (right, mid)], ink.opacity(0.18))
@@ -534,21 +534,21 @@ private struct WgLinkComposition {
             let x = start + width * CGFloat(i) / 6
             stroke(&g, [(x, top + 27), (x, top + 30)], ink.opacity(0.26))
         }
-        text(&g, "收 / 发", left, mid + 2, 8, ink.opacity(0.4))
+        text(&g, String(localized: "收 / 发", bundle: .wgLocalized), left, mid + 2, 8, ink.opacity(0.4))
     }
 
     private func footer(_ g: inout GraphicsContext) {
         let textValue: String
-        if phase == .home { textValue = "受信任网络中保持安静" }
-        else if phase == .connecting { textValue = "连接确认后开始记录" }
-        else if phase != .linked { textValue = "建立链路后恢复观测" }
-        else if !s.trafficAvailable { textValue = "等待新的有效采样" }
-        else if alarm == .transmitStall { textValue = "依据字节计数判断，正在等待发送恢复" }
-        else if alarm == .unstable { textValue = "检测到频繁自愈，继续观察链路" }
+        if phase == .home { textValue = String(localized: "受信任网络中保持安静", bundle: .wgLocalized) }
+        else if phase == .connecting { textValue = String(localized: "连接确认后开始记录", bundle: .wgLocalized) }
+        else if phase != .linked { textValue = String(localized: "建立链路后恢复观测", bundle: .wgLocalized) }
+        else if !s.trafficAvailable { textValue = String(localized: "等待新的有效采样", bundle: .wgLocalized) }
+        else if alarm == .transmitStall { textValue = String(localized: "依据字节计数判断，正在等待发送恢复", bundle: .wgLocalized) }
+        else if alarm == .unstable { textValue = String(localized: "检测到频繁自愈，继续观察链路", bundle: .wgLocalized) }
         else if let recovered = s.recoveryEvent, let sampled = s.lastDataAt,
-                sampled.timeIntervalSince(recovered) >= 0 && sampled.timeIntervalSince(recovered) < 3 { textValue = "遥测已恢复" }
-        else { textValue = "真实采样 · 事件触发" }
-        let hint = pinned ? "已固定采样 · 再点解除" : (compact ? "移动感应 · 轨迹可探查" : textValue + " · 移动感应 / 点击聚焦 / 探查轨迹")
+                sampled.timeIntervalSince(recovered) >= 0 && sampled.timeIntervalSince(recovered) < 3 { textValue = String(localized: "遥测已恢复", bundle: .wgLocalized) }
+        else { textValue = String(localized: "真实采样 · 事件触发", bundle: .wgLocalized) }
+        let hint = pinned ? String(localized: "已固定采样 · 再点解除", bundle: .wgLocalized) : (compact ? String(localized: "移动感应 · 轨迹可探查", bundle: .wgLocalized) : textValue + String(localized: " · 移动感应 / 点击聚焦 / 探查轨迹", bundle: .wgLocalized))
         text(&g, hint, size.width - 22, compact ? 421 : 321, compact ? 8 : 9, alarm != nil ? accent : ink.opacity(0.51), anchor: .trailing)
     }
 

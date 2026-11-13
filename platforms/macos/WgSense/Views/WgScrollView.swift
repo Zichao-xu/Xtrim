@@ -8,9 +8,7 @@ struct WgScrollView: View {
     @StateObject private var rail = WgScrollRailModel()
     var body: some View {
         WgNativeScrollView(content: content, rail: rail)
-            .overlay(alignment: .leading) {
-                WgScrollRail(model: rail).wgPadding(.leading, .zero).wgPadding(.vertical, .m)
-            }
+            .wgPublishesScrollRail(rail)
     }
 }
 
@@ -180,6 +178,19 @@ final class WgScrollRailModel: ObservableObject {
     @Published private(set) var fraction: CGFloat = 0
     @Published private(set) var scrollable = false
     private weak var scroll: NSScrollView?
+    /// SwiftUI ScrollView 来源：没有 NSScrollView 可直接滚，跳转交给它的 ScrollPosition。
+    private var seekHandler: ((CGFloat) -> Void)?
+    private var swiftUIMaxY: CGFloat = 0
+
+    /// SwiftUI ScrollView 上报滚动几何（见 wgTimelineScroller）。
+    func update(offset: CGFloat, maxY: CGFloat, seek: @escaping (CGFloat) -> Void) {
+        seekHandler = seek
+        swiftUIMaxY = maxY
+        let f = maxY > 0 ? min(1, max(0, offset / maxY)) : 0
+        if abs(f - fraction) > 0.001 { fraction = f }
+        let can = maxY > 4
+        if can != scrollable { scrollable = can }
+    }
 
     /// 绑定滚动框：监听剪裁区位置变化更新刻度；返回的观察者令牌需由调用方持有。
     func link(_ scroll: NSScrollView) -> Any {
@@ -203,7 +214,10 @@ final class WgScrollRailModel: ObservableObject {
 
     /// 拖动 / 点击：把 0–1 的位置直接映射成滚动位置。
     func seek(_ f: CGFloat) {
-        guard let scroll, let doc = scroll.documentView else { return }
+        guard let scroll, let doc = scroll.documentView else {
+            seekHandler?(swiftUIMaxY * min(1, max(0, f)))
+            return
+        }
         let maxY = max(0, doc.frame.height - scroll.contentView.bounds.height)
         scroll.contentView.scroll(to: NSPoint(x: 0, y: maxY * min(1, max(0, f))))
         scroll.reflectScrolledClipView(scroll.contentView)
@@ -213,26 +227,62 @@ final class WgScrollRailModel: ObservableObject {
 /// 左侧刻度条（ChatGPT 式）：一列细刻度，当前位置是加长的白色刻度；光标靠近时附近刻度按距离平滑拉长（吸附放大）；
 /// 按住上下拖动实时滑动页面，单击跳到该处。整列画在一个画布里（避免非矩形区域的逐帧计算）。
 struct WgScrollRail: View {
-    @ObservedObject var model: WgScrollRailModel
-    @State private var hoverY: CGFloat?
+    /// nil = 当前页不滚动：照样画出刻度（每页同一位置都有），只是没有当前位置、不可拖。
+    var model: WgScrollRailModel?
 
     static let spacing: CGFloat = 5
+    /// 刻度条占据页面左侧页边距，与内容之间空一档 s。宽度跟着页边距档位走，不写死。
+    static var width: CGFloat { max(4, WgTheme.pagePadding - WgSpace.s) }
 
     var body: some View {
-        GeometryReader { geo in
+        if let model { Live(model: model) } else { Ticks(fraction: nil, hoverY: nil) }
+    }
+
+    private struct Live: View {
+        @ObservedObject var model: WgScrollRailModel
+        @State private var hoverY: CGFloat?
+
+        var body: some View {
+            GeometryReader { geo in
+                Ticks(fraction: model.scrollable ? model.fraction : nil, hoverY: model.scrollable ? hoverY : nil)
+                    .contentShape(Rectangle())
+                    .onContinuousHover { phase in
+                        switch phase {
+                        case .active(let p): hoverY = p.y
+                        case .ended: hoverY = nil
+                        }
+                    }
+                    .gesture(DragGesture(minimumDistance: 0).onChanged { v in
+                        hoverY = v.location.y
+                        model.seek(v.location.y / max(1, geo.size.height))
+                    })
+            }
+            .frame(width: WgScrollRail.width)
+            .allowsHitTesting(model.scrollable)
+        }
+    }
+
+    /// 刻度长度按刻度条宽度比例：普通 ½、每十格 ¾、当前位置与吸附放大到满宽。
+    private struct Ticks: View {
+        var fraction: CGFloat?
+        var hoverY: CGFloat?
+
+        var body: some View {
             Canvas { ctx, size in
-                let count = max(2, Int(size.height / Self.spacing))
+                let full = size.width
+                let count = max(2, Int(size.height / WgScrollRail.spacing))
                 let step = size.height / CGFloat(count - 1)
-                let active = Int((model.fraction * CGFloat(count - 1)).rounded())
+                let active = fraction.map { Int(($0 * CGFloat(count - 1)).rounded()) }
                 for i in 0..<count {
                     let y = CGFloat(i) * step
-                    var w: CGFloat = i % 10 == 0 ? 9 : 6
+                    var w = full * (i % 10 == 0 ? 0.75 : 0.5)
                     if let hy = hoverY {
                         let d = abs(y - hy)
-                        w += 18 * exp(-(d * d) / (2 * 20 * 20))
+                        w += full * exp(-(d * d) / (2 * 20 * 20))
                     }
                     let isActive = i == active
-                    if isActive { w = max(w, 22) }
+                    if isActive { w = full }
+                    w = min(full, w)
                     var p = Path()
                     p.move(to: CGPoint(x: 0, y: y))
                     p.addLine(to: CGPoint(x: w, y: y))
@@ -240,20 +290,57 @@ struct WgScrollRail: View {
                                lineWidth: isActive ? 2 : 1)
                 }
             }
-            .contentShape(Rectangle())
-            .onContinuousHover { phase in
-                switch phase {
-                case .active(let p): hoverY = p.y
-                case .ended: hoverY = nil
-                }
-            }
-            .gesture(DragGesture(minimumDistance: 0).onChanged { v in
-                hoverY = v.location.y
-                model.seek(v.location.y / max(1, geo.size.height))
-            })
+            .frame(width: WgScrollRail.width)
         }
-        .frame(width: 30)
-        .opacity(model.scrollable ? 1 : 0)
-        .allowsHitTesting(model.scrollable)
+    }
+}
+
+// MARK: - 刻度条挂载：滚动来源上报，页面区统一画
+
+/// 当前页的滚动来源。页面里任何滚动容器（原生 WgScrollView、SwiftUI ScrollView、AppKit 表格）都只上报，
+/// 由页面区（MainPageArea）在左侧页边距的同一位置画一条——不再各页自己摆、各自写偏移。
+struct WgScrollRailKey: PreferenceKey {
+    static let defaultValue: WgScrollRailRef? = nil
+    static func reduce(value: inout WgScrollRailRef?, nextValue: () -> WgScrollRailRef?) {
+        if let next = nextValue() { value = next }
+    }
+}
+
+struct WgScrollRailRef: Equatable {
+    let model: WgScrollRailModel
+    static func == (a: Self, b: Self) -> Bool { a.model === b.model }
+}
+
+extension View {
+    /// 把这个滚动来源登记为当前页的刻度条数据。
+    func wgPublishesScrollRail(_ model: WgScrollRailModel) -> some View {
+        preference(key: WgScrollRailKey.self, value: WgScrollRailRef(model: model))
+    }
+
+    /// 页面区：左侧页边距里画刻度条，每个页面都有、位置一致。
+    func wgPageScrollRail() -> some View {
+        overlayPreferenceValue(WgScrollRailKey.self, alignment: .leading) { ref in
+            WgScrollRail(model: ref?.model).wgPadding(.vertical, .m)
+        }
+    }
+}
+
+/// SwiftUI ScrollView 接入刻度条：隐藏系统滚动条，上报滚动位置，接收跳转。
+struct WgTimelineScrollerModifier: ViewModifier {
+    @StateObject private var rail = WgScrollRailModel()
+    @State private var position = ScrollPosition(edge: .top)
+
+    func body(content: Content) -> some View {
+        let binding = $position
+        content
+            .scrollIndicators(.hidden)
+            .scrollPosition(binding)
+            .onScrollGeometryChange(for: CGPoint.self) { g in
+                CGPoint(x: g.contentOffset.y + g.contentInsets.top,
+                        y: max(0, g.contentSize.height + g.contentInsets.top + g.contentInsets.bottom - g.containerSize.height))
+            } action: { _, v in
+                rail.update(offset: v.x, maxY: v.y) { y in binding.wrappedValue.scrollTo(y: y) }
+            }
+            .wgPublishesScrollRail(rail)
     }
 }

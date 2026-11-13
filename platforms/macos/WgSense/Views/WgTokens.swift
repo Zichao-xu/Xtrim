@@ -21,10 +21,10 @@ enum WgTokenGroup: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .space: return "间距"
-        case .type: return "字号"
-        case .radius: return "圆角"
-        case .layout: return "版面"
+        case .space: return String(localized: "间距", bundle: .wgLocalized)
+        case .type: return String(localized: "字号", bundle: .wgLocalized)
+        case .radius: return String(localized: "圆角", bundle: .wgLocalized)
+        case .layout: return String(localized: "版面", bundle: .wgLocalized)
         }
     }
     var step: CGFloat { self == .space ? 4 : 1 }
@@ -44,27 +44,28 @@ enum WgTokenGroup: String, CaseIterable, Identifiable {
         case .type:
             // 13 / 15 / 17 = macOS 正文 / 标题 3 / 标题 2。
             return [
-                .init(key: "type.micro", label: "micro · 刻度", fallback: 9, range: 7...10),
-                .init(key: "type.caption", label: "caption · 注释", fallback: 10, range: 9...11),
-                .init(key: "type.footnote", label: "footnote · 次要", fallback: 11, range: 10...13),
-                .init(key: "type.body", label: "body · 正文", fallback: 13, range: 11...15),
-                .init(key: "type.sub", label: "sub · 小标题", fallback: 15, range: 13...17),
-                .init(key: "type.title", label: "title · 标题", fallback: 17, range: 15...22),
-                .init(key: "type.large", label: "large · 大字", fallback: 24, range: 18...30),
-                .init(key: "type.readout", label: "readout · 读数", fallback: 30, range: 24...40),
-                .init(key: "type.display", label: "display · 展示", fallback: 48, range: 32...64),
+                .init(key: "type.micro", label: String(localized: "micro · 刻度", bundle: .wgLocalized), fallback: 9, range: 7...10),
+                .init(key: "type.caption", label: String(localized: "caption · 注释", bundle: .wgLocalized), fallback: 10, range: 9...11),
+                .init(key: "type.footnote", label: String(localized: "footnote · 次要", bundle: .wgLocalized), fallback: 11, range: 10...13),
+                .init(key: "type.body", label: String(localized: "body · 正文", bundle: .wgLocalized), fallback: 13, range: 11...15),
+                .init(key: "type.sub", label: String(localized: "sub · 小标题", bundle: .wgLocalized), fallback: 15, range: 13...17),
+                .init(key: "type.title", label: String(localized: "title · 标题", bundle: .wgLocalized), fallback: 17, range: 15...22),
+                .init(key: "type.large", label: String(localized: "large · 大字", bundle: .wgLocalized), fallback: 24, range: 18...30),
+                .init(key: "type.readout", label: String(localized: "readout · 读数", bundle: .wgLocalized), fallback: 30, range: 24...40),
+                .init(key: "type.display", label: String(localized: "display · 展示", bundle: .wgLocalized), fallback: 48, range: 32...64),
             ]
         case .radius:
             return [
-                .init(key: "radius.s", label: "s · 小件", fallback: 6, range: 0...8),
-                .init(key: "radius.m", label: "m · 卡片", fallback: 8, range: 6...16),
+                .init(key: "radius.s", label: String(localized: "s · 小件", bundle: .wgLocalized), fallback: 6, range: 0...8),
+                .init(key: "radius.m", label: String(localized: "m · 卡片", bundle: .wgLocalized), fallback: 8, range: 6...16),
             ]
         case .layout:
             // 不归档的具体版面尺寸，每个滑块只管一处。
             return [
-                .init(key: "layout.sidebarTop", label: "侧栏顶部留白（让红绿灯）", fallback: 40, range: 0...80),
-                .init(key: "layout.pageMaxWidth", label: "页面最大宽度（拉满=贴边）", fallback: 820, range: 600...2400),
-                .init(key: "layout.speedHudScale", label: "测速仪表缩放上限（%）", fallback: 70, range: 40...120),
+                .init(key: "layout.sidebarTop", label: String(localized: "侧栏顶部留白（让红绿灯）", bundle: .wgLocalized), fallback: 40, range: 0...80),
+                .init(key: "layout.pageMaxWidth", label: String(localized: "页面最大宽度（拉满=贴边）", bundle: .wgLocalized), fallback: 820, range: 600...2400),
+                .init(key: "layout.speedHudScale", label: String(localized: "测速仪表缩放上限（%）", bundle: .wgLocalized), fallback: 70, range: 40...120),
+                .init(key: "layout.chartPlot", label: String(localized: "实时图表绘图区高度", bundle: .wgLocalized), fallback: 110, range: 80...220),
             ]
         }
     }
@@ -187,6 +188,8 @@ enum WgLayout {
     static var sidebarTop: CGFloat { WgTokens.shared["layout.sidebarTop"] }
     /// 测速仪表最多放大到设计尺寸的多少倍；再宽就横向展开，不再变大。
     static var speedHudScale: CGFloat { WgTokens.shared["layout.speedHudScale"] / 100 }
+    /// 实时图表（面板 · 概览）绘图区高度：含底部时间尺，不含标题行。图表总高 = 标题行 + 它。
+    static var chartPlot: CGFloat { WgTokens.shared["layout.chartPlot"] }
     /// 内容页最大宽度，超出部分居中留白；拉到上限即铺满窗口。
     static var pageMaxWidth: CGFloat {
         let v = WgTokens.shared["layout.pageMaxWidth"]

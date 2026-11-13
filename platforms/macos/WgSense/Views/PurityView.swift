@@ -40,7 +40,7 @@ struct PurityPresentation: Equatable {
         exit = fw?.exit ?? status?.exit ?? "wireguard"
         // 旧版网络服务不报出口健康：用隧道状态近似
         exitOnline = fw?.exit_online ?? tunnelUp
-        exitDetail = fw?.exit_detail ?? (tunnelUp ? "隧道已连接" : "隧道未连接")
+        exitDetail = fw?.exit_detail ?? (tunnelUp ? String(localized: "隧道已连接", bundle: .wgLocalized) : String(localized: "隧道未连接", bundle: .wgLocalized))
         blocked = fw?.blocked_packets ?? 0
         allowCount = fw?.allowed_hosts?.count ?? 0
         guard let fw else { mode = .unavailable; return }
@@ -58,7 +58,7 @@ struct PurityPresentation: Equatable {
     var exitTitle: String {
         switch exit {
         case "mihomo": return "mihomo"
-        case "gateway": return "网关代理"
+        case "gateway": return String(localized: "网关代理", bundle: .wgLocalized)
         case "tailscale": return "Tailscale"
         default: return "WireGuard"
         }
@@ -168,18 +168,18 @@ struct PurityView: View {
     }
 
     private func heroDetail(_ p: PurityPresentation) -> String {
-        if let error = status?.error { return "规则应用失败：\(error)" }
+        if let error = status?.error { return String(localized: "规则应用失败：\(error)", bundle: .wgLocalized) }
         switch p.mode {
         case .unavailable:
-            return client.firewallError ?? "需要以 root 运行的正式网络服务"
+            return client.firewallError ?? String(localized: "需要以 root 运行的正式网络服务", bundle: .wgLocalized)
         case .off:
-            return "出口不在时，境外连接可以从物理网卡直接出去"
+            return String(localized: "出口不在时，境外连接可以从物理网卡直接出去", bundle: .wgLocalized)
         case .domestic:
-            return "所有出口（含隧道和代理）只放行国内"
+            return String(localized: "所有出口（含隧道和代理）只放行国内", bundle: .wgLocalized)
         case .dormant:
-            return "出口 \(p.exitTitle) 在线（\(p.exitDetail)），纯良不干预，流量全听出口的"
+            return String(localized: "出口 \(p.exitTitle) 在线（\(p.exitDetail)），纯良不干预，流量全听出口的", bundle: .wgLocalized)
         case .guarding:
-            return "出口 \(p.exitTitle) 不可用（\(p.exitDetail)）：境外直连一律拒绝，国内与局域网照常"
+            return String(localized: "出口 \(p.exitTitle) 不可用（\(p.exitDetail)）：境外直连一律拒绝，国内与局域网照常", bundle: .wgLocalized)
         }
     }
 
@@ -195,8 +195,8 @@ struct PurityView: View {
 
     private func exitCard(_ p: PurityPresentation) -> some View {
         InfoCard(symbol: "arrow.up.forward", tint: .gray, title: "出口",
-                 value: Text(verbatim: "\(p.exitTitle) · \(p.exitOnline ? "在线" : "不可用")"),
-                 detail: Text(verbatim: p.exitDetail + " · 每 3 秒检查一次"))
+                 value: Text(verbatim: String(localized: "\(p.exitTitle) · \(p.exitOnline ? String(localized: "在线", bundle: .wgLocalized) : String(localized: "不可用", bundle: .wgLocalized))", bundle: .wgLocalized)),
+                 detail: Text(verbatim: p.exitDetail + String(localized: " · 每 3 秒检查一次", bundle: .wgLocalized)))
     }
 
     @ViewBuilder
@@ -271,7 +271,7 @@ struct PurityView: View {
                     rowRule
                 }
                 row(symbol: "plus", name: "添加", value: "",
-                    detail: "本机代理软件直连的自建节点。按解析出的 IP 放行，同一 IP 上的其他站点一并放开") {
+                    detail: String(localized: "本机代理软件直连的自建节点。按解析出的 IP 放行，同一 IP 上的其他站点一并放开", bundle: .wgLocalized)) {
                     HStack(spacing: WgSpace.s) {
                         TextField("jp.example.com", text: $hostDraft)
                             .textFieldStyle(.roundedBorder)
@@ -283,8 +283,8 @@ struct PurityView: View {
                 }
             } else {
                 row(symbol: "plus", name: "放行名单不可用", value: "",
-                    detail: settings == nil ? (client.firewallError ?? "需要以 root 运行的正式网络服务")
-                                            : "需要新版网络服务：当前服务不支持") { EmptyView() }
+                    detail: settings == nil ? (client.firewallError ?? String(localized: "需要以 root 运行的正式网络服务", bundle: .wgLocalized))
+                                            : String(localized: "需要新版网络服务：当前服务不支持", bundle: .wgLocalized)) { EmptyView() }
             }
         }
     }
@@ -299,38 +299,38 @@ struct PurityView: View {
     }
 
     private func allowValue(_ host: String) -> String {
-        guard let status, status.active, !status.forced else { return "未放行" }
+        guard let status, status.active, !status.forced else { return String(localized: "未放行", bundle: .wgLocalized) }
         let ips = status.allowed_hosts?.first { $0.host == host }?.ips ?? []
-        return ips.isEmpty ? "未解析" : ips.joined(separator: "  ")
+        return ips.isEmpty ? String(localized: "未解析", bundle: .wgLocalized) : ips.joined(separator: "  ")
     }
 
     private func allowDetail(_ host: String) -> String {
-        guard let status else { return "拦截未启用" }
-        if status.forced { return "国内模式下不放行" }
-        if status.dormant == true { return "纯良休眠中，不需要放行；出口不在、纯良接管时生效" }
-        if !status.active { return "纯良未启用" }
-        return "每分钟重新解析，跟随 DDNS"
+        guard let status else { return String(localized: "拦截未启用", bundle: .wgLocalized) }
+        if status.forced { return String(localized: "国内模式下不放行", bundle: .wgLocalized) }
+        if status.dormant == true { return String(localized: "纯良休眠中，不需要放行；出口不在、纯良接管时生效", bundle: .wgLocalized) }
+        if !status.active { return String(localized: "纯良未启用", bundle: .wgLocalized) }
+        return String(localized: "每分钟重新解析，跟随 DDNS", bundle: .wgLocalized)
     }
 
     // MARK: - 列表：运行信息
 
     private func runtimeList(_ p: PurityPresentation) -> some View {
         list("运行信息") {
-            row(symbol: "number", name: "拒绝计数", value: "\(p.blocked) 包",
-                detail: "本套规则加载以来被拒绝的出站包；规则重新加载后归零") { EmptyView() }
+            row(symbol: "number", name: "拒绝计数", value: String(localized: "\(p.blocked) 包", bundle: .wgLocalized),
+                detail: String(localized: "本套规则加载以来被拒绝的出站包；规则重新加载后归零", bundle: .wgLocalized)) { EmptyView() }
             rowRule
             row(symbol: "cable.connector", name: "生效网卡",
                 value: status?.interfaces?.joined(separator: " ") ?? "—",
-                detail: status?.error.map { "规则应用失败：\($0)" } ?? status?.reason ?? "—") { EmptyView() }
+                detail: status?.error.map { String(localized: "规则应用失败：\($0)", bundle: .wgLocalized) } ?? status?.reason ?? "—") { EmptyView() }
             rowRule
-            row(symbol: "calendar.badge.clock", name: "国内 IP 段", value: "发版快照",
-                detail: "不随时间更新；纯良接管时用它判断哪些是国内") { EmptyView() }
+            row(symbol: "calendar.badge.clock", name: "国内 IP 段", value: String(localized: "发版快照", bundle: .wgLocalized),
+                detail: String(localized: "不随时间更新；纯良接管时用它判断哪些是国内", bundle: .wgLocalized)) { EmptyView() }
             rowRule
-            row(symbol: "power", name: "未覆盖时段", value: "开机 · pf 关闭",
-                detail: "系统启动到网络服务装好规则之前没有拦截；其他软件整体关闭 pf 时失效且不会察觉") { EmptyView() }
+            row(symbol: "power", name: "未覆盖时段", value: String(localized: "开机 · pf 关闭", bundle: .wgLocalized),
+                detail: String(localized: "系统启动到网络服务装好规则之前没有拦截；其他软件整体关闭 pf 时失效且不会察觉", bundle: .wgLocalized)) { EmptyView() }
             rowRule
             row(symbol: "exclamationmark.triangle", name: "紧急解除", value: "--firewall-clear",
-                detail: "sudo /usr/local/libexec/wgsense-daemon --firewall-clear · 网络服务意外退出时规则保持生效") { EmptyView() }
+                detail: String(localized: "sudo /usr/local/libexec/wgsense-daemon --firewall-clear · 网络服务意外退出时规则保持生效", bundle: .wgLocalized)) { EmptyView() }
         }
     }
 
@@ -422,28 +422,28 @@ struct PurityEgressDiagram: View {
             // 休眠：闸门全开，流量由出口接管
             var lanes = Self.all(.pass)
             lanes[3].result = home ? .pass : .idle
-            lanes[4].via = "交给出口 \(p.exitTitle)"
+            lanes[4].via = String(localized: "交给出口 \(p.exitTitle)", bundle: .wgLocalized)
             return lanes
         case .guarding:
             var lanes = Self.all(.reject)
             lanes[0].result = .idle
-            lanes[0].via = "\(p.exitTitle) 不可用"
+            lanes[0].via = String(localized: "\(p.exitTitle) 不可用", bundle: .wgLocalized)
             lanes[1].result = .pass
             lanes[2].result = .pass
             lanes[3].result = home ? .pass : .idle
             // 放行名单是「境外直连一律拒绝」的例外，生效时在这一条上写明
-            if p.allowCount > 0 { lanes[4].via = "其余全部地址 · 放行名单 \(p.allowCount) 项除外" }
+            if p.allowCount > 0 { lanes[4].via = String(localized: "其余全部地址 · 放行名单 \(p.allowCount) 项除外", bundle: .wgLocalized) }
             return lanes
         }
     }
 
     private static func all(_ result: Lane.Result) -> [Lane] {
         [
-            Lane(id: "tunnel", name: "出口", via: "WG 隧道 / 代理内核", result: result, trunk: true),
-            Lane(id: "lan", name: "局域网", via: "本地网段", result: result),
-            Lane(id: "cn", name: "国内直连", via: "国内 IP 段", result: result),
-            Lane(id: "gateway", name: "网关代理", via: "fake-ip → 家里网关", result: result),
-            Lane(id: "foreign", name: "境外直连", via: "其余全部地址", result: result),
+            Lane(id: "tunnel", name: "出口", via: String(localized: "WG 隧道 / 代理内核", bundle: .wgLocalized), result: result, trunk: true),
+            Lane(id: "lan", name: "局域网", via: String(localized: "本地网段", bundle: .wgLocalized), result: result),
+            Lane(id: "cn", name: "国内直连", via: String(localized: "国内 IP 段", bundle: .wgLocalized), result: result),
+            Lane(id: "gateway", name: "网关代理", via: String(localized: "fake-ip → 家里网关", bundle: .wgLocalized), result: result),
+            Lane(id: "foreign", name: "境外直连", via: String(localized: "其余全部地址", bundle: .wgLocalized), result: result),
         ]
     }
 
@@ -470,7 +470,7 @@ struct PurityEgressDiagram: View {
                 HStack(spacing: WgSpace.m) {
                     Text("去向").frame(width: Self.nameWidth, alignment: .leading)
                     GeometryReader { geo in
-                        Text(verbatim: "物理网卡 " + (interfaces.isEmpty ? "—" : interfaces.joined(separator: " ")))
+                        Text(verbatim: String(localized: "物理网卡 ", bundle: .wgLocalized) + (interfaces.isEmpty ? "—" : interfaces.joined(separator: " ")))
                             .fixedSize()
                             .position(x: geo.size.width * Self.gate, y: geo.size.height / 2)
                     }

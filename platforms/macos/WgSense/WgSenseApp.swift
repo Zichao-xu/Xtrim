@@ -168,3 +168,30 @@ struct WgSenseApp: App {
     }
 
 }
+
+
+// MARK: - 运行中切换语言
+
+extension Bundle {
+    /// 当前所选界面语言的翻译包。所有 `String(localized:)` 都要带 `bundle: .wgLocalized`：
+    /// 不带的话它按进程启动时的语言取文字，App 里切换语言后要重启才变，界面会中外混排
+    /// （`Text("…")` 走 environment locale 已立即切换）。由 scripts/l10n 检查强制。
+    static var wgLocalized: Bundle { WgLocalizedBundle.current }
+}
+
+enum WgLocalizedBundle {
+    private static let lock = NSLock()
+    nonisolated(unsafe) private static var cache: [String: Bundle] = [:]
+
+    static var current: Bundle {
+        let raw = UserDefaults.standard.string(forKey: "appLanguage") ?? WgAppLanguage.system.rawValue
+        // 跟随系统，或所选语言已是进程首选（启动时写入了 AppleLanguages）→ 主包即可，走系统缓存。
+        guard let id = WgAppLanguage(rawValue: raw)?.localizationID,
+              Bundle.main.preferredLocalizations.first != id else { return .main }
+        lock.lock(); defer { lock.unlock() }
+        if let bundle = cache[id] { return bundle }
+        let bundle = Bundle.main.path(forResource: id, ofType: "lproj").flatMap(Bundle.init(path:)) ?? .main
+        cache[id] = bundle
+        return bundle
+    }
+}

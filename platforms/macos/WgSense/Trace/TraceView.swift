@@ -98,8 +98,8 @@ struct TraceView: View {
             HStack(spacing: WgSpace.s) {
                 Image(systemName: "chevron.left").font(.system(size: WgType.micro, weight: .bold))
                 Text(verbatim: "FIG.02–03").font(WgInk.mono(.micro, .bold)).tracking(1.4)
-                Text(verbatim: [trace.hops.isEmpty ? nil : String(format: "%02d 跳", trace.hops.count),
-                                trace.proxied != nil ? "FIP 接管" : nil].compactMap { $0 }.joined(separator: " · "))
+                Text(verbatim: [trace.hops.isEmpty ? nil : String(format: String(localized: "%02d 跳", bundle: .wgLocalized), trace.hops.count),
+                                trace.proxied != nil ? String(localized: "FIP 接管", bundle: .wgLocalized) : nil].compactMap { $0 }.joined(separator: " · "))
                     .font(WgInk.mono(.micro, .medium)).tracking(1.2)
             }
             .foregroundStyle(WgInk.ink2)
@@ -122,7 +122,7 @@ struct TraceView: View {
         return HStack(spacing: WgSpace.s) {
             HStack(spacing: WgSpace.s) {
                 Text(verbatim: "TGT").font(WgInk.mono(.micro, .bold)).tracking(1).foregroundStyle(WgInk.ink3)
-                TextField("", text: $draft, prompt: Text(verbatim: "域名或 IP，例如 \(wgEndpoint ?? "github.com")"))
+                TextField("", text: $draft, prompt: Text(verbatim: String(localized: "域名或 IP，例如 \(wgEndpoint ?? "github.com")", bundle: .wgLocalized)))
                     .textFieldStyle(.plain)
                     .font(WgInk.mono(.body))
                     .onSubmit { run(draft) }
@@ -217,31 +217,31 @@ struct TraceView: View {
         if let e = trace.error {
             text = e; tint = WgInk.warn
         } else if trace.startedAt == nil {
-            text = "跟随系统路由；定位只把公网跳点发给 ip-api.com，内网与隧道地址不出本机"
+            text = String(localized: "跟随系统路由；定位只把公网跳点发给 ip-api.com，内网与隧道地址不出本机", bundle: .wgLocalized)
         } else {
             var parts: [String] = []
             if let i = trace.interface {
-                parts.append(i == client.status?.tunnel_interface ? "经 \(i) · WG 隧道" : "经 \(i) · 直连")
+                parts.append(i == client.status?.tunnel_interface ? String(localized: "经 \(i) · WG 隧道", bundle: .wgLocalized) : String(localized: "经 \(i) · 直连", bundle: .wgLocalized))
             }
-            if let g = trace.firstLocated?.geo { parts.append("起点 \(g.place) · \(g.isp)") }
+            if let g = trace.firstLocated?.geo { parts.append(String(localized: "起点 \(g.place) · \(g.isp)", bundle: .wgLocalized)) }
             if let px = trace.proxied {
                 parts.append(Self.proxyNote(px, target: trace.target))
             } else if let d = trace.destination, d != trace.target {
                 parts.append("\(trace.target) → \(d)")
             }
-            if trace.inspectingProxy { parts.append("查询代理去向…") }
-            if trace.locating { parts.append("定位中…") }
+            if trace.inspectingProxy { parts.append(String(localized: "查询代理去向…", bundle: .wgLocalized)) }
+            if trace.locating { parts.append(String(localized: "定位中…", bundle: .wgLocalized)) }
             if let f = trace.finishedAt, let s = trace.startedAt {
-                parts.append(trace.reached ? String(format: "到达 · %.1f 秒", f.timeIntervalSince(s))
-                             : trace.gaveUp ? "连续 \(TraceStore.silentLimit) 跳无响应，提前结束" : "未到达终点")
+                parts.append(trace.reached ? String(format: String(localized: "到达 · %.1f 秒", bundle: .wgLocalized), f.timeIntervalSince(s))
+                             : trace.gaveUp ? String(localized: "连续 \(TraceStore.silentLimit) 跳无响应，提前结束", bundle: .wgLocalized) : String(localized: "未到达终点", bundle: .wgLocalized))
             }
             text = parts.joined(separator: "  ·  ")
             if trace.finishedAt != nil, trace.allSilent {
                 // 按当时的实际状态解释，不预设环境
                 let blocking = client.status?.firewall?.active == true && trace.interface != client.status?.tunnel_interface
                 text = blocking
-                    ? "全程无响应：出站拦截正在生效，直连只放行国内与局域网，追境外目标需先连 WG"
-                    : "全程无响应：沿途设备不回应探测，或出口被防火墙拦下"
+                    ? String(localized: "全程无响应：出站拦截正在生效，直连只放行国内与局域网，追境外目标需先连 WG", bundle: .wgLocalized)
+                    : String(localized: "全程无响应：沿途设备不回应探测，或出口被防火墙拦下", bundle: .wgLocalized)
                 tint = WgInk.warn
             }
         }
@@ -254,13 +254,13 @@ struct TraceView: View {
     /// 代理接管的一句话：接管了什么、真实去向、走了哪条链。只写查到的。
     static func proxyNote(_ px: TraceProxyPath, target: String) -> String {
         guard px.backend else {
-            return "\(target) 解析到 \(px.systemIP)，落在兜底网段，疑似代理 fake-ip；代理后端无响应，查不到真实去向"
+            return String(localized: "\(target) 解析到 \(px.systemIP)，落在兜底网段，疑似代理 fake-ip；代理后端无响应，查不到真实去向", bundle: .wgLocalized)
         }
-        var s = "代理接管：\(target) → \(px.systemIP)，真实 \(px.realIP ?? "未解析")"
-        if let rule = px.rule, !rule.isEmpty { s += " · 规则 \(rule)" }
-        if px.isDirect { s += " · 直连出站" }
+        var s = String(localized: "代理接管：\(target) → \(px.systemIP)，真实 \(px.realIP ?? String(localized: "未解析", bundle: .wgLocalized))", bundle: .wgLocalized)
+        if let rule = px.rule, !rule.isEmpty { s += String(localized: " · 规则 \(rule)", bundle: .wgLocalized) }
+        if px.isDirect { s += String(localized: " · 直连出站", bundle: .wgLocalized) }
         else if !px.chain.isEmpty { s += " · " + px.chain.reversed().joined(separator: " › ") }
-        s += " · 本机只追得到代理网关，之后为代理段"
+        s += String(localized: " · 本机只追得到代理网关，之后为代理段", bundle: .wgLocalized)
         return s
     }
 
@@ -357,7 +357,7 @@ struct TraceRoute: Equatable {
         if let px = trace.proxied, px.backend {
             // 本机路径被网关截断：起点用本网络的学习记录（板块 07 写明来源）
             if out.isEmpty, let o = px.origin {
-                out.append(TraceStop(lon: o.geo.lon, lat: o.geo.lat, first: 0, last: 0, place: "\(o.geo.place)（学习）",
+                out.append(TraceStop(lon: o.geo.lon, lat: o.geo.lat, first: 0, last: 0, place: String(localized: "\(o.geo.place)（学习）", bundle: .wgLocalized),
                                      latency: nil, appearAt: px.resolvedAt, isOrigin: true, tag: "00", code: o.geo.code))
             }
             if let g = px.nodeGeo, let node = px.node {
@@ -514,7 +514,7 @@ struct TraceRouteLayer: View {
 
     /// 引线标注：斜线 12pt + 下划横线，文字压在横线上。偶数站朝上、奇数站朝下，靠右缘时翻到左边。
     private func label(_ ctx: inout GraphicsContext, _ s: TraceStop, at pt: CGPoint, index: Int, size: CGSize, focused: Bool) {
-        var parts = [s.ttlText, s.isOrigin ? "起点 \(s.place)" : s.place]
+        var parts = [s.ttlText, s.isOrigin ? String(localized: "起点 \(s.place)", bundle: .wgLocalized) : s.place]
         if let ms = s.latency { parts.append(String(format: "%.0fms", ms)) }
         let strong = s.isDestination || focused
         let text = ctx.resolve(Text(verbatim: parts.joined(separator: "  "))
@@ -557,11 +557,11 @@ private struct TraceMapLegend: View {
             Text(verbatim: "ORTHO ⇄ AZIMUTHAL EQUIDISTANT · NATURAL EARTH 50M").font(WgInk.mono(.micro)).tracking(1).foregroundStyle(WgInk.ink4)
             HStack(spacing: WgSpace.m) {
                 HStack(spacing: WgSpace.xs) {
-                    zoomButton("minus", help: "缩小", action: zoomOut)
-                    zoomButton("plus", help: "放大", action: zoomIn)
+                    zoomButton("minus", help: String(localized: "缩小", bundle: .wgLocalized), action: zoomOut)
+                    zoomButton("plus", help: String(localized: "放大", bundle: .wgLocalized), action: zoomIn)
                     TraceAutoButton(action: follow)
                 }
-                legend("○", "起点"); legend("□", "中转"); legend("■", "目标"); legend("···", "实测"); legend("- -", "代理段")
+                legend("○", String(localized: "起点", bundle: .wgLocalized)); legend("□", String(localized: "中转", bundle: .wgLocalized)); legend("■", String(localized: "目标", bundle: .wgLocalized)); legend("···", String(localized: "实测", bundle: .wgLocalized)); legend("- -", String(localized: "代理段", bundle: .wgLocalized))
             }
         }
     }
@@ -635,7 +635,7 @@ private struct TraceHopTable: View {
         VStack(alignment: .trailing, spacing: 0) {
             HStack(alignment: .firstTextBaseline, spacing: WgSpace.l) {
                 Text(verbatim: "FIG.03  HOPS").font(WgInk.mono(.micro, .bold)).tracking(1.4).foregroundStyle(WgInk.ink2)
-                Text(verbatim: trace.hops.isEmpty ? (trace.running ? "等待第一跳…" : "尚未追踪") : String(format: "%02d 跳", trace.hops.count))
+                Text(verbatim: trace.hops.isEmpty ? (trace.running ? String(localized: "等待第一跳…", bundle: .wgLocalized) : String(localized: "尚未追踪", bundle: .wgLocalized)) : String(format: String(localized: "%02d 跳", bundle: .wgLocalized), trace.hops.count))
                     .font(WgInk.mono(.micro, .medium)).tracking(1.2).foregroundStyle(WgInk.ink2)
             }
             .wgPadding(.bottom, .s)
@@ -650,7 +650,7 @@ private struct TraceHopTable: View {
                              note: [px.node, px.nodeServer.flatMap { $0 == px.nodeIP ? nil : $0 }].compactMap { $0 }.joined(separator: " · "))
                 }
                 if let ip = px.realIP {
-                    proxyRow(code: "DST", address: ip, geo: px.realGeo, note: "真实目标（代理后端解析）")
+                    proxyRow(code: "DST", address: ip, geo: px.realGeo, note: String(localized: "真实目标（代理后端解析）", bundle: .wgLocalized))
                 }
             }
         }
@@ -659,8 +659,8 @@ private struct TraceHopTable: View {
 
     private var header: some View {
         HStack(spacing: WgSpace.s) {
-            cell("TTL", W.ttl); cell("地址", W.ip); cell("位置", W.place)
-            cell("RTT", W.rtt, .trailing); cell("丢包", W.loss, .trailing)
+            cell("TTL", W.ttl); cell(String(localized: "地址", bundle: .wgLocalized), W.ip); cell(String(localized: "位置", bundle: .wgLocalized), W.place)
+            cell("RTT", W.rtt, .trailing); cell(String(localized: "丢包", bundle: .wgLocalized), W.loss, .trailing)
         }
         .font(WgInk.mono(.micro)).tracking(1).foregroundStyle(WgInk.ink4)
         .frame(height: 18)
@@ -678,7 +678,7 @@ private struct TraceHopTable: View {
             Text(verbatim: String(format: "%02d", hop.ttl)).frame(width: W.ttl, alignment: .leading).foregroundStyle(WgInk.ink3)
             Text(verbatim: hop.ip ?? "*").frame(width: W.ip, alignment: .leading)
                 .foregroundStyle(hop.ip == trace.destination && trace.reached ? WgInk.ink : WgInk.ink2)
-                .help(hop.alternates.isEmpty ? "" : "同跳其他地址：" + hop.alternates.joined(separator: ", "))
+                .help(hop.alternates.isEmpty ? "" : String(localized: "同跳其他地址：", bundle: .wgLocalized) + hop.alternates.joined(separator: ", "))
             Text(verbatim: placeText(hop)).frame(width: W.place, alignment: .leading).lineLimit(1)
                 .foregroundStyle(hop.geo == nil ? WgInk.ink4 : WgInk.ink2)
             Text(verbatim: hop.best.map { String(format: "%.1f", $0) } ?? "*")
@@ -703,7 +703,7 @@ private struct TraceHopTable: View {
     private func rowHelp(_ hop: TraceHop) -> String {
         let net = hop.geo.map { [$0.asn, $0.isp].filter { !$0.isEmpty }.joined(separator: " · ") } ?? ""
         let probes = (0..<TraceStore.probes).map { i in i < hop.rtts.count ? hop.rtts[i].map { String(format: "%.1f ms", $0) } ?? "*" : "*" }
-        return ([net, "探测 " + probes.joined(separator: " / ")] + (hop.alternates.isEmpty ? [] : ["同跳其他地址：" + hop.alternates.joined(separator: ", ")]))
+        return ([net, String(localized: "探测 ", bundle: .wgLocalized) + probes.joined(separator: " / ")] + (hop.alternates.isEmpty ? [] : [String(localized: "同跳其他地址：", bundle: .wgLocalized) + hop.alternates.joined(separator: ", ")]))
             .filter { !$0.isEmpty }.joined(separator: "\n")
     }
 
@@ -712,11 +712,11 @@ private struct TraceHopTable: View {
         HStack(spacing: WgSpace.s) {
             Text(verbatim: code).frame(width: W.ttl, alignment: .leading).foregroundStyle(WgInk.ink3)
             Text(verbatim: address).frame(width: W.ip, alignment: .leading).lineLimit(1).foregroundStyle(WgInk.ink2)
-            Text(verbatim: geo.map { [$0.city, $0.country].filter { !$0.isEmpty }.joined(separator: " · ") } ?? (trace.locating ? "定位中…" : "未定位"))
+            Text(verbatim: geo.map { [$0.city, $0.country].filter { !$0.isEmpty }.joined(separator: " · ") } ?? (trace.locating ? String(localized: "定位中…", bundle: .wgLocalized) : String(localized: "未定位", bundle: .wgLocalized)))
                 .frame(width: W.place, alignment: .leading).lineLimit(1).foregroundStyle(geo == nil ? WgInk.ink4 : WgInk.ink2)
-            Text(verbatim: "代理段").frame(width: W.rtt + W.loss + WgSpace.s, alignment: .trailing).foregroundStyle(WgInk.ink4)
+            Text(verbatim: String(localized: "代理段", bundle: .wgLocalized)).frame(width: W.rtt + W.loss + WgSpace.s, alignment: .trailing).foregroundStyle(WgInk.ink4)
         }
-        .help(([note] + [geo.map { [$0.asn, $0.isp].filter { !$0.isEmpty }.joined(separator: " · ") } ?? "", "代理段 · 本机不可测"]).filter { !$0.isEmpty }.joined(separator: "\n"))
+        .help(([note] + [geo.map { [$0.asn, $0.isp].filter { !$0.isEmpty }.joined(separator: " · ") } ?? "", String(localized: "代理段 · 本机不可测", bundle: .wgLocalized)]).filter { !$0.isEmpty }.joined(separator: "\n"))
         .font(WgInk.mono(.micro))
         .frame(height: 18)
         .overlay(alignment: .top) { Rectangle().fill(WgInk.rule).frame(height: 1).opacity(code == "PX" ? 1 : 0) }
@@ -724,10 +724,10 @@ private struct TraceHopTable: View {
 
     private func placeText(_ hop: TraceHop) -> String {
         if let px = trace.proxied, hop.ip == px.systemIP {
-            return px.backend ? "代理接管 · fake-ip" : "兜底网段 · 疑似 fake-ip"
+            return px.backend ? String(localized: "代理接管 · fake-ip", bundle: .wgLocalized) : String(localized: "兜底网段 · 疑似 fake-ip", bundle: .wgLocalized)
         }
         if let g = hop.geo { return [g.city, g.country].filter { !$0.isEmpty }.joined(separator: " · ") }
-        if hop.kind == .publicNet { return trace.locating ? "定位中…" : "未定位" }
+        if hop.kind == .publicNet { return trace.locating ? String(localized: "定位中…", bundle: .wgLocalized) : String(localized: "未定位", bundle: .wgLocalized) }
         return hop.kind.label
     }
 }

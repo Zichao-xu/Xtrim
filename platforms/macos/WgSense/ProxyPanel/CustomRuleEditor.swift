@@ -12,8 +12,8 @@ enum CustomRuleError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalid(let message): return message
-        case .notFound: return "未找到原规则，文件可能已被修改，请刷新后重试"
-        case .duplicated: return "该域名规则已存在，未重复写入"
+        case .notFound: return String(localized: "未找到原规则，文件可能已被修改，请刷新后重试", bundle: .wgLocalized)
+        case .duplicated: return String(localized: "该域名规则已存在，未重复写入", bundle: .wgLocalized)
         }
     }
 }
@@ -24,8 +24,8 @@ struct CustomRuleInput {
     static let allTypes = domainTypes + ipTypes
 
     static let typeTitles: [String: String] = [
-        "DOMAIN-SUFFIX": "域名后缀", "DOMAIN": "域名", "DOMAIN-KEYWORD": "关键字",
-        "IP-CIDR": "目标IP", "IP-CIDR6": "目标IPv6", "SRC-IP-CIDR": "源IP", "SRC-IP-CIDR6": "源IPv6",
+        "DOMAIN-SUFFIX": String(localized: "域名后缀", bundle: .wgLocalized), "DOMAIN": String(localized: "域名", bundle: .wgLocalized), "DOMAIN-KEYWORD": String(localized: "关键字", bundle: .wgLocalized),
+        "IP-CIDR": String(localized: "目标IP", bundle: .wgLocalized), "IP-CIDR6": String(localized: "目标IPv6", bundle: .wgLocalized), "SRC-IP-CIDR": String(localized: "源IP", bundle: .wgLocalized), "SRC-IP-CIDR6": String(localized: "源IPv6", bundle: .wgLocalized),
     ]
 
     enum InsertMode: String, CaseIterable { case append, beforeTypes }
@@ -41,27 +41,27 @@ struct CustomRuleInput {
         let t = Self.allTypes.contains(RuleEntry.normalizeType(type)) ? RuleEntry.normalizeType(type) : "DOMAIN-SUFFIX"
         let v = try Self.normalizeValue(value, type: t)
         let target = self.target.trimmingCharacters(in: .whitespaces)
-        guard !target.isEmpty else { throw CustomRuleError.invalid("请选择目标节点或节点组") }
+        guard !target.isEmpty else { throw CustomRuleError.invalid(String(localized: "请选择目标节点或节点组", bundle: .wgLocalized)) }
         guard !target.contains(where: { $0 == "," || $0 == "\n" || $0 == "\r" }) else {
-            throw CustomRuleError.invalid("目标名称不能包含逗号或换行")
+            throw CustomRuleError.invalid(String(localized: "目标名称不能包含逗号或换行", bundle: .wgLocalized))
         }
         return "\(t),\(v),\(target)"
     }
 
     static func normalizeValue(_ raw: String, type: String) throws -> String {
         let value = raw.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !value.isEmpty else { throw CustomRuleError.invalid("请先输入域名、关键字或 IP。") }
+        guard !value.isEmpty else { throw CustomRuleError.invalid(String(localized: "请先输入域名、关键字或 IP。", bundle: .wgLocalized)) }
         if ipTypes.contains(type) {
             guard !value.contains(where: { $0 == " " || $0 == "," || $0 == "\n" }) else {
-                throw CustomRuleError.invalid("不要包含空格、逗号或换行。")
+                throw CustomRuleError.invalid(String(localized: "不要包含空格、逗号或换行。", bundle: .wgLocalized))
             }
             guard let parsed = IPMatcher.parseCIDR(value) else {
                 let example = type.hasSuffix("6") ? "2001:db8::/32" : "1.2.3.4/32"
-                throw CustomRuleError.invalid("请输入正确的 IP 或 CIDR，例如 \(example)。")
+                throw CustomRuleError.invalid(String(localized: "请输入正确的 IP 或 CIDR，例如 \(example)。", bundle: .wgLocalized))
             }
             let isV6 = parsed.bytes.count == 16
             if type.hasSuffix("6") != isV6 {
-                throw CustomRuleError.invalid("当前规则类型需要填写 \(type.hasSuffix("6") ? "IPv6" : "IPv4")。")
+                throw CustomRuleError.invalid(String(localized: "当前规则类型需要填写 \(type.hasSuffix("6") ? "IPv6" : "IPv4")。", bundle: .wgLocalized))
             }
             return value
         }
@@ -73,21 +73,21 @@ struct CustomRuleInput {
         }
         if host.hasPrefix("*.") { host = String(host.dropFirst(2)) }
         host = host.lowercased().trimmingCharacters(in: CharacterSet(charactersIn: "."))
-        guard !host.isEmpty else { throw CustomRuleError.invalid("请先输入域名、关键字或 IP。") }
+        guard !host.isEmpty else { throw CustomRuleError.invalid(String(localized: "请先输入域名、关键字或 IP。", bundle: .wgLocalized)) }
         guard !host.contains(where: { $0 == " " || $0 == "," || $0 == "\n" }) else {
-            throw CustomRuleError.invalid("不要包含空格、逗号或换行。")
+            throw CustomRuleError.invalid(String(localized: "不要包含空格、逗号或换行。", bundle: .wgLocalized))
         }
-        guard host.count <= 253 else { throw CustomRuleError.invalid("域名过长") }
+        guard host.count <= 253 else { throw CustomRuleError.invalid(String(localized: "域名过长", bundle: .wgLocalized)) }
         if type != "DOMAIN-KEYWORD" {
             if IPMatcher.parseIP(host) != nil {
-                throw CustomRuleError.invalid("当前规则类型需要填域名，但输入看起来是 IP。")
+                throw CustomRuleError.invalid(String(localized: "当前规则类型需要填域名，但输入看起来是 IP。", bundle: .wgLocalized))
             }
             let labels = host.split(separator: ".", omittingEmptySubsequences: false)
             let valid = labels.count >= 1 && labels.allSatisfy { label in
                 !label.isEmpty && label.count <= 63 && !label.hasPrefix("-") && !label.hasSuffix("-")
                     && label.allSatisfy { $0.isLetter || $0.isNumber || $0 == "-" || $0 == "_" }
             }
-            guard valid else { throw CustomRuleError.invalid("请输入正确的域名，例如 example.com。") }
+            guard valid else { throw CustomRuleError.invalid(String(localized: "请输入正确的域名，例如 example.com。", bundle: .wgLocalized)) }
         }
         return host
     }
@@ -173,7 +173,7 @@ struct CustomRuleDocument {
         guard let index = list.firstIndex(where: { CustomRuleInput.ordered($0.value) == target }) else { throw CustomRuleError.notFound }
         if let comparable = CustomRuleInput.comparable(rule),
            list.enumerated().contains(where: { $0.offset != index && CustomRuleInput.comparable($0.element.value) == comparable }) {
-            throw CustomRuleError.invalid("修改后的规则已存在")
+            throw CustomRuleError.invalid(String(localized: "修改后的规则已存在", bundle: .wgLocalized))
         }
         let item = list[index]
         lines[item.lineIndex] = "\(item.indent)- \(rule)"
@@ -190,7 +190,7 @@ struct CustomRuleDocument {
         let list = items
         let current = list.map { CustomRuleInput.ordered($0.value) }
         let next = ordered.map(CustomRuleInput.ordered)
-        guard current.sorted() == next.sorted() else { throw CustomRuleError.invalid("新的顺序与当前规则不一致，请刷新后重试") }
+        guard current.sorted() == next.sorted() else { throw CustomRuleError.invalid(String(localized: "新的顺序与当前规则不一致，请刷新后重试", bundle: .wgLocalized)) }
         for (item, value) in zip(list, next) {
             lines[item.lineIndex] = "\(item.indent)- \(value)"
         }
@@ -213,10 +213,10 @@ extension RuleCacheStore {
     }
 
     private func editCustom(_ mode: String, _ change: (inout CustomRuleDocument) throws -> Void) async throws {
-        guard let backend = MihomoBackendStore.shared.active else { throw CustomRuleError.invalid("未配置后端") }
+        guard let backend = MihomoBackendStore.shared.active else { throw CustomRuleError.invalid(String(localized: "未配置后端", bundle: .wgLocalized)) }
         guard !backend.isLocal else { throw CustomRuleError.invalid(MihomoBackendStore.localReadOnlyNote) }
         if snapshot == nil { await sync() }
-        guard let path = customPath(mode), !path.isEmpty else { throw CustomRuleError.invalid("未检测到规则源，请先更新规则缓存") }
+        guard let path = customPath(mode), !path.isEmpty else { throw CustomRuleError.invalid(String(localized: "未检测到规则源，请先更新规则缓存", bundle: .wgLocalized)) }
         let ssh = OpenWrtSSH(backend: backend)
         let current = try await ssh.run("[ -f \(OpenWrtSSH.quote(path)) ] && cat \(OpenWrtSSH.quote(path)) || echo 'rules:'")
         var doc = CustomRuleDocument(String(decoding: current, as: UTF8.self))

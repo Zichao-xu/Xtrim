@@ -75,7 +75,7 @@ struct MihomoView: View {
                          detail: Text(kernelDetail(m)))
                 InfoCard(symbol: "doc.text", tint: .gray, title: "配置",
                          value: Text(verbatim: configValue(m)),
-                         detail: Text(verbatim: m.status?.source ?? "默认配置：只监听本机、全部直连，不能作为出口")) {
+                         detail: Text(verbatim: m.status?.source ?? String(localized: "默认配置：只监听本机、全部直连，不能作为出口", bundle: .wgLocalized))) {
                     if m.status?.bundled == true {
                         Button {
                             Task { await client.syncMihomoFromOp() }
@@ -89,7 +89,7 @@ struct MihomoView: View {
                 }
                 InfoCard(symbol: "point.3.connected.trianglepath.dotted", tint: .gray, title: "本机端口",
                          value: Text(verbatim: m.phase == .running ? "127.0.0.1:\(m.status?.mixed_port ?? 0)" : "—"),
-                         detail: Text(verbatim: m.status.map { "控制接口 \($0.controller)" } ?? "只监听本机，不对局域网开放"))
+                         detail: Text(verbatim: m.status.map { String(localized: "控制接口 \($0.controller)", bundle: .wgLocalized) } ?? String(localized: "只监听本机，不对局域网开放", bundle: .wgLocalized)))
                 InfoCard(symbol: "arrow.up.forward", tint: .gray, title: "出口",
                          value: Text(takingOver(m) ? "接管中" : "未接管"),
                          detail: Text(verbatim: exitDetail(m)))
@@ -162,28 +162,28 @@ struct MihomoView: View {
 
     private func heroDetail(_ m: MihomoPresentation) -> String {
         if client.switchingExit == .mihomo {
-            return (client.exitProgress ?? "正在切换到 mihomo") + "…"
+            return (client.exitProgress ?? String(localized: "正在切换到 mihomo", bundle: .wgLocalized)) + "…"
         }
         switch m.phase {
         case .unsupported:
-            return "运行中的网络服务还不支持内置内核，更新网络服务后可用"
+            return String(localized: "运行中的网络服务还不支持内置内核，更新网络服务后可用", bundle: .wgLocalized)
         case .notBundled:
-            return "这份网络服务构建时没有带上内核"
+            return String(localized: "这份网络服务构建时没有带上内核", bundle: .wgLocalized)
         case .stopped:
-            return "内核已就绪，启动后只监听本机端口，不影响本机网络"
+            return String(localized: "内核已就绪，启动后只监听本机端口，不影响本机网络", bundle: .wgLocalized)
         case .running:
-            let since = WgCoverageFormat.clock(m.status?.started_at).map { " · \($0) 启动" } ?? ""
-            return "pid \(m.status?.pid ?? 0) · 以 \(m.status?.user ?? "—") 身份运行\(since)"
+            let since = WgCoverageFormat.clock(m.status?.started_at).map { String(localized: " · \($0) 启动", bundle: .wgLocalized) } ?? ""
+            return String(localized: "pid \(m.status?.pid ?? 0) · 以 \(m.status?.user ?? "—") 身份运行\(since)", bundle: .wgLocalized)
         case .crashed:
-            return m.status?.last_exit ?? m.status?.error ?? "进程已退出"
+            return m.status?.last_exit ?? m.status?.error ?? String(localized: "进程已退出", bundle: .wgLocalized)
         }
     }
 
     private func configValue(_ m: MihomoPresentation) -> String {
         guard let st = m.status else { return "—" }
-        guard st.source != nil else { return "默认配置" }
+        guard st.source != nil else { return String(localized: "默认配置", bundle: .wgLocalized) }
         let at = WgCoverageFormat.clock(st.synced_at).map { " · \($0)" } ?? ""
-        return "op 同步\(at)"
+        return String(localized: "op 同步\(at)", bundle: .wgLocalized)
     }
 
     private func takingOver(_ m: MihomoPresentation) -> Bool {
@@ -192,11 +192,11 @@ struct MihomoView: View {
 
     private func exitDetail(_ m: MihomoPresentation) -> String {
         if takingOver(m) {
-            let dns = m.status?.dns_service.map { "DNS 已接管「\($0)」" } ?? "DNS 未接管"
-            return "TUN 接管整机流量 · \(dns) · 纯良休眠，内核一停立即接管"
+            let dns = m.status?.dns_service.map { String(localized: "DNS 已接管「\($0)」", bundle: .wgLocalized) } ?? String(localized: "DNS 未接管", bundle: .wgLocalized)
+            return String(localized: "TUN 接管整机流量 · \(dns) · 纯良休眠，内核一停立即接管", bundle: .wgLocalized)
         }
-        if m.status?.source == nil { return "先从 op 同步配置，才能作为出口" }
-        return "在 VPN 板块切到 mihomo 后接管整机流量与 DNS"
+        if m.status?.source == nil { return String(localized: "先从 op 同步配置，才能作为出口", bundle: .wgLocalized) }
+        return String(localized: "在 VPN 板块切到 mihomo 后接管整机流量与 DNS", bundle: .wgLocalized)
     }
 
     /// 同步时剔除的节点：只能在路由器上用（依赖路由器本机的 SSH 私钥等）。

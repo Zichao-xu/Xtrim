@@ -28,7 +28,7 @@ struct PPCustomRuleList: View {
             if model.loading && rows.isEmpty {
                 ProgressView().frame(maxWidth: .infinity, minHeight: 200)
             } else if rows.isEmpty {
-                PPInlineMessage(symbol: "tray", text: model.error ?? "暂无匹配的规则明细")
+                PPInlineMessage(symbol: "tray", text: model.error ?? String(localized: "暂无匹配的规则明细", bundle: .wgLocalized))
             } else {
                 List {
                     ForEach(rows) { entry in
@@ -63,9 +63,9 @@ struct PPCustomRuleList: View {
                 Task {
                     do {
                         try await RuleCacheStore.shared.deleteCustomRule(mode: mode, rule: entry.raw)
-                        ProxyPanelStore.shared.post(PPNotice(id: "customrule", title: "自定义规则已删除", detail: "点击右上角重启后生效", kind: .success), autoDismiss: 4)
+                        ProxyPanelStore.shared.post(PPNotice(id: "customrule", title: String(localized: "自定义规则已删除", bundle: .wgLocalized), detail: String(localized: "点击右上角重启后生效", bundle: .wgLocalized), kind: .success), autoDismiss: 4)
                         reload()
-                    } catch { errorText = "删除自定义规则失败：\(error.localizedDescription)" }
+                    } catch { errorText = String(localized: "删除自定义规则失败：\(error.localizedDescription)", bundle: .wgLocalized) }
                 }
             }
         } message: {
@@ -79,9 +79,9 @@ struct PPCustomRuleList: View {
         Task {
             do {
                 try await RuleCacheStore.shared.reorderCustomRules(mode: mode, ordered: list)
-                ProxyPanelStore.shared.post(PPNotice(id: "customrule", title: "自定义规则顺序已保存", detail: "点击右上角重启后生效", kind: .success), autoDismiss: 4)
+                ProxyPanelStore.shared.post(PPNotice(id: "customrule", title: String(localized: "自定义规则顺序已保存", bundle: .wgLocalized), detail: String(localized: "点击右上角重启后生效", bundle: .wgLocalized), kind: .success), autoDismiss: 4)
                 reload()
-            } catch { errorText = "保存自定义规则顺序失败：\(error.localizedDescription)" }
+            } catch { errorText = String(localized: "保存自定义规则顺序失败：\(error.localizedDescription)", bundle: .wgLocalized) }
         }
     }
 }
@@ -106,9 +106,9 @@ struct PPCustomRuleActions: View {
                 Task {
                     do {
                         try await cache.restartPlugin()
-                        ProxyPanelStore.shared.post(PPNotice(id: "restart", title: "已发送重启指令", detail: "请等待 30-60 秒后刷新", kind: .success), autoDismiss: 5)
+                        ProxyPanelStore.shared.post(PPNotice(id: "restart", title: String(localized: "已发送重启指令", bundle: .wgLocalized), detail: String(localized: "请等待 30-60 秒后刷新", bundle: .wgLocalized), kind: .success), autoDismiss: 5)
                     } catch {
-                        ProxyPanelStore.shared.post(PPNotice(id: "restart", title: "重启指令发送失败", detail: error.localizedDescription, kind: .error), autoDismiss: 6)
+                        ProxyPanelStore.shared.post(PPNotice(id: "restart", title: String(localized: "重启指令发送失败", bundle: .wgLocalized), detail: error.localizedDescription, kind: .error), autoDismiss: 6)
                     }
                     restarting = false
                 }
@@ -146,7 +146,7 @@ struct PPCustomRuleSheet: View {
     var body: some View {
         VStack(alignment: .leading, spacing: WgSpace.l) {
             Text(original == nil ? "新增域名规则" : "修改自定义规则").font(.system(size: WgType.body, weight: .bold))
-            Text("规则名称：\(mode == "pre" ? "前置自定义" : "后置自定义")").font(.system(size: WgType.sub)).foregroundStyle(.secondary)
+            Text("规则名称：\(mode == "pre" ? String(localized: "前置自定义", bundle: .wgLocalized) : String(localized: "后置自定义", bundle: .wgLocalized))").font(.system(size: WgType.sub)).foregroundStyle(.secondary)
 
             Picker("规则类型", selection: $type) {
                 ForEach(CustomRuleInput.allTypes, id: \.self) { Text(CustomRuleInput.typeTitles[$0] ?? $0).tag($0) }
@@ -235,17 +235,17 @@ struct PPCustomRuleSheet: View {
             do {
                 if let original {
                     try await RuleCacheStore.shared.updateCustomRule(mode: mode, original: original.raw, input: input)
-                    store.post(PPNotice(id: "customrule", title: "自定义规则已修改", detail: "点击右上角重启后生效", kind: .success), autoDismiss: 4)
+                    store.post(PPNotice(id: "customrule", title: String(localized: "自定义规则已修改", bundle: .wgLocalized), detail: String(localized: "点击右上角重启后生效", bundle: .wgLocalized), kind: .success), autoDismiss: 4)
                 } else {
                     try await RuleCacheStore.shared.addCustomRule(mode: mode, input: input)
-                    store.post(PPNotice(id: "customrule", title: "域名规则已写入", detail: "重启代理后生效", kind: .success), autoDismiss: 4)
+                    store.post(PPNotice(id: "customrule", title: String(localized: "域名规则已写入", bundle: .wgLocalized), detail: String(localized: "重启代理后生效", bundle: .wgLocalized), kind: .success), autoDismiss: 4)
                 }
                 onDone()
                 dismiss()
             } catch CustomRuleError.duplicated {
                 errorText = CustomRuleError.duplicated.localizedDescription
             } catch {
-                errorText = (original == nil ? "新增域名规则失败：" : "修改自定义规则失败：") + error.localizedDescription
+                errorText = (original == nil ? String(localized: "新增域名规则失败：", bundle: .wgLocalized) : String(localized: "修改自定义规则失败：", bundle: .wgLocalized)) + error.localizedDescription
             }
             saving = false
         }

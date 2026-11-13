@@ -15,11 +15,11 @@ enum RuleFamily: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .all: return "全部"
-        case .domain: return "域名"
+        case .all: return String(localized: "全部", bundle: .wgLocalized)
+        case .domain: return String(localized: "域名", bundle: .wgLocalized)
         case .ip: return "IP"
-        case .port: return "端口"
-        case .other: return "其他"
+        case .port: return String(localized: "端口", bundle: .wgLocalized)
+        case .other: return String(localized: "其他", bundle: .wgLocalized)
         }
     }
 }
@@ -35,10 +35,10 @@ struct RuleEntry: Identifiable, Hashable, Sendable {
     var line: Int?
 
     static let displayNames: [String: String] = [
-        "DOMAIN": "域名", "DOMAIN-SUFFIX": "域名后缀", "DOMAIN-KEYWORD": "关键字",
-        "IP-CIDR": "目标IP", "IP-CIDR6": "目标IP", "SRC-IP": "源IP", "SRC-IP-CIDR": "源IP",
-        "SRC-IP-CIDR6": "源IP", "DST-PORT": "目标端口", "SRC-PORT": "源端口", "IN-PORT": "入站端口",
-        "GEOIP": "目标IP", "MATCH": "匹配", "FINAL": "最终",
+        "DOMAIN": String(localized: "域名", bundle: .wgLocalized), "DOMAIN-SUFFIX": String(localized: "域名后缀", bundle: .wgLocalized), "DOMAIN-KEYWORD": String(localized: "关键字", bundle: .wgLocalized),
+        "IP-CIDR": String(localized: "目标IP", bundle: .wgLocalized), "IP-CIDR6": String(localized: "目标IP", bundle: .wgLocalized), "SRC-IP": String(localized: "源IP", bundle: .wgLocalized), "SRC-IP-CIDR": String(localized: "源IP", bundle: .wgLocalized),
+        "SRC-IP-CIDR6": String(localized: "源IP", bundle: .wgLocalized), "DST-PORT": String(localized: "目标端口", bundle: .wgLocalized), "SRC-PORT": String(localized: "源端口", bundle: .wgLocalized), "IN-PORT": String(localized: "入站端口", bundle: .wgLocalized),
+        "GEOIP": String(localized: "目标IP", bundle: .wgLocalized), "MATCH": String(localized: "匹配", bundle: .wgLocalized), "FINAL": String(localized: "最终", bundle: .wgLocalized),
     ]
 
     var displayType: String { Self.displayNames[type] ?? type }
@@ -217,7 +217,7 @@ struct OpenWrtSSH {
                 let err = String(data: stderr.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
                 if process.terminationStatus != 0 {
                     let reason = err.trimmingCharacters(in: .whitespacesAndNewlines)
-                    continuation.resume(throwing: Failure(message: reason.isEmpty ? "SSH 退出码 \(process.terminationStatus)" : reason))
+                    continuation.resume(throwing: Failure(message: reason.isEmpty ? String(localized: "SSH 退出码 \(process.terminationStatus)", bundle: .wgLocalized) : reason))
                 } else {
                     continuation.resume(returning: output)
                 }
@@ -435,7 +435,7 @@ final class RuleCacheStore: ObservableObject {
         guard !backend.isLocal else { lastError = MihomoBackendStore.localReadOnlyNote; return }
         syncing = true
         lastError = nil
-        progress = "正在检测规则源…"
+        progress = String(localized: "正在检测规则源…", bundle: .wgLocalized)
         defer { syncing = false; progress = "" }
         let ssh = OpenWrtSSH(backend: backend)
         do {
@@ -457,7 +457,7 @@ final class RuleCacheStore: ObservableObject {
             let home = fields["HOME"] ?? "/etc/openclash"
             let bin = fields["BIN"] ?? ""
 
-            progress = "正在读取 \(providers.count) 个规则集…"
+            progress = String(localized: "正在读取 \(providers.count) 个规则集…", bundle: .wgLocalized)
             // 一次会话读完全部规则集：text 直接 cat，mrs 用内核 convert-ruleset 转文本。
             var script = "cd \(OpenWrtSSH.quote(home)) || exit 1\nT=/tmp/wgsense-rule.$$\n"
             for (index, provider) in providers.enumerated() where !provider.effectivePath.isEmpty {
@@ -505,12 +505,12 @@ final class RuleCacheStore: ObservableObject {
                 try? JSONEncoder().encode(snap).write(to: dir.appendingPathComponent("snapshot.json"), options: .atomic)
                 try? JSONEncoder().encode(newBodies).write(to: dir.appendingPathComponent("bodies.json"), options: .atomic)
             }
-            ProxyPanelStore.shared.post(PPNotice(id: "rulecache", title: "规则缓存已更新",
-                                                 detail: "规则集 \(newBodies.count)/\(providers.count)，共 \(totalRules) 行",
+            ProxyPanelStore.shared.post(PPNotice(id: "rulecache", title: String(localized: "规则缓存已更新", bundle: .wgLocalized),
+                                                 detail: String(localized: "规则集 \(newBodies.count)/\(providers.count)，共 \(totalRules) 行", bundle: .wgLocalized),
                                                  kind: unsupported.isEmpty ? .success : .warning), autoDismiss: 4)
         } catch {
             lastError = error.localizedDescription
-            ProxyPanelStore.shared.post(PPNotice(id: "rulecache", title: "规则缓存更新失败",
+            ProxyPanelStore.shared.post(PPNotice(id: "rulecache", title: String(localized: "规则缓存更新失败", bundle: .wgLocalized),
                                                  detail: error.localizedDescription, kind: .error), autoDismiss: 6)
         }
     }

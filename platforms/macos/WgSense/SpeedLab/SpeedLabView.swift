@@ -16,18 +16,18 @@ struct SpeedLabView: View {
             LazyVStack(alignment: .leading, spacing: WgSpace.l) {
                 setup
                 hud
-                SLDrawer(key: "curve", title: "全程曲线", code: "CRV") { SLCurve(lab: lab) }
-                SLDrawer(key: "params", title: "测法", code: "MTD", badge: lab.params == SLParams() ? "" : "已改") { SLMethodForm(lab: lab) }
-                SLDrawer(key: "history", title: "历史", code: "LOG", badge: lab.history.isEmpty ? "" : "\(lab.history.count)") {
+                SLDrawer(key: "curve", title: String(localized: "全程曲线", bundle: .wgLocalized), code: "CRV") { SLCurve(lab: lab) }
+                SLDrawer(key: "params", title: String(localized: "测法", bundle: .wgLocalized), code: "MTD", badge: lab.params == SLParams() ? "" : String(localized: "已改", bundle: .wgLocalized)) { SLMethodForm(lab: lab) }
+                SLDrawer(key: "history", title: String(localized: "历史", bundle: .wgLocalized), code: "LOG", badge: lab.history.isEmpty ? "" : "\(lab.history.count)") {
                     SLHistoryList(lab: lab)
                 }
-                SLDrawer(key: "sources", title: "测速源", code: "SRC") { SLSourcesForm(lab: lab) }
-                SLDrawer(key: "endpoints", title: "端点", code: "EP", badge: "\(lab.roster.count)") { SLEndpointsForm(lab: lab) }
+                SLDrawer(key: "sources", title: String(localized: "测速源", bundle: .wgLocalized), code: "SRC") { SLSourcesForm(lab: lab) }
+                SLDrawer(key: "endpoints", title: String(localized: "端点", bundle: .wgLocalized), code: "EP", badge: "\(lab.roster.count)") { SLEndpointsForm(lab: lab) }
             }
         }
         .sheet(isPresented: $adding) {
             VStack(alignment: .leading, spacing: WgSpace.m) {
-                Text(verbatim: "添加端点").font(.system(size: WgInk.sizeSubsection, weight: .semibold))
+                Text(verbatim: String(localized: "添加端点", bundle: .wgLocalized)).font(.system(size: WgInk.sizeSubsection, weight: .semibold))
                 SLEndpointsForm(lab: lab, listing: false)
                 HStack { Spacer(); Button("完成") { adding = false }.keyboardShortcut(.defaultAction) }
             }
@@ -92,7 +92,7 @@ struct SpeedLabView: View {
     private var setup: some View {
         VStack(alignment: .leading, spacing: WgSpace.s) {
             route
-            if let hint = lab.discoverNote ?? lab.blocker ?? pathHint ?? (lab.target?.kind == .peer ? "WG peer 不能远程登录：要求它自己开着 iperf3 服务端（端口 \(lab.params.iperfPort)）" : nil) {
+            if let hint = lab.discoverNote ?? lab.blocker ?? pathHint ?? (lab.target?.kind == .peer ? String(localized: "WG peer 不能远程登录：要求它自己开着 iperf3 服务端（端口 \(lab.params.iperfPort)）", bundle: .wgLocalized) : nil) {
                 Text(verbatim: hint).font(WgInk.mono(.caption))
                     .foregroundStyle(lab.discoverNote == nil && lab.blocker != nil ? WgInk.warn : WgInk.ink3)
             }
@@ -109,16 +109,16 @@ struct SpeedLabView: View {
     /// 探测失败时说清 B 为什么只剩系统路由。
     private var pathHint: String? {
         guard lab.pathSelectable, let e = lab.ifaceErrors[lab.runnerID] else { return nil }
-        return "探测 \(lab.runner?.name ?? "") 的网卡失败：\(e)"
+        return String(localized: "探测 \(lab.runner?.name ?? "") 的网卡失败：\(e)", bundle: .wgLocalized)
     }
 
     /// B 的注记：选中网卡的地址与速率，或系统路由的说明。
     private var pathDetail: String {
-        guard lab.pathSelectable else { return "iperf3 · 由对端地址决定" }
-        if lab.probing.contains(lab.runnerID) { return "发现网卡中…" }
-        guard let name = lab.route else { return lab.runnerIfaces.isEmpty ? "点开发现网卡" : "未选择" }
-        if name == SLIface.system, lab.runnerIfaces.first(where: \.isSystem) == nil { return "跟随系统路由与 DNS" }
-        guard let i = lab.runnerIfaces.first(where: { $0.name == name }) else { return "本次未发现，点开重新发现" }
+        guard lab.pathSelectable else { return String(localized: "iperf3 · 由对端地址决定", bundle: .wgLocalized) }
+        if lab.probing.contains(lab.runnerID) { return String(localized: "发现网卡中…", bundle: .wgLocalized) }
+        guard let name = lab.route else { return lab.runnerIfaces.isEmpty ? String(localized: "点开发现网卡", bundle: .wgLocalized) : String(localized: "未选择", bundle: .wgLocalized) }
+        if name == SLIface.system, lab.runnerIfaces.first(where: \.isSystem) == nil { return String(localized: "跟随系统路由与 DNS", bundle: .wgLocalized) }
+        guard let i = lab.runnerIfaces.first(where: { $0.name == name }) else { return String(localized: "本次未发现，点开重新发现", bundle: .wgLocalized) }
         return Self.ifaceNote(i)
     }
 
@@ -127,26 +127,26 @@ struct SpeedLabView: View {
         ([ep.name] + (ep.name != ep.address ? [ep.address] : []) + [ep.via]).joined(separator: "  ·  ")
     }
 
-    static func ifaceTitle(_ i: SLIface) -> String { i.isSystem ? "系统路由" : i.name }
+    static func ifaceTitle(_ i: SLIface) -> String { i.isSystem ? String(localized: "系统路由", bundle: .wgLocalized) : i.name }
 
     static func ifaceNote(_ i: SLIface) -> String {
-        if i.isSystem { return "跟随系统路由与 DNS · 当前走 \(i.phy)" }
-        return [i.addr, i.phy != i.name ? "经 \(i.phy)" : "", linkText(i.link), i.isDefault ? "默认出口" : ""]
+        if i.isSystem { return String(localized: "跟随系统路由与 DNS · 当前走 \(i.phy)", bundle: .wgLocalized) }
+        return [i.addr, i.phy != i.name ? String(localized: "经 \(i.phy)", bundle: .wgLocalized) : "", linkText(i.link), i.isDefault ? String(localized: "默认出口", bundle: .wgLocalized) : ""]
             .filter { !$0.isEmpty }.joined(separator: " · ")
     }
 
     private var route: some View {
         HStack(spacing: 0) {
-            SLSelector(code: "A", title: "执行端", value: lab.runner?.name ?? "未选择",
-                       detail: lab.runner?.address ?? (lab.runners.isEmpty ? "点开发现或添加" : "")) {
+            SLSelector(code: "A", title: String(localized: "执行端", bundle: .wgLocalized), value: lab.runner?.name ?? String(localized: "未选择", bundle: .wgLocalized),
+                       detail: lab.runner?.address ?? (lab.runners.isEmpty ? String(localized: "点开发现或添加", bundle: .wgLocalized) : "")) {
                 ForEach(lab.runners) { ep in
                     Button { lab.runnerID = ep.id } label: { Text(verbatim: Self.menuLine(ep)) }
                 }
                 rosterActions
             }
             SLJoint()
-            SLSelector(code: "B", title: "路径",
-                       value: lab.pathSelectable ? (lab.route.map { $0 == SLIface.system ? "系统路由" : $0 } ?? "未选择") : "按地址",
+            SLSelector(code: "B", title: String(localized: "路径", bundle: .wgLocalized),
+                       value: lab.pathSelectable ? (lab.route.map { $0 == SLIface.system ? String(localized: "系统路由", bundle: .wgLocalized) : $0 } ?? String(localized: "未选择", bundle: .wgLocalized)) : String(localized: "按地址", bundle: .wgLocalized),
                        detail: pathDetail,
                        enabled: lab.pathSelectable && lab.runner != nil) {
                 ForEach(lab.runnerIfaces) { i in
@@ -156,8 +156,8 @@ struct SpeedLabView: View {
                 Button(lab.probing.contains(lab.runnerID) ? "发现中…" : "发现网卡") { lab.refreshIfaces() }
             }
             SLJoint()
-            SLSelector(code: "C", title: "目标", value: lab.target?.name ?? "未选择",
-                       detail: lab.target?.address ?? (lab.targets.isEmpty ? "点开发现或添加" : "")) {
+            SLSelector(code: "C", title: String(localized: "目标", bundle: .wgLocalized), value: lab.target?.name ?? String(localized: "未选择", bundle: .wgLocalized),
+                       detail: lab.target?.address ?? (lab.targets.isEmpty ? String(localized: "点开发现或添加", bundle: .wgLocalized) : "")) {
                 ForEach(lab.targets) { ep in
                     Button { lab.targetID = ep.id } label: { Text(verbatim: Self.menuLine(ep)) }
                 }
@@ -174,7 +174,7 @@ struct SpeedLabView: View {
         guard let v = parts.first.flatMap({ Int($0) }) else { return raw }
         let speed = v >= 1000 && v % 1000 == 0 ? "\(v / 1000)G" : (v >= 1000 ? String(format: "%.1fG", Double(v) / 1000) : "\(v)M")
         let rest = parts.dropFirst().joined(separator: " ")
-        let duplex = rest == "full" ? "全双工" : rest == "half" ? "半双工" : rest
+        let duplex = rest == "full" ? String(localized: "全双工", bundle: .wgLocalized) : rest == "half" ? String(localized: "半双工", bundle: .wgLocalized) : rest
         return [speed, duplex].filter { !$0.isEmpty }.joined(separator: " ")
     }
 
@@ -342,9 +342,9 @@ struct SLCurve: View {
             .frame(height: 130)
             // 拖动缩放时弹性快照把曲线整体横向拉伸（真排版也是这样），而不是把线拆开
             HStack {
-                Text(verbatim: "↓ 下行 ┄").font(WgInk.mono(.micro)).foregroundStyle(WgInk.ink3)
+                Text(verbatim: String(localized: "↓ 下行 ┄", bundle: .wgLocalized)).font(WgInk.mono(.micro)).foregroundStyle(WgInk.ink3)
                 Spacer()
-                Text(verbatim: "↑ 上行 ─" + (upSide.map { " \($0.title)" } ?? "")).font(WgInk.mono(.micro)).foregroundStyle(WgInk.ink3)
+                Text(verbatim: String(localized: "↑ 上行 ─", bundle: .wgLocalized) + (upSide.map { " \($0.title)" } ?? "")).font(WgInk.mono(.micro)).foregroundStyle(WgInk.ink3)
             }
         }
     }
@@ -363,103 +363,103 @@ struct SLMethodForm: View {
     private var m: SLParams { lab.params }
     private var nic: String {
         if let r = lab.route, r != SLIface.system { return r }
-        return "<计数网卡>"
+        return String(localized: "<计数网卡>", bundle: .wgLocalized)
     }
 
     var body: some View {
         LazyVStack(alignment: .leading, spacing: WgSpace.m) {
             HStack {
-                Text(verbatim: "每一项都会影响测出来的数。改过的项标 ●，可单项恢复；每次测速会把当时的测法存进历史。")
+                Text(verbatim: String(localized: "每一项都会影响测出来的数。改过的项标 ●，可单项恢复；每次测速会把当时的测法存进历史。", bundle: .wgLocalized))
                     .font(.system(size: WgType.body)).foregroundStyle(WgInk.ink3)
                 Spacer()
                 Button("全部恢复出厂") { lab.params = SLParams() }.disabled(m == factory)
             }
 
-            section("通用", commands: [
-                "# 采样：每 \(SLParams.num(m.tick)) 秒读一次网卡累计字节，相邻两次之差 ÷ 实际间隔 = 速率",
+            section(String(localized: "通用", bundle: .wgLocalized), commands: [
+                String(localized: "# 采样：每 \(SLParams.num(m.tick)) 秒读一次网卡累计字节，相邻两次之差 ÷ 实际间隔 = 速率", bundle: .wgLocalized),
                 "cat /sys/class/net/\(nic)/statistics/rx_bytes /sys/class/net/\(nic)/statistics/tx_bytes   # Linux",
                 "netstat -ibn -I \(nic)   # macOS",
-                "# 空载延迟：先空跑 \(m.idleSeconds) 秒，期间与测速全程一直 ping",
-                "ping \(m.pingHost.isEmpty ? "<公网测速：\(m.dns)｜iperf3：对端>" : m.pingHost)",
+                String(localized: "# 空载延迟：先空跑 \(m.idleSeconds) 秒，期间与测速全程一直 ping", bundle: .wgLocalized),
+                String(localized: "ping \(m.pingHost.isEmpty ? String(localized: "<公网测速：\(m.dns)｜iperf3：对端>", bundle: .wgLocalized) : m.pingHost)", bundle: .wgLocalized),
             ]) {
-                pick("方向", "测哪几个方向，依次进行", \.directions, SLDirections.allCases, title: \.title)
-                pick("单位", "只影响显示", \.unit, SLUnit.allCases, title: \.title)
-                int("每个方向时长", "下行、上行各跑多久", \.duration, 3...120, "秒")
-                dbl("采样间隔", "多久读一次计数；执行端不支持小数 sleep 时自动退到 1 秒", \.tick, 0.05...2, step: 0.05, "秒")
-                int("空载延迟时长", "开跑前不加负载、只测延迟的时长", \.idleSeconds, 0...30, "秒")
-                text("ping 对象", "空 = 公网测速 ping 下面的 DNS，iperf3 ping 对端", \.pingHost, placeholder: "自动")
-                int("看门狗余量", "总时长 × 2 再加这么多秒还没结束就强制收尾", \.watchdogExtra, 10...600, "秒")
+                pick(String(localized: "方向", bundle: .wgLocalized), String(localized: "测哪几个方向，依次进行", bundle: .wgLocalized), \.directions, SLDirections.allCases, title: \.title)
+                pick(String(localized: "单位", bundle: .wgLocalized), String(localized: "只影响显示", bundle: .wgLocalized), \.unit, SLUnit.allCases, title: \.title)
+                int(String(localized: "每个方向时长", bundle: .wgLocalized), String(localized: "下行、上行各跑多久", bundle: .wgLocalized), \.duration, 3...120, String(localized: "秒", bundle: .wgLocalized))
+                dbl(String(localized: "采样间隔", bundle: .wgLocalized), String(localized: "多久读一次计数；执行端不支持小数 sleep 时自动退到 1 秒", bundle: .wgLocalized), \.tick, 0.05...2, step: 0.05, String(localized: "秒", bundle: .wgLocalized))
+                int(String(localized: "空载延迟时长", bundle: .wgLocalized), String(localized: "开跑前不加负载、只测延迟的时长", bundle: .wgLocalized), \.idleSeconds, 0...30, String(localized: "秒", bundle: .wgLocalized))
+                text(String(localized: "ping 对象", bundle: .wgLocalized), String(localized: "空 = 公网测速 ping 下面的 DNS，iperf3 ping 对端", bundle: .wgLocalized), \.pingHost, placeholder: String(localized: "自动", bundle: .wgLocalized))
+                int(String(localized: "看门狗余量", bundle: .wgLocalized), String(localized: "总时长 × 2 再加这么多秒还没结束就强制收尾", bundle: .wgLocalized), \.watchdogExtra, 10...600, String(localized: "秒", bundle: .wgLocalized))
             }
 
-            section("寻址", commands: [
-                "nslookup <测速域名> \(m.dns)          # 绑网卡时用它解析，绕开系统 DNS / fake-ip",
-                "nslookup \(m.probeDomain)              # 探测：系统 DNS 答 198.18.x 即被 fake-ip 接管",
-                m.exitIPURL.isEmpty ? "# 不查出口 IP" : "curl -s \(m.exitIPURL)   # 出口 IP",
+            section(String(localized: "寻址", bundle: .wgLocalized), commands: [
+                String(localized: "nslookup <测速域名> \(m.dns)          # 绑网卡时用它解析，绕开系统 DNS / fake-ip", bundle: .wgLocalized),
+                String(localized: "nslookup \(m.probeDomain)              # 探测：系统 DNS 答 198.18.x 即被 fake-ip 接管", bundle: .wgLocalized),
+                m.exitIPURL.isEmpty ? String(localized: "# 不查出口 IP", bundle: .wgLocalized) : String(localized: "curl -s \(m.exitIPURL)   # 出口 IP", bundle: .wgLocalized),
             ]) {
-                text("真实 DNS", "绑网卡测速时解析测速域名；也用来判定「系统路由」实际走哪张网卡", \.dns, placeholder: "IP")
-                text("fake-ip 探测域名", "探测时用系统 DNS 解析它，看是否被代理接管", \.probeDomain, placeholder: "域名")
-                text("出口 IP 查询", "空 = 不查", \.exitIPURL, placeholder: "不查")
-                text("User-Agent", "所有 HTTP 请求带的 UA", \.userAgent, placeholder: "UA")
+                text(String(localized: "真实 DNS", bundle: .wgLocalized), String(localized: "绑网卡测速时解析测速域名；也用来判定「系统路由」实际走哪张网卡", bundle: .wgLocalized), \.dns, placeholder: "IP")
+                text(String(localized: "fake-ip 探测域名", bundle: .wgLocalized), String(localized: "探测时用系统 DNS 解析它，看是否被代理接管", bundle: .wgLocalized), \.probeDomain, placeholder: String(localized: "域名", bundle: .wgLocalized))
+                text(String(localized: "出口 IP 查询", bundle: .wgLocalized), String(localized: "空 = 不查", bundle: .wgLocalized), \.exitIPURL, placeholder: String(localized: "不查", bundle: .wgLocalized))
+                text("User-Agent", String(localized: "所有 HTTP 请求带的 UA", bundle: .wgLocalized), \.userAgent, placeholder: "UA")
             }
 
-            section("公网 · 选源", commands: [
-                "# 每个候选源并行试跑，速度相加",
-                "curl -s -o /dev/null -m \(m.pickDownSeconds) <下行源>   × \(m.pickDownConns) 并行",
-                "dd if=/dev/zero bs=1M count=\(m.pickUpMB) | curl -s -o /dev/null -m \(m.pickUpSeconds) -X POST -T - <上行源>",
-                "# 比最快的慢 \(SLParams.num(m.pickSlowRatio)) 倍以上的淘汰；下行留前 \(m.pickDownKeep) 个，上行留前 \(m.pickUpKeep) 个",
-                "# 跳转逐跳手动跟随（每跳用真实 DNS 解析），最多 \(m.redirectMax) 跳、每跳 \(m.redirectTimeout) 秒",
+            section(String(localized: "公网 · 选源", bundle: .wgLocalized), commands: [
+                String(localized: "# 每个候选源并行试跑，速度相加", bundle: .wgLocalized),
+                String(localized: "curl -s -o /dev/null -m \(m.pickDownSeconds) <下行源>   × \(m.pickDownConns) 并行", bundle: .wgLocalized),
+                String(localized: "dd if=/dev/zero bs=1M count=\(m.pickUpMB) | curl -s -o /dev/null -m \(m.pickUpSeconds) -X POST -T - <上行源>", bundle: .wgLocalized),
+                String(localized: "# 比最快的慢 \(SLParams.num(m.pickSlowRatio)) 倍以上的淘汰；下行留前 \(m.pickDownKeep) 个，上行留前 \(m.pickUpKeep) 个", bundle: .wgLocalized),
+                String(localized: "# 跳转逐跳手动跟随（每跳用真实 DNS 解析），最多 \(m.redirectMax) 跳、每跳 \(m.redirectTimeout) 秒", bundle: .wgLocalized),
             ]) {
-                int("下行试跑连接数", "每个源同时开几条", \.pickDownConns, 1...16, "条")
-                int("下行试跑时长", "", \.pickDownSeconds, 1...15, "秒")
-                int("上行试跑数据量", "", \.pickUpMB, 1...1024, "MB")
-                int("上行试跑时长", "", \.pickUpSeconds, 1...15, "秒")
-                dbl("淘汰倍数", "比最快的源慢这么多倍以上就不用", \.pickSlowRatio, 1...20, step: 0.5, "倍")
-                int("下行保留源数", "", \.pickDownKeep, 1...10, "个")
-                int("上行保留源数", "", \.pickUpKeep, 1...10, "个")
-                int("跳转上限", "", \.redirectMax, 0...10, "跳")
-                int("每跳超时", "", \.redirectTimeout, 1...30, "秒")
-                int("坏源退役", "连续失败这么多次后不再试，全部退役时全部重试", \.retireAfter, 1...20, "次")
+                int(String(localized: "下行试跑连接数", bundle: .wgLocalized), String(localized: "每个源同时开几条", bundle: .wgLocalized), \.pickDownConns, 1...16, String(localized: "条", bundle: .wgLocalized))
+                int(String(localized: "下行试跑时长", bundle: .wgLocalized), "", \.pickDownSeconds, 1...15, String(localized: "秒", bundle: .wgLocalized))
+                int(String(localized: "上行试跑数据量", bundle: .wgLocalized), "", \.pickUpMB, 1...1024, "MB")
+                int(String(localized: "上行试跑时长", bundle: .wgLocalized), "", \.pickUpSeconds, 1...15, String(localized: "秒", bundle: .wgLocalized))
+                dbl(String(localized: "淘汰倍数", bundle: .wgLocalized), String(localized: "比最快的源慢这么多倍以上就不用", bundle: .wgLocalized), \.pickSlowRatio, 1...20, step: 0.5, String(localized: "倍", bundle: .wgLocalized))
+                int(String(localized: "下行保留源数", bundle: .wgLocalized), "", \.pickDownKeep, 1...10, String(localized: "个", bundle: .wgLocalized))
+                int(String(localized: "上行保留源数", bundle: .wgLocalized), "", \.pickUpKeep, 1...10, String(localized: "个", bundle: .wgLocalized))
+                int(String(localized: "跳转上限", bundle: .wgLocalized), "", \.redirectMax, 0...10, String(localized: "跳", bundle: .wgLocalized))
+                int(String(localized: "每跳超时", bundle: .wgLocalized), "", \.redirectTimeout, 1...30, String(localized: "秒", bundle: .wgLocalized))
+                int(String(localized: "坏源退役", bundle: .wgLocalized), String(localized: "连续失败这么多次后不再试，全部退役时全部重试", bundle: .wgLocalized), \.retireAfter, 1...20, String(localized: "次", bundle: .wgLocalized))
             }
 
-            section("公网 · 下行 / 上行", commands: [
-                "curl -s -o /dev/null \(lab.route.map { $0 == SLIface.system ? "" : "--interface \($0) --resolve <域名:端口:IP> " } ?? "")--speed-limit \(Int(m.stallMBps * 1_048_576)) --speed-time \(m.stallSeconds) <下行源>   × \(m.httpDownThreads)，到点为止，断了重连",
-                "dd if=/dev/zero bs=1M count=\(m.upChunkMB) | curl -s -o /dev/null -X POST -T - <上行源>   × \(m.httpUpThreads)，单条长连接",
-                "# 线程按入选源轮流分配；速率读的是网卡计数，不用 curl 自报",
+            section(String(localized: "公网 · 下行 / 上行", bundle: .wgLocalized), commands: [
+                String(localized: "curl -s -o /dev/null \(lab.route.map { $0 == SLIface.system ? "" : String(localized: "--interface \($0) --resolve <域名:端口:IP> ", bundle: .wgLocalized) } ?? "")--speed-limit \(Int(m.stallMBps * 1_048_576)) --speed-time \(m.stallSeconds) <下行源>   × \(m.httpDownThreads)，到点为止，断了重连", bundle: .wgLocalized),
+                String(localized: "dd if=/dev/zero bs=1M count=\(m.upChunkMB) | curl -s -o /dev/null -X POST -T - <上行源>   × \(m.httpUpThreads)，单条长连接", bundle: .wgLocalized),
+                String(localized: "# 线程按入选源轮流分配；速率读的是网卡计数，不用 curl 自报", bundle: .wgLocalized),
             ]) {
-                int("下行线程", "", \.httpDownThreads, 1...64, "条")
-                dbl("卡死阈值", "低于这个速度持续下面的秒数就断开换节点", \.stallMBps, 0...100, step: 0.5, "MB/s")
-                int("卡死判定时长", "", \.stallSeconds, 1...30, "秒")
-                int("上行线程", "", \.httpUpThreads, 1...32, "条")
-                int("每条上行推送量", "一条连接推完这么多再重连", \.upChunkMB, 64...65536, "MB")
+                int(String(localized: "下行线程", bundle: .wgLocalized), "", \.httpDownThreads, 1...64, String(localized: "条", bundle: .wgLocalized))
+                dbl(String(localized: "卡死阈值", bundle: .wgLocalized), String(localized: "低于这个速度持续下面的秒数就断开换节点", bundle: .wgLocalized), \.stallMBps, 0...100, step: 0.5, "MB/s")
+                int(String(localized: "卡死判定时长", bundle: .wgLocalized), "", \.stallSeconds, 1...30, String(localized: "秒", bundle: .wgLocalized))
+                int(String(localized: "上行线程", bundle: .wgLocalized), "", \.httpUpThreads, 1...32, String(localized: "条", bundle: .wgLocalized))
+                int(String(localized: "每条上行推送量", bundle: .wgLocalized), String(localized: "一条连接推完这么多再重连", bundle: .wgLocalized), \.upChunkMB, 64...65536, "MB")
             }
 
-            section("iperf3（目标是另一台机器）", commands: [
-                "iperf3 -s -p \(m.iperfPort) -D -i \(SLParams.num(max(m.tick, 0.1))) -f m --forceflush --logfile <日志>   # 对端；端口被占顺延到 \(m.iperfPort + m.iperfPortSpan)，\(m.iperfServerTTL) 秒后自退",
-                "iperf3 -c <对端> -p \(m.iperfPort) -P \(m.iperfStreams) -t \(m.duration)\(m.iperfRate == .tool ? " -i \(SLParams.num(m.tick))" : "") -R   # 下行；上行去掉 -R，加 --get-server-output",
-                m.iperfRate == .tool ? "# 下行速率取 iperf3 每 \(SLParams.num(m.tick)) 秒报的 [SUM] 行" : "# 下行速率读网卡计数，iperf3 只造流量",
-                "# 上行取接收端：实时回传对端日志的 [SUM] 行；对端不是我们起的，测完用 --get-server-output 带回的换掉；都拿不到才用发送端，读数旁标 src",
-                "sleep \(m.directionGap)   # 两个方向之间",
+            section(String(localized: "iperf3（目标是另一台机器）", bundle: .wgLocalized), commands: [
+                String(localized: "iperf3 -s -p \(m.iperfPort) -D -i \(SLParams.num(max(m.tick, 0.1))) -f m --forceflush --logfile <日志>   # 对端；端口被占顺延到 \(m.iperfPort + m.iperfPortSpan)，\(m.iperfServerTTL) 秒后自退", bundle: .wgLocalized),
+                String(localized: "iperf3 -c <对端> -p \(m.iperfPort) -P \(m.iperfStreams) -t \(m.duration)\(m.iperfRate == .tool ? " -i \(SLParams.num(m.tick))" : "") -R   # 下行；上行去掉 -R，加 --get-server-output", bundle: .wgLocalized),
+                m.iperfRate == .tool ? String(localized: "# 下行速率取 iperf3 每 \(SLParams.num(m.tick)) 秒报的 [SUM] 行", bundle: .wgLocalized) : String(localized: "# 下行速率读网卡计数，iperf3 只造流量", bundle: .wgLocalized),
+                String(localized: "# 上行取接收端：实时回传对端日志的 [SUM] 行；对端不是我们起的，测完用 --get-server-output 带回的换掉；都拿不到才用发送端，读数旁标 src", bundle: .wgLocalized),
+                String(localized: "sleep \(m.directionGap)   # 两个方向之间", bundle: .wgLocalized),
             ]) {
-                int("并发流", "", \.iperfStreams, 1...64, "条")
-                int("端口", "", \.iperfPort, 1024...65000, "")
-                int("端口顺延范围", "被占时往后试几个", \.iperfPortSpan, 0...50, "个")
-                pick("速率来源", "网卡计数与公网测速同一把尺子；iperf3 自报只算它自己的流量。上行有接收端数据时不看这一项", \.iperfRate, SLRateSource.allCases, title: \.title)
-                int("方向间隔", "", \.directionGap, 0...10, "秒")
-                int("服务端寿命", "App 忘了停时服务端自己退出", \.iperfServerTTL, 30...3600, "秒")
+                int(String(localized: "并发流", bundle: .wgLocalized), "", \.iperfStreams, 1...64, String(localized: "条", bundle: .wgLocalized))
+                int(String(localized: "端口", bundle: .wgLocalized), "", \.iperfPort, 1024...65000, "")
+                int(String(localized: "端口顺延范围", bundle: .wgLocalized), String(localized: "被占时往后试几个", bundle: .wgLocalized), \.iperfPortSpan, 0...50, String(localized: "个", bundle: .wgLocalized))
+                pick(String(localized: "速率来源", bundle: .wgLocalized), String(localized: "网卡计数与公网测速同一把尺子；iperf3 自报只算它自己的流量。上行有接收端数据时不看这一项", bundle: .wgLocalized), \.iperfRate, SLRateSource.allCases, title: \.title)
+                int(String(localized: "方向间隔", bundle: .wgLocalized), "", \.directionGap, 0...10, String(localized: "秒", bundle: .wgLocalized))
+                int(String(localized: "服务端寿命", bundle: .wgLocalized), String(localized: "App 忘了停时服务端自己退出", bundle: .wgLocalized), \.iperfServerTTL, 30...3600, String(localized: "秒", bundle: .wgLocalized))
             }
 
-            section("结果怎么算", commands: [
-                "# 去掉前 \(SLParams.num(m.warmupSeconds)) 秒（爬坡），剩下的取\(m.statistic.title) = 稳定值",
-                "# \(SLParams.num(m.peakWindow)) 秒滑动平均的最大值 = 峰值",
-                "# 最后 \(SLParams.num(m.flatWindow)) 秒里 \(Int(m.flatShare * 100))% 的采样落在稳定值 ±\(SLParams.num(m.flatTolerance * 100))% 内 = 平稳",
-                "# 负载延迟 = 该方向测速期间 RTT 的中位数",
+            section(String(localized: "结果怎么算", bundle: .wgLocalized), commands: [
+                String(localized: "# 去掉前 \(SLParams.num(m.warmupSeconds)) 秒（爬坡），剩下的取\(m.statistic.title) = 稳定值", bundle: .wgLocalized),
+                String(localized: "# \(SLParams.num(m.peakWindow)) 秒滑动平均的最大值 = 峰值", bundle: .wgLocalized),
+                String(localized: "# 最后 \(SLParams.num(m.flatWindow)) 秒里 \(Int(m.flatShare * 100))% 的采样落在稳定值 ±\(SLParams.num(m.flatTolerance * 100))% 内 = 平稳", bundle: .wgLocalized),
+                String(localized: "# 负载延迟 = 该方向测速期间 RTT 的中位数", bundle: .wgLocalized),
             ]) {
-                pick("稳定值统计量", "", \.statistic, SLStatistic.allCases, title: \.title)
-                dbl("预热丢弃", "开头这段不计入稳定值", \.warmupSeconds, 0...10, step: 0.5, "秒")
-                dbl("峰值窗口", "", \.peakWindow, 0.1...5, step: 0.1, "秒")
-                dbl("平稳判定窗口", "", \.flatWindow, 1...20, step: 0.5, "秒")
-                dbl("平稳容差", "", \.flatTolerance, 0.01...0.5, step: 0.01, "×")
-                dbl("平稳占比", "", \.flatShare, 0.5...1, step: 0.05, "×")
+                pick(String(localized: "稳定值统计量", bundle: .wgLocalized), "", \.statistic, SLStatistic.allCases, title: \.title)
+                dbl(String(localized: "预热丢弃", bundle: .wgLocalized), String(localized: "开头这段不计入稳定值", bundle: .wgLocalized), \.warmupSeconds, 0...10, step: 0.5, String(localized: "秒", bundle: .wgLocalized))
+                dbl(String(localized: "峰值窗口", bundle: .wgLocalized), "", \.peakWindow, 0.1...5, step: 0.1, String(localized: "秒", bundle: .wgLocalized))
+                dbl(String(localized: "平稳判定窗口", bundle: .wgLocalized), "", \.flatWindow, 1...20, step: 0.5, String(localized: "秒", bundle: .wgLocalized))
+                dbl(String(localized: "平稳容差", bundle: .wgLocalized), "", \.flatTolerance, 0.01...0.5, step: 0.01, "×")
+                dbl(String(localized: "平稳占比", bundle: .wgLocalized), "", \.flatShare, 0.5...1, step: 0.05, "×")
             }
         }
         .disabled(lab.running)
@@ -598,11 +598,11 @@ extension SLHistoryList {
 struct SLRosterTable: View {
     @ObservedObject var lab: SpeedLabStore
     /// 各列等分剩余宽度、放不下就截断：固定宽度会把整页撑出窗口，回读宽度再排又会让拖侧栏时每帧多排一遍。
-    private let cols = ["名称", "地址", "主机名", "在哪发现", "能做什么", "最近看到"]
+    private let cols = [String(localized: "名称", bundle: .wgLocalized), String(localized: "地址", bundle: .wgLocalized), String(localized: "主机名", bundle: .wgLocalized), String(localized: "在哪发现", bundle: .wgLocalized), String(localized: "能做什么", bundle: .wgLocalized), String(localized: "最近看到", bundle: .wgLocalized)]
 
     var body: some View {
         if lab.roster.isEmpty {
-            Text(verbatim: "空。点「发现」扫描，或在下面添加。").font(.system(size: WgType.sub)).foregroundStyle(WgInk.ink3)
+            Text(verbatim: String(localized: "空。点「发现」扫描，或在下面添加。", bundle: .wgLocalized)).font(.system(size: WgType.sub)).foregroundStyle(WgInk.ink3)
         } else {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(spacing: WgSpace.m) {
@@ -833,7 +833,7 @@ struct SLSourcesForm: View {
         VStack(alignment: .leading, spacing: WgSpace.l) {
             // 远程源列表：节点失效时改远程文件，不用发版
             VStack(alignment: .leading, spacing: WgSpace.s) {
-                Text(verbatim: "源列表").font(.system(size: WgType.sub, weight: .semibold))
+                Text(verbatim: String(localized: "源列表", bundle: .wgLocalized)).font(.system(size: WgType.sub, weight: .semibold))
                 HStack {
                     TextField("https://gist.githubusercontent.com/…/raw/sources.json", text: $catalog.url)
                         .textFieldStyle(.roundedBorder).font(.system(size: WgType.body, design: .monospaced))
@@ -843,18 +843,18 @@ struct SLSourcesForm: View {
                 }
                 Text(verbatim: status).font(WgInk.mono(.micro)).foregroundStyle(catalog.fetchError == nil ? WgInk.ink3 : WgInk.warn)
             }
-            group("↓ 下行", remote: catalog.file?.download ?? [], manual: $lab.downloadSources, draft: $newDown)
-            group("↑ 上行", remote: catalog.file?.upload ?? [], manual: $lab.uploadSources, draft: $newUp)
+            group(String(localized: "↓ 下行", bundle: .wgLocalized), remote: catalog.file?.download ?? [], manual: $lab.downloadSources, draft: $newDown)
+            group(String(localized: "↑ 上行", bundle: .wgLocalized), remote: catalog.file?.upload ?? [], manual: $lab.uploadSources, draft: $newUp)
         }
         .disabled(lab.running)
     }
 
     private var status: String {
         if let e = catalog.fetchError { return e }
-        guard let f = catalog.file else { return catalog.url.isEmpty ? "未配置" : "还没拉取过" }
-        var parts = ["\(f.download.count) 下行 · \(f.upload.count) 上行"]
-        if let u = f.updated { parts.append("列表更新于 \(u)") }
-        if let t = catalog.fetchedAt { parts.append("拉取于 " + t.formatted(.relative(presentation: .named))) }
+        guard let f = catalog.file else { return catalog.url.isEmpty ? String(localized: "未配置", bundle: .wgLocalized) : String(localized: "还没拉取过", bundle: .wgLocalized) }
+        var parts = [String(localized: "\(f.download.count) 下行 · \(f.upload.count) 上行", bundle: .wgLocalized)]
+        if let u = f.updated { parts.append(String(localized: "列表更新于 \(u)", bundle: .wgLocalized)) }
+        if let t = catalog.fetchedAt { parts.append(String(localized: "拉取于 ", bundle: .wgLocalized) + t.formatted(.relative(presentation: .named))) }
         return parts.joined(separator: " · ")
     }
 
@@ -863,7 +863,7 @@ struct SLSourcesForm: View {
             Text(verbatim: title).font(.system(size: WgType.sub, weight: .semibold))
             ForEach(remote, id: \.self) { e in sourceRow(e.url, note: e.note, removable: nil) }
             ForEach(manual.wrappedValue, id: \.self) { u in
-                sourceRow(u, note: "手动", removable: { manual.wrappedValue.removeAll { $0 == u } })
+                sourceRow(u, note: String(localized: "手动", bundle: .wgLocalized), removable: { manual.wrappedValue.removeAll { $0 == u } })
             }
             HStack {
                 TextField("手动添加 https://…", text: draft).textFieldStyle(.roundedBorder).font(.system(size: 11, design: .monospaced))
@@ -889,11 +889,11 @@ struct SLSourcesForm: View {
                 if retired {
                     Button("已跳过 · 重试") { catalog.resetHealth(url) }.buttonStyle(.plain).foregroundStyle(WgInk.warn)
                 } else if let h, h.fails > 0 {
-                    Text(verbatim: "失败 \(h.fails) 次").foregroundStyle(WgInk.warn)
+                    Text(verbatim: String(localized: "失败 \(h.fails) 次", bundle: .wgLocalized)).foregroundStyle(WgInk.warn)
                 } else if let mb = h?.lastMbps, let t = h?.lastOK {
                     Text(verbatim: "\(Int(mb)) Mbps · " + t.formatted(.relative(presentation: .named)))
                 } else {
-                    Text(verbatim: "未测")
+                    Text(verbatim: String(localized: "未测", bundle: .wgLocalized))
                 }
             }
             .font(WgInk.mono(.micro)).foregroundStyle(WgInk.ink3)
@@ -922,15 +922,15 @@ struct SLEndpointsForm: View {
             if listing {
                 HStack(spacing: WgSpace.m) {
                     Button(lab.discovering ? "发现中…" : "发现") { lab.discover() }.disabled(lab.discovering)
-                    Text(verbatim: "将探测：" + lab.discoverScope.joined(separator: "、"))
+                    Text(verbatim: String(localized: "将探测：", bundle: .wgLocalized) + lab.discoverScope.joined(separator: "、"))
                         .font(WgInk.mono(.caption)).foregroundStyle(WgInk.ink3).lineLimit(1)
                     Spacer()
-                    Text(verbatim: "\(lab.roster.count) 项").font(WgInk.mono(.caption)).foregroundStyle(WgInk.ink3)
+                    Text(verbatim: String(localized: "\(lab.roster.count) 项", bundle: .wgLocalized)).font(WgInk.mono(.caption)).foregroundStyle(WgInk.ink3)
                 }
                 SLRosterTable(lab: lab)
                 Rectangle().fill(WgInk.rule).frame(height: 1).wgPadding(.vertical, .s)
             }
-            Text(verbatim: "SSH 主机：可当执行端，也可当目标（用这台 Mac 的 SSH 公钥登录，不保存密码）").font(.system(size: WgType.sub, weight: .semibold))
+            Text(verbatim: String(localized: "SSH 主机：可当执行端，也可当目标（用这台 Mac 的 SSH 公钥登录，不保存密码）", bundle: .wgLocalized)).font(.system(size: WgType.sub, weight: .semibold))
             HStack {
                 TextField("名称", text: $name).frame(width: 110)
                 TextField("主机 / IP", text: $host)
@@ -945,7 +945,7 @@ struct SLEndpointsForm: View {
                     name = ""; host = ""; port = ""; user = ""
                 }
             }
-            Text(verbatim: "仅地址：只能当目标，要求它自己开着 iperf3 服务端").font(.system(size: WgType.sub, weight: .semibold)).wgPadding(.top, .s)
+            Text(verbatim: String(localized: "仅地址：只能当目标，要求它自己开着 iperf3 服务端", bundle: .wgLocalized)).font(.system(size: WgType.sub, weight: .semibold)).wgPadding(.top, .s)
             HStack {
                 TextField("名称", text: $peerName).frame(width: 110)
                 TextField("IP", text: $peerIP)

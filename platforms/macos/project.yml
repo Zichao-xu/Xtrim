@@ -10,6 +10,8 @@ settings:
     SWIFT_VERSION: "5.0"
     # 二进制 plist 可内存映射，比默认 XML(UTF-16) 解析快一个量级。
     STRINGS_FILE_OUTPUT_ENCODING: binary
+    # 编译器提取界面文字（.stringsdata），供 scripts/l10n 同步进翻译表；命令行 xcodebuild 不会自己同步。
+    SWIFT_EMIT_LOC_STRINGS: YES
     DEVELOPMENT_TEAM: ""
 
 targets:
@@ -23,6 +25,11 @@ targets:
           - SpeedLab/speedlab.sh
       - path: WgSense/SpeedLab/speedlab.sh
         buildPhase: resources
+    postCompileScripts:
+      # 多语言：收集新界面文字 → 发版构建自动补译 → 检查（Release 下有缺译即失败）。见 scripts/l10n/l10n.py。
+      - name: Localization
+        basedOnDependencyAnalysis: false
+        script: '"$SRCROOT/scripts/l10n/build-phase.sh"'
     preBuildScripts:
       - name: Build Bundled Daemon
         basedOnDependencyAnalysis: false
@@ -54,8 +61,8 @@ targets:
         # 对外品牌名 Xtrim（包名、进程名、菜单名）；模块名与标识沿用 WgSense，内部代码和服务不受影响。
         PRODUCT_NAME: Xtrim
         PRODUCT_MODULE_NAME: WgSense
-        MARKETING_VERSION: "44"
-        CURRENT_PROJECT_VERSION: "44"
+        MARKETING_VERSION: "45"
+        CURRENT_PROJECT_VERSION: "45"
         MACOSX_DEPLOYMENT_TARGET: "26.0"
         INFOPLIST_KEY_CFBundleDisplayName: Xtrim
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
@@ -78,8 +85,8 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.wgsense.macos.widget
         PRODUCT_NAME: WgSenseWidget
-        MARKETING_VERSION: "44"
-        CURRENT_PROJECT_VERSION: "44"
+        MARKETING_VERSION: "45"
+        CURRENT_PROJECT_VERSION: "45"
         MACOSX_DEPLOYMENT_TARGET: "26.0"
         INFOPLIST_FILE: WgSenseWidget/Info.plist
         GENERATE_INFOPLIST_FILE: NO

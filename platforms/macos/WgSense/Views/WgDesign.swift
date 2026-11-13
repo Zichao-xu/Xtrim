@@ -365,10 +365,10 @@ enum WgFormat {
     }
 
     static func age(_ seconds: Int) -> String {
-        if seconds < 5 { return "刚刚" }
-        if seconds < 60 { return "\(seconds) 秒前" }
-        if seconds < 3600 { return "\(seconds / 60) 分钟前" }
-        return "\(seconds / 3600) 小时前"
+        if seconds < 5 { return String(localized: "刚刚", bundle: .wgLocalized) }
+        if seconds < 60 { return String(localized: "\(seconds) 秒前", bundle: .wgLocalized) }
+        if seconds < 3600 { return String(localized: "\(seconds / 60) 分钟前", bundle: .wgLocalized) }
+        return String(localized: "\(seconds / 3600) 小时前", bundle: .wgLocalized)
     }
 }
 
@@ -574,4 +574,12 @@ struct WgLocaleOverride: ViewModifier {
             content
         }
     }
+}
+
+/// 一条提示及其成败。成败单独存，不靠在文字里找「失败」——文字会随语言变。
+struct WgNotice: Equatable {
+    var text: String
+    var failed: Bool
+    static func ok(_ text: String) -> WgNotice { WgNotice(text: text, failed: false) }
+    static func fail(_ text: String) -> WgNotice { WgNotice(text: text, failed: true) }
 }

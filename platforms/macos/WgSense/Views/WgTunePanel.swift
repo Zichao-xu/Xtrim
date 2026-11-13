@@ -19,7 +19,7 @@ final class WgTunePanelController {
             let p = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 360, height: 640),
                             styleMask: [.titled, .closable, .resizable, .utilityWindow],
                             backing: .buffered, defer: false)
-            p.title = "布局调节"
+            p.title = String(localized: "布局调节", bundle: .wgLocalized)
             p.isFloatingPanel = true
             p.hidesOnDeactivate = false
             p.isReleasedWhenClosed = false
@@ -80,7 +80,7 @@ struct WgTunePanel: View {
                     .disabled(!tokens.isDirty)
                 Spacer()
                 Button("保存到工程") {
-                    message = tokens.saveToProject().map { "保存失败：\($0)" } ?? "已写入 WgTokens.json"
+                    message = tokens.saveToProject().map { String(localized: "保存失败：\($0)", bundle: .wgLocalized) } ?? String(localized: "已写入 WgTokens.json", bundle: .wgLocalized)
                 }
                 .keyboardShortcut("s")
                 .disabled(!tokens.isDirty)

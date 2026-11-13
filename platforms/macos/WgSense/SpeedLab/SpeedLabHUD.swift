@@ -114,7 +114,7 @@ struct SLHUD: View {
     private var accessibility: String {
         let dl = data.trails.downStat.map { SLFormat.compact($0.stable, unit: data.unit) } ?? "—"
         let ul = data.trails.upStat.map { SLFormat.compact($0.stable, unit: data.unit) } ?? "—"
-        return "测速 下行 \(dl) 上行 \(ul) \(data.unit.title)"
+        return String(localized: "测速 下行 \(dl) 上行 \(ul) \(data.unit.title)", bundle: .wgLocalized)
     }
 }
 
@@ -421,11 +421,11 @@ private struct SLHUDPainter {
         guard d.running, d.error == nil else { return nil }
         if d.phaseDates[.dl] != nil || d.phaseDates[.ul] != nil {
             // 下行测完、上行开跑前要试测上行源（约 2 秒）
-            return d.phaseDates[.ul] == nil && d.info["stage"] == "probe_ul" ? "试测上行测速源" : nil
+            return d.phaseDates[.ul] == nil && d.info["stage"] == "probe_ul" ? String(localized: "试测上行测速源", bundle: .wgLocalized) : nil
         }
-        if d.phaseDates[.pick] != nil { return "试测下行测速源" }
-        if d.phaseDates[.idle] != nil { return "测空载延迟" }
-        return "连接执行端 \(d.runner)"
+        if d.phaseDates[.pick] != nil { return String(localized: "试测下行测速源", bundle: .wgLocalized) }
+        if d.phaseDates[.idle] != nil { return String(localized: "测空载延迟", bundle: .wgLocalized) }
+        return String(localized: "连接执行端 \(d.runner)", bundle: .wgLocalized)
     }
 
     // MARK: 模式块

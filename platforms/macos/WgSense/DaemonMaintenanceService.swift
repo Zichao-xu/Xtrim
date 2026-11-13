@@ -4,7 +4,7 @@ import SwiftUI
 struct DaemonDiagnostics {
     var generatedAt: Date = Date()
     var apiReachable: Bool = false
-    var apiSummary: String = "daemon API 未连接"
+    var apiSummary: String = String(localized: "daemon API 未连接", bundle: .wgLocalized)
     var launchDaemonPlistExists: Bool = false
     var launchDaemonLoaded: Bool = false
     var launchDaemonKeepAlive: Bool = false
@@ -13,21 +13,21 @@ struct DaemonDiagnostics {
     var bundledHelperAvailable: Bool = false
     var persistedConfigExists: Bool = false
     var logFileExists: Bool = false
-    var dnsSummary: String = "未检测"
+    var dnsSummary: String = String(localized: "未检测", bundle: .wgLocalized)
     var processLines: [String] = []
     var routeLines: [String] = []
     var utunLines: [String] = []
     var recentLifecycleLines: [String] = []
 
     var installedSummary: String {
-        guard launchDaemonPlistExists else { return "未安装" }
-        let loaded = launchDaemonLoaded ? "已加载" : "未加载"
-        let keepAlive = launchDaemonKeepAlive ? "自动拉起" : "不会自动拉起"
-        return "已安装 / \(loaded) / \(keepAlive)"
+        guard launchDaemonPlistExists else { return String(localized: "未安装", bundle: .wgLocalized) }
+        let loaded = launchDaemonLoaded ? String(localized: "已加载", bundle: .wgLocalized) : String(localized: "未加载", bundle: .wgLocalized)
+        let keepAlive = launchDaemonKeepAlive ? String(localized: "自动拉起", bundle: .wgLocalized) : String(localized: "不会自动拉起", bundle: .wgLocalized)
+        return String(localized: "已安装 / \(loaded) / \(keepAlive)", bundle: .wgLocalized)
     }
 
     var permissionSummary: String {
-        helperInstalled ? "系统 helper 已存在" : "系统 helper 未安装"
+        helperInstalled ? String(localized: "系统 helper 已存在", bundle: .wgLocalized) : String(localized: "系统 helper 未安装", bundle: .wgLocalized)
     }
 
     /// 隧道正常连接时，全量路由和隧道 DNS 本来就该存在，不算残留。
@@ -38,8 +38,8 @@ struct DaemonDiagnostics {
     }
 
     var residualSummary: String {
-        if tunnelConnected { return "隧道运行中，路由与 DNS 属正常" }
-        return hasResidue ? "发现疑似残留的路由或 DNS" : "无残留"
+        if tunnelConnected { return String(localized: "隧道运行中，路由与 DNS 属正常", bundle: .wgLocalized) }
+        return hasResidue ? String(localized: "发现疑似残留的路由或 DNS", bundle: .wgLocalized) : String(localized: "无残留", bundle: .wgLocalized)
     }
 
     var exportText: String {
@@ -188,26 +188,26 @@ struct DaemonMaintenanceService {
         guard verified.ok else {
             return ShellCommandResult(
                 status: -1,
-                output: "Xtrim 服务不在线，未触碰系统 DNS 或路由；请导出诊断后单独处理：\(verified.message)"
+                output: String(localized: "Xtrim 服务不在线，未触碰系统 DNS 或路由；请导出诊断后单独处理：\(verified.message)", bundle: .wgLocalized)
             )
         }
         do {
             try await controlAPI.command("disconnect", timeout: 30)
-            return ShellCommandResult(status: 0, output: "已请求 Xtrim 清理它自身管理的隧道、DNS 和路由")
+            return ShellCommandResult(status: 0, output: String(localized: "已请求 Xtrim 清理它自身管理的隧道、DNS 和路由", bundle: .wgLocalized))
         } catch {
-            return ShellCommandResult(status: -1, output: "Xtrim 清理失败；未执行通用 DNS/路由删除：\(error.localizedDescription)")
+            return ShellCommandResult(status: -1, output: String(localized: "Xtrim 清理失败；未执行通用 DNS/路由删除：\(error.localizedDescription)", bundle: .wgLocalized))
         }
     }
 
     private func runPackagedScript(_ name: String, userArgument: Bool = false, timeout: TimeInterval) async -> ShellCommandResult {
         guard let script = packagedScriptPath(name) else {
-            return ShellCommandResult(status: -1, output: "App bundle 内缺少 \(name)")
+            return ShellCommandResult(status: -1, output: String(localized: "App bundle 内缺少 \(name)", bundle: .wgLocalized))
         }
         var command = ShellCommand.quote(script)
         if userArgument {
             let username = NSUserName()
             guard !username.isEmpty && username != "root" else {
-                return ShellCommandResult(status: -1, output: "无法确定登录用户")
+                return ShellCommandResult(status: -1, output: String(localized: "无法确定登录用户", bundle: .wgLocalized))
             }
             command += " \(ShellCommand.quote(username))"
         }
@@ -217,11 +217,11 @@ struct DaemonMaintenanceService {
     private func apiSummary() async -> (reachable: Bool, summary: String) {
         do {
             let status = try await controlAPI.status(timeout: 1.5)
-            let owner = status.app_owned == true ? "App 临时服务" : "系统/外部服务"
-            let mode = status.passive == true ? "被动" : "网络管理"
+            let owner = status.app_owned == true ? String(localized: "App 临时服务", bundle: .wgLocalized) : String(localized: "系统/外部服务", bundle: .wgLocalized)
+            let mode = status.passive == true ? String(localized: "被动", bundle: .wgLocalized) : String(localized: "网络管理", bundle: .wgLocalized)
             return (true, "\(owner) / \(mode) / \(status.state)")
         } catch {
-            return (false, "daemon API 未连接")
+            return (false, String(localized: "daemon API 未连接", bundle: .wgLocalized))
         }
     }
 

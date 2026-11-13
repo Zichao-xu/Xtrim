@@ -343,6 +343,9 @@ struct WgSignalMark: View {
 /// 章节标题：白色弱玻璃斜切块（小方块 + 标题）→ 带刻痕的延伸线 → 英文注记 → 附件按钮。
 /// `index` 参数保留兼容，不再显示（大号编号已按定稿去掉）。
 struct WgSectionMark<Accessory: View>: View {
+    /// 章节名玻璃块高度：标题字号上下各留半档 s。章节卡按它算压线位置和内容起点。
+    static var height: CGFloat { WgInk.sizeSection + WgSpace.s }
+
     var index: String = ""
     var title: LocalizedStringKey
     var caption: String = ""
@@ -358,7 +361,7 @@ struct WgSectionMark<Accessory: View>: View {
                     .foregroundStyle(WgInk.ink)
             }
             .wgPadding(.leading, .l).wgPadding(.trailing, .m)
-            .frame(height: 38)
+            .frame(height: Self.height)
             .wgGlassAccent(ChamferShape(tr: 12))
             WgRuler(opacity: 0.45)
             if !caption.isEmpty {

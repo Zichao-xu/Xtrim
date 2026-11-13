@@ -279,7 +279,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             linkMonitor.markUnavailable()
             if status != nil { status = nil }
             if transferState != nil { transferState = nil }
-            let message = serviceLifecycleError ?? "daemon 未连接"
+            let message = serviceLifecycleError ?? DaemonAPIClient.notConnectedMessage
             if errorMsg != message { errorMsg = message }
         }
     }
@@ -405,10 +405,10 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         do {
             try await controlAPI.shutdownAppOwnedDaemon()
             status = nil
-            errorMsg = "daemon 已关闭"
+            errorMsg = String(localized: "daemon 已关闭", bundle: .wgLocalized)
             return true
         } catch {
-            alertMsg = "关闭 daemon 失败: \(error.localizedDescription)"
+            alertMsg = String(localized: "关闭 daemon 失败: \(error.localizedDescription)", bundle: .wgLocalized)
             return false
         }
     }
@@ -430,8 +430,8 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         await runDaemonCommand("resume", showToast: false)
         await fetchStatus()
         showActionNotification(
-            title: "守护已重启",
-            detail: "\(networkSummary)。已交给守护按当前网络判断 VPN。",
+            title: String(localized: "守护已重启", bundle: .wgLocalized),
+            detail: String(localized: "\(networkSummary)。已交给守护按当前网络判断 VPN。", bundle: .wgLocalized),
             category: "restart",
             symbol: "arrow.triangle.2.circlepath",
             tint: .purple
@@ -444,8 +444,8 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             // 所有连接入口统一拦截，避免连上后被守护立即断开。
             if isGuardBlockingVPN {
                 showActionNotification(
-                    title: "在家由守护保持断开",
-                    detail: "受信任网络下守护不允许连接 VPN；需要时先关闭守护。",
+                    title: String(localized: "在家由守护保持断开", bundle: .wgLocalized),
+                    detail: String(localized: "受信任网络下守护不允许连接 VPN；需要时先关闭守护。", bundle: .wgLocalized),
                     category: "guard-block",
                     symbol: "shield.checkered",
                     tint: .orange
@@ -489,9 +489,9 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             showToast(for: "connect")
             clearPendingState()
         } catch {
-            let message = DaemonAPIClient.connectionMessage(error) == "daemon 未连接"
-                ? "无法连接 daemon"
-                : "连接失败：\(error.localizedDescription)"
+            let message = DaemonAPIClient.connectionMessage(error) == DaemonAPIClient.notConnectedMessage
+                ? String(localized: "无法连接 daemon", bundle: .wgLocalized)
+                : String(localized: "连接失败：\(error.localizedDescription)", bundle: .wgLocalized)
             revertAndAlert(oldStatus, message)
             await fetchStatus()
             clearPendingState()
@@ -521,9 +521,9 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             }
             clearPendingState()
         } catch {
-            let message = DaemonAPIClient.connectionMessage(error) == "daemon 未连接"
-                ? "无法连接 daemon"
-                : "操作失败：\(error.localizedDescription)"
+            let message = DaemonAPIClient.connectionMessage(error) == DaemonAPIClient.notConnectedMessage
+                ? String(localized: "无法连接 daemon", bundle: .wgLocalized)
+                : String(localized: "操作失败：\(error.localizedDescription)", bundle: .wgLocalized)
             revertAndAlert(oldStatus, message)
             clearPendingState()
         }
@@ -534,10 +534,12 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
     private func revertAndAlert(_ oldStatus: DaemonStatus?, _ msg: String) {
         status = oldStatus
         // 只对非连接类错误弹窗（连接失败用 errorMsg 内联显示即可）
-        if !msg.contains("Could not connect") && !msg.contains("无法连接") {
+        // 连接类错误的文字是本 App 按当前语言生成的（见上面 “无法连接 daemon”），按同一来源比较。
+        if !msg.contains("Could not connect") && !msg.contains("无法连接")
+            && !msg.hasPrefix(String(localized: "无法连接 daemon", bundle: .wgLocalized)) {
             alertMsg = msg
         } else {
-            errorMsg = "daemon 未运行"
+            errorMsg = String(localized: "daemon 未运行", bundle: .wgLocalized)
         }
     }
 
@@ -573,25 +575,25 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
     }
 
     private var currentIPText: String {
-        status?.primaryIPv4 ?? "未知"
+        status?.primaryIPv4 ?? String(localized: "未知", bundle: .wgLocalized)
     }
 
     private var networkSummary: String {
-        let network = status?.isTrustedNetwork == true ? "受信任网络" : "非受信任网络"
+        let network = status?.isTrustedNetwork == true ? String(localized: "受信任网络", bundle: .wgLocalized) : String(localized: "非受信任网络", bundle: .wgLocalized)
         return "\(network) · IP \(currentIPText)"
     }
 
     private var guardSummary: String {
-        if status?.paused == true { return "守护已暂停" }
-        if status?.desired_guard_enabled == true { return "守护运行中" }
-        return "守护未开启"
+        if status?.paused == true { return String(localized: "守护已暂停", bundle: .wgLocalized) }
+        if status?.desired_guard_enabled == true { return String(localized: "守护运行中", bundle: .wgLocalized) }
+        return String(localized: "守护未开启", bundle: .wgLocalized)
     }
 
     private func showToast(for endpoint: String) {
         switch endpoint {
         case "connect":
             showActionNotification(
-                title: "VPN 已开启",
+                title: String(localized: "VPN 已开启", bundle: .wgLocalized),
                 detail: networkSummary,
                 category: "vpn-connect",
                 symbol: "network",
@@ -599,24 +601,24 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             )
         case "disconnect":
             showActionNotification(
-                title: "VPN 已关闭",
-                detail: "\(guardSummary)。非信任网络下守护可能自动接管。",
+                title: String(localized: "VPN 已关闭", bundle: .wgLocalized),
+                detail: String(localized: "\(guardSummary)。非信任网络下守护可能自动接管。", bundle: .wgLocalized),
                 category: "vpn-disconnect",
                 symbol: "shield.slash",
                 tint: .red
             )
         case "pause":
             showActionNotification(
-                title: "守护已暂停",
-                detail: "自动开关已停止，VPN 不会被自动拉起。",
+                title: String(localized: "守护已暂停", bundle: .wgLocalized),
+                detail: String(localized: "自动开关已停止，VPN 不会被自动拉起。", bundle: .wgLocalized),
                 category: "guard-pause",
                 symbol: "pause.circle.fill",
                 tint: .orange
             )
         case "resume":
             showActionNotification(
-                title: "守护已恢复",
-                detail: "\(networkSummary)。将按规则自动处理 VPN。",
+                title: String(localized: "守护已恢复", bundle: .wgLocalized),
+                detail: String(localized: "\(networkSummary)。将按规则自动处理 VPN。", bundle: .wgLocalized),
                 category: "guard-resume",
                 symbol: "shield.checkered",
                 tint: .blue
@@ -689,7 +691,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             try await storeProfile(name, content: content)
             try await adoptIfNoActiveProfile(content)
         } catch {
-            alertMsg = "导入配置失败：\(error.localizedDescription)"
+            alertMsg = String(localized: "导入配置失败：\(error.localizedDescription)", bundle: .wgLocalized)
         }
     }
 
@@ -734,7 +736,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         // 1. 读取目标 profile 内容
         let content = await exportProfile(name: name)
         guard !content.isEmpty else {
-            alertMsg = "无法读取配置「\(name)」"
+            alertMsg = String(localized: "无法读取配置「\(name)」", bundle: .wgLocalized)
             return
         }
 
@@ -742,7 +744,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         do {
             try await storeProfile("default", content: content)
         } catch {
-            alertMsg = "切换配置失败：\(error.localizedDescription)"
+            alertMsg = String(localized: "切换配置失败：\(error.localizedDescription)", bundle: .wgLocalized)
             return
         }
 
@@ -759,7 +761,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             try await storeProfile(profile.name, content: profile.wireGuardConfig)
             try await adoptIfNoActiveProfile(profile.wireGuardConfig)
         } catch {
-            alertMsg = "保存配置失败：\(error.localizedDescription)"
+            alertMsg = String(localized: "保存配置失败：\(error.localizedDescription)", bundle: .wgLocalized)
             return
         }
         // 2. 再通知 daemon
@@ -767,7 +769,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             try await controlAPI.saveProfile(profile)
             await fetchProfiles()
         } catch {
-            alertMsg = "配置已保存到本机，但同步 daemon 失败：\(error.localizedDescription)"
+            alertMsg = String(localized: "配置已保存到本机，但同步 daemon 失败：\(error.localizedDescription)", bundle: .wgLocalized)
         }
     }
 
@@ -776,7 +778,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         do {
             try profileStore.deleteProfile(name)
         } catch {
-            alertMsg = "删除配置失败：\(error.localizedDescription)"
+            alertMsg = String(localized: "删除配置失败：\(error.localizedDescription)", bundle: .wgLocalized)
             return
         }
         // 2. 再通知 daemon
@@ -784,7 +786,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             try await controlAPI.deleteProfile(name: name)
             await fetchProfiles()
         } catch {
-            alertMsg = "配置已从本机删除，但同步 daemon 失败：\(error.localizedDescription)"
+            alertMsg = String(localized: "配置已从本机删除，但同步 daemon 失败：\(error.localizedDescription)", bundle: .wgLocalized)
         }
     }
 
@@ -806,10 +808,10 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
                 autoUpGraceSeconds: autoUpGraceSeconds,
                 healthCheckTarget: healthCheckTarget
             )
-            alertMsg = "配置已应用到 daemon"
+            alertMsg = String(localized: "配置已应用到 daemon", bundle: .wgLocalized)
             return true
         } catch {
-            alertMsg = "配置应用失败: \(error.localizedDescription)"
+            alertMsg = String(localized: "配置应用失败: \(error.localizedDescription)", bundle: .wgLocalized)
             return false
         }
     }
@@ -838,7 +840,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         do {
             try await storeProfile(name, content: content)
         } catch {
-            alertMsg = "更新配置失败：\(error.localizedDescription)"
+            alertMsg = String(localized: "更新配置失败：\(error.localizedDescription)", bundle: .wgLocalized)
             return
         }
         // 如果是当前使用的 profile，同步到 default 并重连
@@ -846,7 +848,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             do {
                 try await storeProfile("default", content: content)
             } catch {
-                alertMsg = "配置已更新，但应用到当前连接失败：\(error.localizedDescription)"
+                alertMsg = String(localized: "配置已更新，但应用到当前连接失败：\(error.localizedDescription)", bundle: .wgLocalized)
             }
         }
     }
@@ -891,7 +893,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             transferDevices += devices.filter { !existingIDs.contains($0.id) }
             return devices
         } catch {
-            alertMsg = "扫描失败: \(error.localizedDescription)"
+            alertMsg = String(localized: "扫描失败: \(error.localizedDescription)", bundle: .wgLocalized)
             return []
         }
     }
@@ -905,7 +907,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             }
             return device
         } catch {
-            alertMsg = "添加设备失败: \(error.localizedDescription)"
+            alertMsg = String(localized: "添加设备失败: \(error.localizedDescription)", bundle: .wgLocalized)
             return nil
         }
     }
@@ -966,7 +968,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             mihomoError = nil
             return true
         } catch {
-            alertMsg = (running ? "启动" : "停止") + "内置代理内核失败: \(error.localizedDescription)"
+            alertMsg = (running ? String(localized: "启动", bundle: .wgLocalized) : String(localized: "停止", bundle: .wgLocalized)) + String(localized: "内置代理内核失败: \(error.localizedDescription)", bundle: .wgLocalized)
             await fetchMihomo()
             return false
         }
@@ -1028,7 +1030,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             let outdated = await serviceLacksMihomoImport()
             // ① 趁 WireGuard 还连着（在外也能到路由器）先把 op 的配置拉到本机
             exitProgress = outdated || mihomo?.geo_ready != true
-                ? "正在从 op 拉取配置（含 GEO 库，约 13 MB）" : "正在从 op 拉取配置"
+                ? String(localized: "正在从 op 拉取配置（含 GEO 库，约 13 MB）", bundle: .wgLocalized) : String(localized: "正在从 op 拉取配置", bundle: .wgLocalized)
             var fetched: (bundle: URL, origin: String, selections: [String: String])?
             var fetchError: String?
             do {
@@ -1043,7 +1045,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             }
             // ③ 导入刚拉到的配置；拉不到但已有上次同步的配置就沿用
             if let fetched {
-                exitProgress = "正在导入 op 的配置"
+                exitProgress = String(localized: "正在导入 op 的配置", bundle: .wgLocalized)
                 do {
                     _ = try await importMihomo(bundle: fetched.bundle.path, origin: fetched.origin,
                                                selections: fetched.selections)
@@ -1053,16 +1055,16 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             }
             await fetchMihomo()
             if mihomo?.source == nil {
-                alertMsg = "切换到 mihomo 需要 op 的配置：\(fetchError ?? "还没有同步过")"
+                alertMsg = String(localized: "切换到 mihomo 需要 op 的配置：\(fetchError ?? String(localized: "还没有同步过", bundle: .wgLocalized))", bundle: .wgLocalized)
                 await restoreWireGuardIfNeeded()
                 return
             }
         }
-        exitProgress = "正在切换到 \(exit.title)"
+        exitProgress = String(localized: "正在切换到 \(exit.title)", bundle: .wgLocalized)
         do {
             try await controlAPI.setExit(exit.rawValue)
         } catch {
-            alertMsg = "切换到 \(exit.title) 失败: \(error.localizedDescription)"
+            alertMsg = String(localized: "切换到 \(exit.title) 失败: \(error.localizedDescription)", bundle: .wgLocalized)
         }
         await fetchStatus()
         await fetchMihomo()
@@ -1093,7 +1095,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
     private func upgradeServiceForExit() async -> Bool {
         let wasConnected = isTunnelUp
         if wasConnected {
-            exitProgress = "正在断开 WireGuard"
+            exitProgress = String(localized: "正在断开 WireGuard", bundle: .wgLocalized)
             _ = try? await api.request("api/disconnect", method: "POST", timeout: 30)
             for _ in 0..<20 {
                 await fetchStatus()
@@ -1101,7 +1103,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
                 try? await Task.sleep(for: .milliseconds(500))
             }
         }
-        exitProgress = "正在更新网络服务"
+        exitProgress = String(localized: "正在更新网络服务", bundle: .wgLocalized)
         let ok = await ensureDaemon(requireActive: true, authorizeIfNeeded: true)
         if ok {
             // 新服务起来后才会报 exit 字段
@@ -1113,7 +1115,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             await fetchMihomo()
         }
         guard ok, status?.exit != nil else {
-            alertMsg = "更新网络服务失败，未切换出口: \(serviceLifecycleError ?? "新服务未就绪")"
+            alertMsg = String(localized: "更新网络服务失败，未切换出口: \(serviceLifecycleError ?? String(localized: "新服务未就绪", bundle: .wgLocalized))", bundle: .wgLocalized)
             if wasConnected { _ = try? await api.request("api/connect", method: "POST", timeout: 60) }
             await fetchStatus()
             return false
@@ -1141,7 +1143,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             await fetchStatus()
             return true
         } catch {
-            alertMsg = "保存隧道 IPv6 设置失败: \(error.localizedDescription)"
+            alertMsg = String(localized: "保存隧道 IPv6 设置失败: \(error.localizedDescription)", bundle: .wgLocalized)
             return false
         }
     }
@@ -1154,7 +1156,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             await fetchStatus()
             return true
         } catch {
-            alertMsg = "保存出站拦截设置失败: \(error.localizedDescription)"
+            alertMsg = String(localized: "保存出站拦截设置失败: \(error.localizedDescription)", bundle: .wgLocalized)
             return false
         }
     }
@@ -1165,7 +1167,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             transferState = try await transferAPI.setReceiveEnabled(enabled)
             return true
         } catch {
-            alertMsg = "\(enabled ? "启动" : "停止")接收服务失败: \(error.localizedDescription)"
+            alertMsg = String(localized: "\(enabled ? String(localized: "启动", bundle: .wgLocalized) : String(localized: "停止", bundle: .wgLocalized))接收服务失败: \(error.localizedDescription)", bundle: .wgLocalized)
             return false
         }
     }
@@ -1177,7 +1179,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             await fetchTransferState()
             return true
         } catch {
-            alertMsg = "处理接收请求失败: \(error.localizedDescription)"
+            alertMsg = String(localized: "处理接收请求失败: \(error.localizedDescription)", bundle: .wgLocalized)
             return false
         }
     }
@@ -1189,7 +1191,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             await fetchTransferTasks()
             return task
         } catch {
-            alertMsg = "发送失败: \(error.localizedDescription)"
+            alertMsg = String(localized: "发送失败: \(error.localizedDescription)", bundle: .wgLocalized)
             return nil
         }
     }
@@ -1214,7 +1216,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             await fetchTransferTasks()
             return true
         } catch {
-            alertMsg = "取消发送失败: \(error.localizedDescription)"
+            alertMsg = String(localized: "取消发送失败: \(error.localizedDescription)", bundle: .wgLocalized)
             return false
         }
     }
@@ -1223,7 +1225,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
     func startDaemonForTransfer() async -> Bool {
         let ok = await ensureDaemon(requireActive: false, authorizeIfNeeded: true)
         guard ok else {
-            transferError = errorMsg ?? "后台服务启动失败"
+            transferError = errorMsg ?? String(localized: "后台服务启动失败", bundle: .wgLocalized)
             return false
         }
         await fetchTransferState()
@@ -1319,7 +1321,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             proxyStatus = nil
             proxyServiceRunning = false
             proxyRunning = false
-            proxyFailure(error, prefix: "读取代理状态失败")
+            proxyFailure(error, prefix: String(localized: "读取代理状态失败", bundle: .wgLocalized))
         }
     }
 
@@ -1328,9 +1330,9 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         await fetchProxySettings()
         await fetchProxyStatus()
         if ok {
-            proxyNotice = proxyRunning ? "后台服务已启动，控制器连接成功" : "后台服务已启动，请检查控制器地址与密钥"
+            proxyNotice = proxyRunning ? String(localized: "后台服务已启动，控制器连接成功", bundle: .wgLocalized) : String(localized: "后台服务已启动，请检查控制器地址与密钥", bundle: .wgLocalized)
         } else {
-            proxyError = errorMsg ?? "后台服务启动失败"
+            proxyError = errorMsg ?? String(localized: "后台服务启动失败", bundle: .wgLocalized)
         }
         return ok
     }
@@ -1345,7 +1347,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             proxyRunning = result.status.connected
             proxyError = result.status.connected ? nil : result.status.lastError
         } catch {
-            proxyFailure(error, prefix: "读取控制器设置失败")
+            proxyFailure(error, prefix: String(localized: "读取控制器设置失败", bundle: .wgLocalized))
         }
     }
 
@@ -1372,10 +1374,10 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             proxyServiceRunning = result.status.running
             proxyRunning = result.status.connected
             proxyError = result.status.connected ? nil : result.status.lastError
-            proxyNotice = result.status.connected ? "控制器连接成功" : "设置已保存，连接测试失败"
+            proxyNotice = result.status.connected ? String(localized: "控制器连接成功", bundle: .wgLocalized) : String(localized: "设置已保存，连接测试失败", bundle: .wgLocalized)
             return result.status.connected
         } catch {
-            proxyFailure(error, prefix: "保存控制器设置失败")
+            proxyFailure(error, prefix: String(localized: "保存控制器设置失败", bundle: .wgLocalized))
             return false
         }
     }
@@ -1385,7 +1387,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             mihomoVersion = try await proxyAPI.version()
         } catch {
             mihomoVersion = nil
-            proxyFailure(error, prefix: "读取核心版本失败")
+            proxyFailure(error, prefix: String(localized: "读取核心版本失败", bundle: .wgLocalized))
         }
     }
 
@@ -1395,14 +1397,14 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             proxies = result.proxies
             proxyError = nil
         } catch {
-            proxyFailure(error, prefix: "读取代理节点失败")
+            proxyFailure(error, prefix: String(localized: "读取代理节点失败", bundle: .wgLocalized))
         }
     }
 
     func selectProxy(group: String, name: String) async -> Bool {
         let ok = await runProxyCommand(
             { try await proxyAPI.selectProxy(group: group, name: name) },
-            success: "已切换到 \(name)"
+            success: String(localized: "已切换到 \(name)", bundle: .wgLocalized)
         )
         if ok { await fetchProxies() }
         return ok
@@ -1412,7 +1414,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         do {
             return try await proxyAPI.delay(name: name)
         } catch {
-            proxyFailure(error, prefix: "延迟测试失败")
+            proxyFailure(error, prefix: String(localized: "延迟测试失败", bundle: .wgLocalized))
             return nil
         }
     }
@@ -1421,7 +1423,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         do {
             return try await proxyAPI.groupDelay(group: group)
         } catch {
-            proxyFailure(error, prefix: "策略组延迟测试失败")
+            proxyFailure(error, prefix: String(localized: "策略组延迟测试失败", bundle: .wgLocalized))
             return nil
         }
     }
@@ -1430,7 +1432,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         do {
             connections = try await proxyAPI.connections()
         } catch {
-            proxyFailure(error, prefix: "读取连接失败")
+            proxyFailure(error, prefix: String(localized: "读取连接失败", bundle: .wgLocalized))
         }
     }
 
@@ -1443,7 +1445,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
     func closeAllConnections() async -> Bool {
         let ok = await runProxyCommand(
             { try await proxyAPI.closeAllConnections() },
-            success: "已关闭全部连接"
+            success: String(localized: "已关闭全部连接", bundle: .wgLocalized)
         )
         if ok { await fetchConnections() }
         return ok
@@ -1454,7 +1456,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             let result = try await proxyAPI.rules()
             rules = result.rules
         } catch {
-            proxyFailure(error, prefix: "读取规则失败")
+            proxyFailure(error, prefix: String(localized: "读取规则失败", bundle: .wgLocalized))
         }
     }
 
@@ -1463,7 +1465,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             let result = try await proxyAPI.proxyProviders()
             proxyProviders = result.providers
         } catch {
-            proxyFailure(error, prefix: "读取订阅失败")
+            proxyFailure(error, prefix: String(localized: "读取订阅失败", bundle: .wgLocalized))
         }
     }
 
@@ -1472,7 +1474,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             let result = try await proxyAPI.ruleProviders()
             ruleProviders = result.providers
         } catch {
-            proxyFailure(error, prefix: "读取规则集失败")
+            proxyFailure(error, prefix: String(localized: "读取规则集失败", bundle: .wgLocalized))
         }
     }
 
@@ -1480,14 +1482,14 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         do {
             mihomoConfig = try await proxyAPI.config()
         } catch {
-            proxyFailure(error, prefix: "读取运行配置失败")
+            proxyFailure(error, prefix: String(localized: "读取运行配置失败", bundle: .wgLocalized))
         }
     }
 
     func updateProvider(name: String) async -> Bool {
         let ok = await runProxyCommand(
             { try await proxyAPI.updateProvider(name: name) },
-            success: "订阅 \(name) 已更新"
+            success: String(localized: "订阅 \(name) 已更新", bundle: .wgLocalized)
         )
         if ok { await fetchProxyProviders(); await fetchProxies() }
         return ok
@@ -1496,14 +1498,14 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
     func healthCheckProvider(name: String) async -> Bool {
         await runProxyCommand(
             { try await proxyAPI.healthCheckProvider(name: name) },
-            success: "订阅 \(name) 延迟测试完成"
+            success: String(localized: "订阅 \(name) 延迟测试完成", bundle: .wgLocalized)
         )
     }
 
     func updateRuleProvider(name: String) async -> Bool {
         let ok = await runProxyCommand(
             { try await proxyAPI.updateRuleProvider(name: name) },
-            success: "规则集 \(name) 已更新"
+            success: String(localized: "规则集 \(name) 已更新", bundle: .wgLocalized)
         )
         if ok { await fetchRuleProviders(); await fetchRules() }
         return ok
@@ -1519,15 +1521,15 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
     }
 
     func updateProxyMode(_ mode: String) async -> Bool {
-        await patchProxyConfig(["mode": mode], success: "运行模式已切换为 \(mode.uppercased())")
+        await patchProxyConfig(["mode": mode], success: String(localized: "运行模式已切换为 \(mode.uppercased())", bundle: .wgLocalized))
     }
 
     func updateProxyTUN(_ enabled: Bool) async -> Bool {
-        await patchProxyConfig(["tun": ["enable": enabled]], success: enabled ? "TUN 已启用" : "TUN 已停用")
+        await patchProxyConfig(["tun": ["enable": enabled]], success: enabled ? String(localized: "TUN 已启用", bundle: .wgLocalized) : String(localized: "TUN 已停用", bundle: .wgLocalized))
     }
 
     func updateProxyAllowLAN(_ enabled: Bool) async -> Bool {
-        await patchProxyConfig(["allow-lan": enabled], success: enabled ? "局域网访问已允许" : "局域网访问已关闭")
+        await patchProxyConfig(["allow-lan": enabled], success: enabled ? String(localized: "局域网访问已允许", bundle: .wgLocalized) : String(localized: "局域网访问已关闭", bundle: .wgLocalized))
     }
 
     func performProxyAction(_ action: String, success: String) async -> Bool {
@@ -1538,7 +1540,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
     }
 
     func flushFakeIP() async -> Bool {
-        await performProxyAction("flush-fakeip", success: "FakeIP 缓存已清除")
+        await performProxyAction("flush-fakeip", success: String(localized: "FakeIP 缓存已清除", bundle: .wgLocalized))
     }
 
     func queryProxyDNS(name: String, type: String) async -> Bool {
@@ -1548,7 +1550,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
             return true
         } catch {
             dnsQueryResult = nil
-            proxyFailure(error, prefix: "DNS 查询失败")
+            proxyFailure(error, prefix: String(localized: "DNS 查询失败", bundle: .wgLocalized))
             return false
         }
     }
@@ -1560,7 +1562,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
                 proxyLogs = result.logs
             }
         } catch {
-            proxyFailure(error, prefix: "读取 Mihomo 日志失败")
+            proxyFailure(error, prefix: String(localized: "读取 Mihomo 日志失败", bundle: .wgLocalized))
         }
     }
 }
@@ -1617,7 +1619,7 @@ final class DaemonServiceCoordinator {
         if case .firstLaunch = mode {
             if firstLaunchStarted {
                 if let operation, operationMode == .firstLaunch { return await operation.value }
-                return firstLaunchOutcome ?? .failure("首次安装正在检查")
+                return firstLaunchOutcome ?? .failure(String(localized: "首次安装正在检查", bundle: .wgLocalized))
             }
             firstLaunchStarted = true
         }
@@ -1660,7 +1662,7 @@ final class DaemonServiceCoordinator {
     private func performRestart() async -> Outcome {
         let checked = await perform(.readOnly)
         guard checked.ok else { return checked }
-        guard let before = await serviceIdentity() else { return .failure("无法读取重启前的系统服务状态") }
+        guard let before = await serviceIdentity() else { return .failure(String(localized: "无法读取重启前的系统服务状态", bundle: .wgLocalized)) }
         var requestError: Error?
         do {
             _ = try await api.request("api/service/restart", method: "POST", timeout: 5)
@@ -1676,40 +1678,40 @@ final class DaemonServiceCoordinator {
                after.pid != before.pid { return .ready }
         }
         if let requestError {
-            return .failure("无法确认系统服务已重启：\(requestError.localizedDescription)")
+            return .failure(String(localized: "无法确认系统服务已重启：\(requestError.localizedDescription)", bundle: .wgLocalized))
         }
-        return .failure("系统服务重启后未按时就绪；请查看维护诊断")
+        return .failure(String(localized: "系统服务重启后未按时就绪；请查看维护诊断", bundle: .wgLocalized))
     }
 
     private func perform(_ mode: Mode) async -> Outcome {
         guard let daemon = Bundle.main.path(forResource: "wgsense-daemon", ofType: nil, inDirectory: "libexec"),
               let mover = Bundle.main.path(forResource: "wgsense-receive-mover", ofType: "sh", inDirectory: "packaging"),
               FileManager.default.isExecutableFile(atPath: daemon) else {
-            return .failure("安装包缺少后台服务文件，请重新安装完整的 Xtrim App")
+            return .failure(String(localized: "安装包缺少后台服务文件，请重新安装完整的 Xtrim App", bundle: .wgLocalized))
         }
         let expectedHash: String
         do {
             let bytes = try Data(contentsOf: URL(fileURLWithPath: daemon))
             expectedHash = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
         } catch {
-            return .failure("无法校验后台服务文件：\(error.localizedDescription)")
+            return .failure(String(localized: "无法校验后台服务文件：\(error.localizedDescription)", bundle: .wgLocalized))
         }
 
         if let identity = await serviceIdentity() {
             if let mismatch = identityProblem(identity) { return .failure(mismatch) }
             if mode == .stopOnly {
-                return identity.ready ? .ready : .failure("Xtrim 服务尚未就绪，无法安全断开")
+                return identity.ready ? .ready : .failure(String(localized: "Xtrim 服务尚未就绪，无法安全断开", bundle: .wgLocalized))
             }
             if identity.binary_sha256.lowercased() == expectedHash && identity.ready { return .ready }
             if identity.binary_sha256.lowercased() != expectedHash {
-                if mode == .readOnly { return .failure("系统服务版本与 App 不一致；请先完成升级") }
+                if mode == .readOnly { return .failure(String(localized: "系统服务版本与 App 不一致；请先完成升级", bundle: .wgLocalized)) }
                 if let running = try? await controlAPI.status(timeout: 1.5), running.state == "Connected" {
-                    return .failure("旧版 Xtrim 隧道仍在运行；请先断开，再升级后台服务")
+                    return .failure(String(localized: "旧版 Xtrim 隧道仍在运行；请先断开，再升级后台服务", bundle: .wgLocalized))
                 }
                 return await submitUpdate(daemon: daemon, mover: mover, expectedHash: expectedHash)
             }
             if await waitForIdentity(expectedHash: expectedHash, seconds: 10) { return .ready }
-            return .failure("系统服务未就绪；请在维护面板查看诊断")
+            return .failure(String(localized: "系统服务未就绪；请在维护面板查看诊断", bundle: .wgLocalized))
         }
 
         let hasPlist = FileManager.default.fileExists(atPath: plistPath)
@@ -1722,20 +1724,20 @@ final class DaemonServiceCoordinator {
             // An old daemon can be migrated by the installer; an offline
             // registered job should be diagnosed rather than repeatedly prompting.
             if (try? await controlAPI.status(timeout: 1.5)) == nil && mode != .maintenance {
-                return .failure("系统服务已安装但未运行；请在维护面板检查或明确选择修复")
+                return .failure(String(localized: "系统服务已安装但未运行；请在维护面板检查或明确选择修复", bundle: .wgLocalized))
             }
         }
         if let legacy = try? await controlAPI.status(timeout: 1.5),
            legacy.app_owned == true && legacy.state == "Connected" {
-            return .failure("旧版临时 VPN 正在运行；请先在旧版中断开，再安装常驻服务")
+            return .failure(String(localized: "旧版临时 VPN 正在运行；请先在旧版中断开，再安装常驻服务", bundle: .wgLocalized))
         }
 
-        guard mode != .readOnly && mode != .stopOnly else { return .failure("系统服务尚未安装或无法识别") }
+        guard mode != .readOnly && mode != .stopOnly else { return .failure(String(localized: "系统服务尚未安装或无法识别", bundle: .wgLocalized)) }
         // 同一安装包上次已由安装程序判定失败：再弹密码也只会同样失败。自动路径（启动、
         // 点连接/守护）到此为止，只有维护/重试入口才再次提权。取消密码框不写失败记录，不受影响。
         if mode != .maintenance, let last = readInstallResult(), last.status == "error",
            last.binary_sha256?.lowercased() == expectedHash {
-            var outcome = Outcome.failure("后台服务安装失败：\(last.message ?? "未知原因")")
+            var outcome = Outcome.failure(String(localized: "后台服务安装失败：\(last.message ?? String(localized: "未知原因", bundle: .wgLocalized))", bundle: .wgLocalized))
             outcome.needsExplicitRetry = true
             return outcome
         }
@@ -1744,7 +1746,7 @@ final class DaemonServiceCoordinator {
 
     private func identityProblem(_ identity: ServiceIdentity) -> String? {
         if identity.`protocol` != 1 || !identity.managed || identity.owner_uid != Int(getuid()) {
-            return "当前端口不是本用户可用的 Xtrim 系统服务；请检查是否有旧进程占用"
+            return String(localized: "当前端口不是本用户可用的 Xtrim 系统服务；请检查是否有旧进程占用", bundle: .wgLocalized)
         }
         return nil
     }
@@ -1764,7 +1766,7 @@ final class DaemonServiceCoordinator {
                 timeout: 10
             )
             guard submission.binary_sha256.lowercased() == expectedHash else {
-                return .failure("后台服务升级任务的版本校验不匹配")
+                return .failure(String(localized: "后台服务升级任务的版本校验不匹配", bundle: .wgLocalized))
             }
             return await waitForOperation(submission, expectedHash: expectedHash)
         } catch {
@@ -1785,27 +1787,27 @@ final class DaemonServiceCoordinator {
                     )
                 }
                 if receipt.status == "error" {
-                    return .failure(receipt.message ?? "后台服务升级失败，旧服务已保留")
+                    return .failure(receipt.message ?? String(localized: "后台服务升级失败，旧服务已保留", bundle: .wgLocalized))
                 }
             }
-            return .failure("后台服务升级未提交：\(error.localizedDescription)")
+            return .failure(String(localized: "后台服务升级未提交：\(error.localizedDescription)", bundle: .wgLocalized))
         }
     }
 
     private func submitInstall(daemon: String, mover: String, expectedHash: String) async -> Outcome {
         guard let script = Bundle.main.path(forResource: "wgsense-install-services", ofType: "sh", inDirectory: "packaging") else {
-            return .failure("安装包缺少系统服务安装脚本")
+            return .failure(String(localized: "安装包缺少系统服务安装脚本", bundle: .wgLocalized))
         }
         let username = NSUserName()
-        guard !username.isEmpty && username != "root" else { return .failure("无法确定登录用户") }
+        guard !username.isEmpty && username != "root" else { return .failure(String(localized: "无法确定登录用户", bundle: .wgLocalized)) }
         let command = [script, daemon, mover, username].map(ShellCommand.quote).joined(separator: " ")
         let result = await ShellCommand.administrator(command, timeout: 120)
         guard result.succeeded else {
-            return .failure("系统服务安装被取消或失败：\(result.output.trimmingCharacters(in: .whitespacesAndNewlines))")
+            return .failure(String(localized: "系统服务安装被取消或失败：\(result.output.trimmingCharacters(in: .whitespacesAndNewlines))", bundle: .wgLocalized))
         }
         guard let submission = try? JSONDecoder().decode(Submission.self, from: Data(result.output.utf8)),
               submission.binary_sha256.lowercased() == expectedHash else {
-            return .failure("安装程序未返回可验证的任务编号；请查看维护诊断")
+            return .failure(String(localized: "安装程序未返回可验证的任务编号；请查看维护诊断", bundle: .wgLocalized))
         }
         return await waitForOperation(submission, expectedHash: expectedHash)
     }
@@ -1826,11 +1828,11 @@ final class DaemonServiceCoordinator {
         while Date() < deadline {
             if let receipt = readInstallResult(), receipt.operation_id == submission.operation_id {
                 if receipt.status == "error" {
-                    return .failure(receipt.message ?? "后台服务安装或升级失败，旧服务已保留")
+                    return .failure(receipt.message ?? String(localized: "后台服务安装或升级失败，旧服务已保留", bundle: .wgLocalized))
                 }
                 if receipt.status == "success" {
                     guard receipt.binary_sha256?.lowercased() == expectedHash else {
-                        return .failure("安装记录的版本与 App 不一致")
+                        return .failure(String(localized: "安装记录的版本与 App 不一致", bundle: .wgLocalized))
                     }
                     committed = true
                 }
@@ -1839,7 +1841,7 @@ final class DaemonServiceCoordinator {
                identity.ready && identity.binary_sha256.lowercased() == expectedHash { return .ready }
             try? await Task.sleep(for: .seconds(1))
         }
-        return .failure("等待后台服务就绪超时；请在维护面板查看安装结果")
+        return .failure(String(localized: "等待后台服务就绪超时；请在维护面板查看安装结果", bundle: .wgLocalized))
     }
 
     private func readInstallResult() -> InstallResult? {

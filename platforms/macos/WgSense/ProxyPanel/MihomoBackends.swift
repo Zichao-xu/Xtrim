@@ -98,7 +98,7 @@ final class MihomoBackendStore: ObservableObject {
     }
 
     /// 本机内核后端上编辑规则时的说明。
-    static let localReadOnlyNote = "本机内核的配置从 op 同步而来，在这里改会被下次同步覆盖：请在 op 上改，再到 VPN 板块的 mihomo 页点「从 op 同步」"
+    static let localReadOnlyNote = String(localized: "本机内核的配置从 op 同步而来，在这里改会被下次同步覆盖：请在 op 上改，再到 VPN 板块的 mihomo 页点「从 op 同步」", bundle: .wgLocalized)
 
     /// 本机内核后端的固定 ID。
     static let localID = UUID(uuidString: "00000000-0000-4000-8000-00000000e415")!
@@ -115,7 +115,7 @@ final class MihomoBackendStore: ObservableObject {
         let parts = address.split(separator: ":")
         guard parts.count == 2, let port = Int(parts[1]) else { return }
         var backend = backends.first { $0.isLocal }
-            ?? MihomoBackend(id: Self.localID, label: "本机内核", scheme: "http", host: String(parts[0]), port: port)
+            ?? MihomoBackend(id: Self.localID, label: String(localized: "本机内核", bundle: .wgLocalized), scheme: "http", host: String(parts[0]), port: port)
         backend.host = String(parts[0])
         backend.port = port
         let changed = backends.first { $0.isLocal } != backend || MihomoKeychain.secret(for: Self.localID) != secret

@@ -32,7 +32,7 @@ extension DaemonClient {
         guard let s = status else {
             if serviceNeedsRetry {
                 return .init(phase: .setupFailed, title: "后台服务未安装",
-                             detail: LocalizedStringKey(serviceLifecycleError ?? "安装失败"),
+                             detail: LocalizedStringKey(serviceLifecycleError ?? String(localized: "安装失败", bundle: .wgLocalized)),
                              symbol: "exclamationmark.triangle.fill", tint: .orange)
             }
             if isAuthorizingDaemon {

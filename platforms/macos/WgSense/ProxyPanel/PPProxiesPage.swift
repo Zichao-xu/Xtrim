@@ -22,7 +22,7 @@ struct PPProxiesPage: View {
     @ViewBuilder
     private var content: some View {
         if backends.active == nil {
-            PPEmptyState(symbol: "server.rack", title: "还没有后端", detail: "在代理设置中添加 Clash / Mihomo 控制器")
+            PPEmptyState(symbol: "server.rack", title: "还没有后端", detail: String(localized: "在代理设置中添加 Clash / Mihomo 控制器", bundle: .wgLocalized))
         } else if let error = store.lastError, store.proxyMap.isEmpty {
             PPEmptyState(symbol: "exclamationmark.triangle.fill", title: "无法连接后端", detail: error)
         } else if store.proxyMap.isEmpty {
@@ -208,10 +208,8 @@ private struct PPGroupList: View {
                         .tint(WgInk.control)
                 )
             })
-            // 刻度条放在左侧页边距里（列表本身左侧留有页面内边距）。
-            .overlay(alignment: .leading) {
-                WgScrollRail(model: rail).offset(x: -26).wgPadding(.vertical, .m)
-            }
+            // 刻度条由页面区统一画在左侧页边距里，这里只上报滚动来源。
+            .wgPublishesScrollRail(rail)
         }
     }
 }
@@ -535,7 +533,7 @@ private struct PPPenetrationSection: View {
                 .disabled(!canPenetrate)
                 Spacer()
                 // 自绘分段：系统分段控件是 AppKit 视图，每个组各建一个，滚动时创建与命中测试都偏重。
-                PPSegmented(options: [("逐层穿透", PPPenetrationMode.stepwise), ("穿透到底", PPPenetrationMode.full)],
+                PPSegmented(options: [(String(localized: "逐层穿透", bundle: .wgLocalized), PPPenetrationMode.stepwise), (String(localized: "穿透到底", bundle: .wgLocalized), PPPenetrationMode.full)],
                             selection: mode) { newMode in
                     store.penetrationModeMap[root] = newMode.rawValue
                     lastSelectedGroup = ""
@@ -597,7 +595,7 @@ private struct PPProviderList: View {
     var body: some View {
         if store.providers.isEmpty {
             PPEmptyState(symbol: "tray", title: "没有订阅",
-                         detail: "当前配置里没有 http/file 类型的代理提供商（Compatible 与 default 不在此列出）")
+                         detail: String(localized: "当前配置里没有 http/file 类型的代理提供商（Compatible 与 default 不在此列出）", bundle: .wgLocalized))
         } else {
             ScrollView {
                 LazyVStack(spacing: WgSpace.m) {
@@ -673,17 +671,17 @@ private struct PPProviderCard: View {
     }
 
     private func expireText(_ info: MihomoSubscriptionInfo) -> String {
-        guard info.expire > 0 else { return "不限时" }
+        guard info.expire > 0 else { return String(localized: "不限时", bundle: .wgLocalized) }
         let date = Date(timeIntervalSince1970: TimeInterval(info.expire))
         let f = DateFormatter()
         f.dateFormat = "yyyy-MM-dd"
-        return "到期时间 \(f.string(from: date))"
+        return String(localized: "到期时间 \(f.string(from: date))", bundle: .wgLocalized)
     }
 
     private func usageText(_ info: MihomoSubscriptionInfo) -> String {
         let used = info.upload + info.download
         let fmt = ByteCountFormatter()
-        guard info.total > 0 else { return "已使用 \(fmt.string(fromByteCount: used))" }
+        guard info.total > 0 else { return String(localized: "已使用 \(fmt.string(fromByteCount: used))", bundle: .wgLocalized) }
         return "\(fmt.string(fromByteCount: used)) / \(fmt.string(fromByteCount: info.total))"
     }
 }

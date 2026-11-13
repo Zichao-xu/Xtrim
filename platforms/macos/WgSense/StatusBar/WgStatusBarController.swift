@@ -122,7 +122,7 @@ final class WgStatusBarController: NSObject, NSMenuDelegate, NSWindowDelegate {
         let download = settings.showDownload
             ? "↓ \(MenuBarSpeedFormatter.speed(speed.downloadBytesPerSecond, useBitsPerSecond: bits))"
             : nil
-        speedView.update(upload: upload ?? (download == nil ? "网速" : nil), download: download)
+        speedView.update(upload: upload ?? (download == nil ? String(localized: "网速", bundle: .wgLocalized) : nil), download: download)
     }
 
     private func updateClock(force: Bool = false) {
@@ -143,7 +143,7 @@ final class WgStatusBarController: NSObject, NSMenuDelegate, NSWindowDelegate {
             day: calendar.component(.day, from: now),
             weekday: calendar.component(.weekday, from: now)
         )
-        statusItem.button?.toolTip = "Xtrim · 时区：\(displayedTimeZoneName)"
+        statusItem.button?.toolTip = String(localized: "Xtrim · 时区：\(displayedTimeZoneName)", bundle: .wgLocalized)
     }
 
     private func applyDateStyle() {
@@ -152,7 +152,7 @@ final class WgStatusBarController: NSObject, NSMenuDelegate, NSWindowDelegate {
 
     private var displayedTimeZoneName: String {
         settings.timeZoneIdentifier == "system"
-            ? "跟随系统（\(TimeZone.autoupdatingCurrent.identifier)）"
+            ? String(localized: "跟随系统（\(TimeZone.autoupdatingCurrent.identifier)）", bundle: .wgLocalized)
             : settings.timeZoneIdentifier
     }
 
@@ -229,30 +229,30 @@ final class WgStatusBarController: NSObject, NSMenuDelegate, NSWindowDelegate {
     private func makeComponentMenu() -> NSMenu {
         let menu = NSMenu()
 
-        menu.addItem(header("菜单栏组件"))
-        menu.addItem(toggle("实时网速", settings.showSpeed) { $0.showSpeed.toggle() })
-        menu.addItem(toggle("日期", settings.showDate) { $0.showDate.toggle() })
-        menu.addItem(toggle("时间", settings.showTime) { $0.showTime.toggle() })
+        menu.addItem(header(String(localized: "菜单栏组件", bundle: .wgLocalized)))
+        menu.addItem(toggle(String(localized: "实时网速", bundle: .wgLocalized), settings.showSpeed) { $0.showSpeed.toggle() })
+        menu.addItem(toggle(String(localized: "日期", bundle: .wgLocalized), settings.showDate) { $0.showDate.toggle() })
+        menu.addItem(toggle(String(localized: "时间", bundle: .wgLocalized), settings.showTime) { $0.showTime.toggle() })
 
         menu.addItem(.separator())
-        menu.addItem(header("实时网速 · 统计物理网络接口"))
-        menu.addItem(toggle("显示上传速度", settings.showUpload) { $0.showUpload.toggle() })
-        menu.addItem(toggle("显示下载速度", settings.showDownload) { $0.showDownload.toggle() })
-        menu.addItem(submenu("速率单位", [
-            ("字节/秒（m/g）", !settings.useBitsPerSecond, { $0.useBitsPerSecond = false }),
-            ("比特/秒（m/g）", settings.useBitsPerSecond, { $0.useBitsPerSecond = true })
+        menu.addItem(header(String(localized: "实时网速 · 统计物理网络接口", bundle: .wgLocalized)))
+        menu.addItem(toggle(String(localized: "显示上传速度", bundle: .wgLocalized), settings.showUpload) { $0.showUpload.toggle() })
+        menu.addItem(toggle(String(localized: "显示下载速度", bundle: .wgLocalized), settings.showDownload) { $0.showDownload.toggle() })
+        menu.addItem(submenu(String(localized: "速率单位", bundle: .wgLocalized), [
+            (String(localized: "字节/秒（m/g）", bundle: .wgLocalized), !settings.useBitsPerSecond, { $0.useBitsPerSecond = false }),
+            (String(localized: "比特/秒（m/g）", bundle: .wgLocalized), settings.useBitsPerSecond, { $0.useBitsPerSecond = true })
         ]))
-        menu.addItem(submenu("刷新频率", MenuBarComponentSettings.refreshIntervals.map { interval in
-            let title = interval == 1.0 ? "1 秒（默认）" : "\(interval.formatted()) 秒"
+        menu.addItem(submenu(String(localized: "刷新频率", bundle: .wgLocalized), MenuBarComponentSettings.refreshIntervals.map { interval in
+            let title = interval == 1.0 ? String(localized: "1 秒（默认）", bundle: .wgLocalized) : String(localized: "\(interval.formatted()) 秒", bundle: .wgLocalized)
             return (title, settings.refreshInterval == interval, { $0.refreshInterval = interval })
         }))
 
         menu.addItem(.separator())
-        menu.addItem(header("日期与时间"))
-        menu.addItem(toggle("24 小时制", settings.use24HourClock) { $0.use24HourClock.toggle() })
-        menu.addItem(toggle("日期毛玻璃", settings.dateGlassEnabled) { $0.dateGlassEnabled.toggle() })
-        menu.addItem(submenu("日期颜色浓度", MenuBarComponentSettings.tintOpacities.map { opacity in
-            let title = opacity == 0.4 ? "40%（默认）" : "\(Int(opacity * 100))%"
+        menu.addItem(header(String(localized: "日期与时间", bundle: .wgLocalized)))
+        menu.addItem(toggle(String(localized: "24 小时制", bundle: .wgLocalized), settings.use24HourClock) { $0.use24HourClock.toggle() })
+        menu.addItem(toggle(String(localized: "日期毛玻璃", bundle: .wgLocalized), settings.dateGlassEnabled) { $0.dateGlassEnabled.toggle() })
+        menu.addItem(submenu(String(localized: "日期颜色浓度", bundle: .wgLocalized), MenuBarComponentSettings.tintOpacities.map { opacity in
+            let title = opacity == 0.4 ? String(localized: "40%（默认）", bundle: .wgLocalized) : "\(Int(opacity * 100))%"
             return (title, settings.dateTintOpacity == opacity, { $0.dateTintOpacity = opacity })
         }))
         menu.addItem(makeTimeZoneItem())
@@ -294,28 +294,28 @@ final class WgStatusBarController: NSObject, NSMenuDelegate, NSWindowDelegate {
     private func makeTimeZoneItem() -> NSMenuItem {
         let current = settings.timeZoneIdentifier
         let common: [(String, String)] = [
-            ("跟随系统", "system"),
-            ("北京 / 上海", "Asia/Shanghai"),
-            ("香港", "Asia/Hong_Kong"),
-            ("台北", "Asia/Taipei"),
-            ("东京", "Asia/Tokyo"),
-            ("新加坡", "Asia/Singapore"),
-            ("伦敦", "Europe/London"),
-            ("巴黎", "Europe/Paris"),
-            ("纽约", "America/New_York"),
-            ("洛杉矶", "America/Los_Angeles"),
-            ("悉尼", "Australia/Sydney"),
+            (String(localized: "跟随系统", bundle: .wgLocalized), "system"),
+            (String(localized: "北京 / 上海", bundle: .wgLocalized), "Asia/Shanghai"),
+            (String(localized: "香港", bundle: .wgLocalized), "Asia/Hong_Kong"),
+            (String(localized: "台北", bundle: .wgLocalized), "Asia/Taipei"),
+            (String(localized: "东京", bundle: .wgLocalized), "Asia/Tokyo"),
+            (String(localized: "新加坡", bundle: .wgLocalized), "Asia/Singapore"),
+            (String(localized: "伦敦", bundle: .wgLocalized), "Europe/London"),
+            (String(localized: "巴黎", bundle: .wgLocalized), "Europe/Paris"),
+            (String(localized: "纽约", bundle: .wgLocalized), "America/New_York"),
+            (String(localized: "洛杉矶", bundle: .wgLocalized), "America/Los_Angeles"),
+            (String(localized: "悉尼", bundle: .wgLocalized), "Australia/Sydney"),
             ("UTC", "UTC")
         ]
-        let item = submenu("时区：\(displayedTimeZoneName)", common.map { title, identifier in
+        let item = submenu(String(localized: "时区：\(displayedTimeZoneName)", bundle: .wgLocalized), common.map { title, identifier in
             (title, current == identifier, { $0.timeZoneIdentifier = identifier })
         })
         item.submenu?.insertItem(.separator(), at: 1)
         item.submenu?.addItem(.separator())
 
         // 全部时区在展开时才生成，避免每次右键都建几百个菜单项。
-        let allItem = NSMenuItem(title: "所有时区", action: nil, keyEquivalent: "")
-        let allMenu = NSMenu(title: "所有时区")
+        let allItem = NSMenuItem(title: String(localized: "所有时区", bundle: .wgLocalized), action: nil, keyEquivalent: "")
+        let allMenu = NSMenu(title: String(localized: "所有时区", bundle: .wgLocalized))
         allMenu.delegate = self
         allItem.submenu = allMenu
         allZonesMenu = allMenu
@@ -327,13 +327,13 @@ final class WgStatusBarController: NSObject, NSMenuDelegate, NSWindowDelegate {
         guard menu === allZonesMenu, menu.items.isEmpty else { return }
         let current = settings.timeZoneIdentifier
         let regionNames = [
-            "Africa": "非洲", "America": "美洲", "Antarctica": "南极洲",
-            "Arctic": "北极", "Asia": "亚洲", "Atlantic": "大西洋",
-            "Australia": "澳大利亚", "Europe": "欧洲", "Indian": "印度洋",
-            "Pacific": "太平洋", "Etc": "其他"
+            "Africa": String(localized: "非洲", bundle: .wgLocalized), "America": String(localized: "美洲", bundle: .wgLocalized), "Antarctica": String(localized: "南极洲", bundle: .wgLocalized),
+            "Arctic": String(localized: "北极", bundle: .wgLocalized), "Asia": String(localized: "亚洲", bundle: .wgLocalized), "Atlantic": String(localized: "大西洋", bundle: .wgLocalized),
+            "Australia": String(localized: "澳大利亚", bundle: .wgLocalized), "Europe": String(localized: "欧洲", bundle: .wgLocalized), "Indian": String(localized: "印度洋", bundle: .wgLocalized),
+            "Pacific": String(localized: "太平洋", bundle: .wgLocalized), "Etc": String(localized: "其他", bundle: .wgLocalized)
         ]
         let grouped = Dictionary(grouping: TimeZone.knownTimeZoneIdentifiers) { identifier in
-            identifier.split(separator: "/").first.map(String.init) ?? "其他"
+            identifier.split(separator: "/").first.map(String.init) ?? String(localized: "其他", bundle: .wgLocalized)
         }
         for region in grouped.keys.sorted() {
             let options = grouped[region, default: []].sorted().map { identifier in

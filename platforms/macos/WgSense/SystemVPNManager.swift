@@ -10,7 +10,7 @@ enum SystemVPNError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .emptyConfiguration:
-            return "WireGuard 配置为空"
+            return String(localized: "WireGuard 配置为空", bundle: .wgLocalized)
         case .keychainUnavailable(let message):
             return message
         case .saveFailed(let message):
@@ -119,29 +119,29 @@ struct SystemVPNManager {
 
     private func makeConfigurationReference(profileName: String, configuration: String, replacing oldRef: Data?) throws -> Data {
         guard let appBundleIdentifier = Bundle.main.bundleIdentifier else {
-            throw SystemVPNError.keychainUnavailable("无法读取 App 标识，不能保存系统 VPN 配置")
+            throw SystemVPNError.keychainUnavailable(String(localized: "无法读取 App 标识，不能保存系统 VPN 配置", bundle: .wgLocalized))
         }
         guard let extensionPath = Bundle.main.builtInPlugInsURL?
             .appendingPathComponent("WgSensePacketTunnel.appex", isDirectory: true).path else {
-            throw SystemVPNError.keychainUnavailable("找不到 Xtrim 系统 VPN 扩展")
+            throw SystemVPNError.keychainUnavailable(String(localized: "找不到 Xtrim 系统 VPN 扩展", bundle: .wgLocalized))
         }
 
         var extensionApp: SecTrustedApplication?
         var mainApp: SecTrustedApplication?
         var status = SecTrustedApplicationCreateFromPath(extensionPath, &extensionApp)
         guard status == errSecSuccess, let extensionApp else {
-            throw SystemVPNError.keychainUnavailable("无法授权系统 VPN 扩展读取配置：\(status)")
+            throw SystemVPNError.keychainUnavailable(String(localized: "无法授权系统 VPN 扩展读取配置：\(status)", bundle: .wgLocalized))
         }
         status = SecTrustedApplicationCreateFromPath(nil, &mainApp)
         guard status == errSecSuccess, let mainApp else {
-            throw SystemVPNError.keychainUnavailable("无法授权 Xtrim 读取配置：\(status)")
+            throw SystemVPNError.keychainUnavailable(String(localized: "无法授权 Xtrim 读取配置：\(status)", bundle: .wgLocalized))
         }
 
         let itemLabel = "WgSense VPN: \(profileName)"
         var access: SecAccess?
         status = SecAccessCreate(itemLabel as CFString, [extensionApp, mainApp] as CFArray, &access)
         guard status == errSecSuccess, let access else {
-            throw SystemVPNError.keychainUnavailable("无法创建 VPN 配置钥匙串权限：\(status)")
+            throw SystemVPNError.keychainUnavailable(String(localized: "无法创建 VPN 配置钥匙串权限：\(status)", bundle: .wgLocalized))
         }
 
         let query: [CFString: Any] = [
@@ -160,7 +160,7 @@ struct SystemVPNManager {
         var ref: CFTypeRef?
         status = SecItemAdd(query as CFDictionary, &ref)
         guard status == errSecSuccess, let passwordReference = ref as? Data else {
-            throw SystemVPNError.keychainUnavailable("保存 VPN 配置到钥匙串失败：\(status)")
+            throw SystemVPNError.keychainUnavailable(String(localized: "保存 VPN 配置到钥匙串失败：\(status)", bundle: .wgLocalized))
         }
         if let oldRef {
             deleteConfigurationReference(oldRef)

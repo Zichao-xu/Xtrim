@@ -28,6 +28,8 @@ struct PlaceholderView: View {
 struct LogsView: View {
     @EnvironmentObject var client: DaemonClient
     @State private var autoScroll = true
+    /// 显示守护进程写下的原文（中文），不按当前界面语言翻译。日志文件本身始终是原文。
+    @AppStorage("logs.showOriginal") private var showOriginal = false
     @State private var logLimit = 200
     @State private var isRefreshing = false
 
@@ -41,6 +43,10 @@ struct LogsView: View {
                 Toggle("跟随", isOn: $autoScroll)
                     .toggleStyle(.switch)
                     .controlSize(.small)
+                Toggle("原文", isOn: $showOriginal)
+                    .toggleStyle(.switch)
+                    .controlSize(.small)
+                    .help("显示后台服务写下的原文，不翻译")
                 Picker("数量", selection: $logLimit) {
                     Text("100 行").tag(100)
                     Text("200 行").tag(200)
@@ -87,7 +93,7 @@ struct LogsView: View {
                                     .fill(Self.levelColor(line.text))
                                     .frame(width: 5, height: 5)
                                     .alignmentGuide(.firstTextBaseline) { $0[.bottom] - 1 }
-                                Text(verbatim: line.text)
+                                Text(verbatim: showOriginal ? line.text : WgDaemonText.localizeLog(line.text))
                                     .textSelection(.enabled)
                                     .foregroundStyle(.primary.opacity(0.86))
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -152,12 +158,12 @@ struct SettingsView: View {
     @State private var ipv6Saving = false
     @State private var ipv6Prefix = ""
     @State private var ipv6Targets = ""
-    @State private var settingsMessage: String?
+    @State private var settingsMessage: WgNotice?
     @State private var shuttingDownDaemon = false
     @State private var diagnostics = DaemonDiagnostics()
     @State private var diagnosticsLoading = false
     @State private var maintenanceRunning = false
-    @State private var maintenanceMessage: String?
+    @State private var maintenanceMessage: WgNotice?
     @State private var pendingMaintenanceAction: MaintenanceAction?
     private let maintenance = DaemonMaintenanceService()
 
@@ -307,10 +313,10 @@ struct SettingsView: View {
             }
             HStack(spacing: WgSpace.m) {
                 if let settingsMessage {
-                    Label(LocalizedStringKey(settingsMessage),
-                          systemImage: settingsMessage.contains("失败") ? "exclamationmark.circle.fill" : "checkmark.circle.fill")
+                    Label(settingsMessage.text,
+                          systemImage: settingsMessage.failed ? "exclamationmark.circle.fill" : "checkmark.circle.fill")
                         .font(.system(size: WgType.sub))
-                        .foregroundStyle(settingsMessage.contains("失败") ? .orange : .green)
+                        .foregroundStyle(settingsMessage.failed ? .orange : .green)
                         .transition(.opacity)
                 }
                 Spacer()
@@ -318,13 +324,13 @@ struct SettingsView: View {
                     Task {
                         applyingConfig = true
                         let ok = await client.syncConfig()
-                        withAnimation { settingsMessage = ok ? "已应用到后台服务" : "应用失败" }
+                        withAnimation { settingsMessage = ok ? .ok(String(localized: "已应用到后台服务", bundle: .wgLocalized)) : .fail(String(localized: "应用失败", bundle: .wgLocalized)) }
                         applyingConfig = false
                         try? await Task.sleep(for: .seconds(3))
                         withAnimation { settingsMessage = nil }
                     }
                 } label: {
-                    Text(LocalizedStringKey(applyingConfig ? "正在应用…" : "应用"))
+                    Text(LocalizedStringKey(applyingConfig ? String(localized: "正在应用…", bundle: .wgLocalized) : String(localized: "应用", bundle: .wgLocalized)))
                 }
                 .buttonStyle(WgCapsuleButtonStyle(tint: WgInk.signal))
                 .disabled(applyingConfig)
@@ -393,7 +399,7 @@ struct SettingsView: View {
                 }
             } else {
                 WgRow(symbol: "6.circle", tint: .gray, title: "隧道 IPv6 设置不可用",
-                      subtitle: Text(client.tunnelIPv6Error ?? "等待后台服务"))
+                      subtitle: Text(client.tunnelIPv6Error ?? String(localized: "等待后台服务", bundle: .wgLocalized)))
             }
         }
         .onChange(of: client.tunnelIPv6) { _, settings in
@@ -528,9 +534,9 @@ struct SettingsView: View {
                 }
                 .disabled(maintenanceRunning || diagnosticsLoading)
                 if let maintenanceMessage {
-                    Text(verbatim: maintenanceMessage)
+                    Text(verbatim: maintenanceMessage.text)
                         .font(.system(size: WgType.body))
-                        .foregroundStyle(maintenanceMessage.contains("失败") ? .orange : .green)
+                        .foregroundStyle(maintenanceMessage.failed ? .orange : .green)
                 }
                 if client.status?.app_owned == true {
                     HStack {
@@ -540,7 +546,7 @@ struct SettingsView: View {
                             Task {
                                 shuttingDownDaemon = true
                                 let ok = await client.shutdownAppOwnedDaemon()
-                                settingsMessage = ok ? "后台服务已关闭" : "后台服务关闭失败"
+                                settingsMessage = ok ? .ok(String(localized: "后台服务已关闭", bundle: .wgLocalized)) : .fail(String(localized: "后台服务关闭失败", bundle: .wgLocalized))
                                 await refreshDiagnostics()
                                 shuttingDownDaemon = false
                             }
@@ -566,11 +572,11 @@ struct SettingsView: View {
     // MARK: - 组件
 
     private var daemonModeText: String {
-        guard let status = client.status else { return "未运行" }
+        guard let status = client.status else { return String(localized: "未运行", bundle: .wgLocalized) }
         if status.app_owned == true {
-            return status.passive == true ? "临时服务 · 被动" : "临时服务"
+            return status.passive == true ? String(localized: "临时服务 · 被动", bundle: .wgLocalized) : String(localized: "临时服务", bundle: .wgLocalized)
         }
-        return status.passive == true ? "系统服务 · 被动" : "系统服务 · 运行中"
+        return status.passive == true ? String(localized: "系统服务 · 被动", bundle: .wgLocalized) : String(localized: "系统服务 · 运行中", bundle: .wgLocalized)
     }
 
     private func sliderRow(_ title: LocalizedStringKey, symbol: String, tint: Color, value: Binding<Double>, range: ClosedRange<Double>) -> some View {
@@ -628,7 +634,7 @@ struct SettingsView: View {
         Task {
             maintenanceRunning = true
             let result = await maintenance.perform(action)
-            maintenanceMessage = result.succeeded ? "\(action.title)完成" : "\(action.title)失败：\(result.output)"
+            maintenanceMessage = result.succeeded ? .ok(String(localized: "\(action.title)完成", bundle: .wgLocalized)) : .fail(String(localized: "\(action.title)失败：\(result.output)", bundle: .wgLocalized))
             await client.fetchStatus()
             await refreshDiagnostics()
             maintenanceRunning = false
@@ -642,9 +648,9 @@ struct SettingsView: View {
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
             try maintenance.exportDiagnostics(diagnostics, to: url)
-            maintenanceMessage = "诊断已导出"
+            maintenanceMessage = .ok(String(localized: "诊断已导出", bundle: .wgLocalized))
         } catch {
-            maintenanceMessage = "诊断导出失败：\(error.localizedDescription)"
+            maintenanceMessage = .fail(String(localized: "诊断导出失败：\(error.localizedDescription)", bundle: .wgLocalized))
         }
     }
 
@@ -656,7 +662,7 @@ struct SettingsView: View {
         Task {
             maintenanceRunning = true
             let result = await maintenance.exportDaemonLog(to: url)
-            maintenanceMessage = result.succeeded ? "日志已导出" : "日志导出失败：\(result.output)"
+            maintenanceMessage = result.succeeded ? .ok(String(localized: "日志已导出", bundle: .wgLocalized)) : .fail(String(localized: "日志导出失败：\(result.output)", bundle: .wgLocalized))
             maintenanceRunning = false
         }
     }

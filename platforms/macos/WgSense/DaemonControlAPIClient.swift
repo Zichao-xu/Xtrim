@@ -36,7 +36,7 @@ struct DaemonControlAPIClient {
         ]
         if let hosts = settings.allow_hosts { body["allow_hosts"] = hosts }
         let data = try await api.request("api/firewall", method: "POST", body: body)
-        return try JSONDecoder().decode(FirewallResponse.self, from: data)
+        return try JSONDecoder().decode(FirewallResponse.self, from: WgDaemonText.localizeJSON(data))
     }
 
     func mihomo() async throws -> MihomoStatus {
@@ -68,7 +68,7 @@ struct DaemonControlAPIClient {
             "probe_targets": settings.probe_targets
         ]
         let data = try await api.request("api/tunnel/ipv6", method: "POST", body: body)
-        return try JSONDecoder().decode(TunnelIPv6Settings.self, from: data)
+        return try JSONDecoder().decode(TunnelIPv6Settings.self, from: WgDaemonText.localizeJSON(data))
     }
 
     func traffic() async throws -> TrafficStats {

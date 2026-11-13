@@ -121,11 +121,11 @@ final class SpeedLabStore: ObservableObject {
 
     /// 当前组合不能测的原因；能测为空。
     var blocker: String? {
-        guard let runner else { return roster.isEmpty ? "名册为空：先发现或添加端点" : "选择执行端" }
-        guard let target else { return "选择目标" }
-        if runner.id == target.id { return "执行端和目标是同一台机器" }
-        if target.kind == .local, runner.kind == .local { return "执行端和目标是同一台机器" }
-        if target.isPublic, route == nil { return "选择路径" }
+        guard let runner else { return roster.isEmpty ? String(localized: "名册为空：先发现或添加端点", bundle: .wgLocalized) : String(localized: "选择执行端", bundle: .wgLocalized) }
+        guard let target else { return String(localized: "选择目标", bundle: .wgLocalized) }
+        if runner.id == target.id { return String(localized: "执行端和目标是同一台机器", bundle: .wgLocalized) }
+        if target.kind == .local, runner.kind == .local { return String(localized: "执行端和目标是同一台机器", bundle: .wgLocalized) }
+        if target.isPublic, route == nil { return String(localized: "选择路径", bundle: .wgLocalized) }
         return nil
     }
 
@@ -134,7 +134,7 @@ final class SpeedLabStore: ObservableObject {
 
     /// 添加能 SSH 登录的主机：可当执行端，也可当目标。
     func addSSH(name: String, host: String, port: Int, user: String) {
-        var endpoint = SLEndpoint.ssh(host: host, port: port, user: user, via: "手动添加")
+        var endpoint = SLEndpoint.ssh(host: host, port: port, user: user, via: String(localized: "手动添加", bundle: .wgLocalized))
         endpoint.label = name
         merge([endpoint])
         Task {
@@ -148,7 +148,7 @@ final class SpeedLabStore: ObservableObject {
 
     /// 添加只知道地址的机器：只能当目标，要求它自己开着 iperf3 服务端。
     func addAddress(name: String, ip: String) {
-        var endpoint = SLEndpoint.peer(ip: ip, via: "手动添加")
+        var endpoint = SLEndpoint.peer(ip: ip, via: String(localized: "手动添加", bundle: .wgLocalized))
         endpoint.label = name
         merge([endpoint])
     }
@@ -188,7 +188,7 @@ final class SpeedLabStore: ObservableObject {
     ///   · 代理后端里配了 SSH 的机器、名册里已有的 SSH 主机：登上去 probe，登得上才入册；顺带它们 WireGuard 配置里的 peer 地址
     ///   · 公网：测速源列表里有可用源才入册
     var discoverScope: [String] {
-        ["本机"] + discoverCandidates.filter { $0.kind == .ssh }.map(\.address) + ["测速源列表"]
+        [String(localized: "本机", bundle: .wgLocalized)] + discoverCandidates.filter { $0.kind == .ssh }.map(\.address) + [String(localized: "测速源列表", bundle: .wgLocalized)]
     }
 
     private var discoverCandidates: [SLEndpoint] {
@@ -196,7 +196,7 @@ final class SpeedLabStore: ObservableObject {
         for backend in MihomoBackendStore.shared.backends where !backend.isLocal {   // 本机内核没有 SSH
             let host = backend.effectiveSSHHost
             guard !host.isEmpty else { continue }
-            let e = SLEndpoint.ssh(host: host, port: backend.sshPort, user: backend.sshUser, via: "代理后端 \(backend.host)")
+            let e = SLEndpoint.ssh(host: host, port: backend.sshPort, user: backend.sshUser, via: String(localized: "代理后端 \(backend.host)", bundle: .wgLocalized))
             if !list.contains(where: { $0.id == e.id }) { list.append(e) }
         }
         for e in roster where e.canRun && !list.contains(where: { $0.id == e.id }) { list.append(e) }
@@ -206,7 +206,7 @@ final class SpeedLabStore: ObservableObject {
     func discover() {
         guard !discovering, !running else { return }
         discovering = true
-        discoverNote = "发现中：" + discoverScope.joined(separator: "、")
+        discoverNote = String(localized: "发现中：", bundle: .wgLocalized) + discoverScope.joined(separator: "、")
         Task {
             var found: [SLEndpoint] = [], failed: [String] = [], peers: [SLEndpoint] = []
             for var endpoint in discoverCandidates {
@@ -234,7 +234,7 @@ final class SpeedLabStore: ObservableObject {
             if n > 0 { var pub = SLEndpoint.publicNet(sources: n); pub.seenAt = Date(); found.append(pub) }
             merge(found)
             discovering = false
-            let note = "发现 \(found.count) 个" + (failed.isEmpty ? "" : " · 连不上：\(failed.joined(separator: "、"))")
+            let note = String(localized: "发现 \(found.count) 个", bundle: .wgLocalized) + (failed.isEmpty ? "" : String(localized: " · 连不上：\(failed.joined(separator: "、"))", bundle: .wgLocalized))
             discoverNote = note
             try? await Task.sleep(for: .seconds(6))
             if discoverNote == note { discoverNote = nil }
@@ -266,7 +266,7 @@ final class SpeedLabStore: ObservableObject {
     /// 线路上 B 的文字：网卡名或"系统路由"；非公网目标由对端地址决定。
     func pathTitle(_ target: SLEndpoint) -> String {
         guard target.isPublic else { return "iperf3" }
-        return route.map { $0 == SLIface.system ? "系统路由" : $0 } ?? "—"
+        return route.map { $0 == SLIface.system ? String(localized: "系统路由", bundle: .wgLocalized) : $0 } ?? "—"
     }
 
     // MARK: - 最近线路（从历史得出，不写死）
@@ -289,7 +289,7 @@ final class SpeedLabStore: ObservableObject {
         runnerID = ids.runner
         targetID = ids.target
         if endpoints.first(where: { $0.id == ids.target })?.isPublic == true {
-            route = r.iface ?? (r.path == "系统路由" ? SLIface.system : nil)
+            route = r.iface ?? ((r.path == "系统路由" || r.path == String(localized: "系统路由", bundle: .wgLocalized)) ? SLIface.system : nil)
         }
     }
 
@@ -334,7 +334,7 @@ final class SpeedLabStore: ObservableObject {
         downSeries = []; upSeries = []
         upSide = nil; upFeed = .sender; upHeld = []; upReport = []; upInterval = nil
         idleRTTs = []; downRTTs = []; upRTTs = []
-        info = [:]; error = nil; note = "连接执行端…"
+        info = [:]; error = nil; note = String(localized: "连接执行端…", bundle: .wgLocalized)
         startedAt = Date(); finishedAt = nil
         phaseDates = [.prepare: Date()]; infoDates = [:]
         downTimed = []; upTimed = []; idleTimed = []; sourceResults = []; reconnects = []; skipped = []
@@ -367,11 +367,11 @@ final class SpeedLabStore: ObservableObject {
             }
             if Task.isCancelled { throw CancellationError() }
         } catch is CancellationError {
-            result.error = "已停止"
+            result.error = SLStoppedText.value
         } catch {
             result.error = error.localizedDescription
         }
-        if Task.isCancelled, result.error == nil { result.error = "已停止" }
+        if Task.isCancelled, result.error == nil { result.error = SLStoppedText.value }
         if target.isPublic { SLSourceCatalog.shared.record(sourceResults) }
         settleUp()
 
@@ -387,13 +387,13 @@ final class SpeedLabStore: ObservableObject {
         result.linkMbps = linkMbps
         result.exit = info["exit"] ?? ""
         result.sources = sourceList
-        if result.down != nil || result.up != nil || (result.error != nil && result.error != "已停止") {
+        if result.down != nil || result.up != nil || (result.error != nil && result.error != SLStoppedText.value) {
             history.insert(result, at: 0)
             if history.count > 300 { history.removeLast(history.count - 300) }
             Self.saveHistory(history)
         }
-        error = result.error == "已停止" ? nil : result.error
-        note = result.error ?? "完成"
+        error = result.error == SLStoppedText.value ? nil : result.error
+        note = result.error ?? String(localized: "完成", bundle: .wgLocalized)
         phase = .done
         finishedAt = Date()
         phaseDates[.done] = finishedAt
@@ -405,7 +405,7 @@ final class SpeedLabStore: ObservableObject {
     // MARK: HTTP（公网）
 
     private func runHTTP(runner: SLEndpoint) async throws {
-        note = "公网测速：\(runner.name) · \(pathTitle(.publicNet(sources: 0)))"
+        note = String(localized: "公网测速：\(runner.name) · \(pathTitle(.publicNet(sources: 0)))", bundle: .wgLocalized)
         var vars = commonVars()
         vars["MODE"] = "http"
         if let route, route != SLIface.system { vars["IFACE"] = route }
@@ -413,7 +413,7 @@ final class SpeedLabStore: ObservableObject {
         let dl = catalog.candidates("dl", manual: downloadSources, retireAfter: params.retireAfter)
         let ul = catalog.candidates("ul", manual: uploadSources, retireAfter: params.retireAfter)
         guard !dl.isEmpty || !ul.isEmpty else {
-            throw SLShell.Failure(message: catalog.url.isEmpty ? "未配置测速源 · 在「测速源」里填源列表地址" : "测速源列表为空")
+            throw SLShell.Failure(message: catalog.url.isEmpty ? String(localized: "未配置测速源 · 在「测速源」里填源列表地址", bundle: .wgLocalized) : String(localized: "测速源列表为空", bundle: .wgLocalized))
         }
         vars["DL_URLS"] = dl.joined(separator: " ")
         vars["UL_URLS"] = ul.joined(separator: " ")
@@ -431,7 +431,7 @@ final class SpeedLabStore: ObservableObject {
 
         // 目标端：能登上去就临时起服务端，测完必停；WG peer 要求它自己开着。
         if target.kind != .peer {
-            note = "在 \(target.name) 上启动 iperf3 服务端…"
+            note = String(localized: "在 \(target.name) 上启动 iperf3 服务端…", bundle: .wgLocalized)
             let bin = try await ensureIperf(on: target)
             deployed = bin.deployed
             var vars = params.scriptVars.merging(["MODE": "iperf-server", "IPERF_PORT": "\(port)"]) { $1 }
@@ -499,7 +499,7 @@ final class SpeedLabStore: ObservableObject {
             throw SLShell.Failure(message: "\(endpoint.name) 没有 iperf3，App 里也没有 \(os)/\(arch) 的静态版可部署")
         }
         if endpoint.kind == .local { return (bundled.path, nil) }
-        note = "给 \(endpoint.name) 临时部署 iperf3…"
+        note = String(localized: "给 \(endpoint.name) 临时部署 iperf3…", bundle: .wgLocalized)
         let remote = "/tmp/wgsense-iperf3"
         try await SLShell(endpoint: endpoint).upload(bundled, to: remote)
         return (remote, remote)
@@ -563,7 +563,7 @@ final class SpeedLabStore: ObservableObject {
             case "r":
                 takeReceiver(event)
             case "err":
-                throw SLShell.Failure(message: event.msg ?? "执行端报错")
+                throw SLShell.Failure(message: event.msg ?? String(localized: "执行端报错", bundle: .wgLocalized))
             default:
                 break
             }
@@ -792,3 +792,7 @@ extension SLHUDData {
     }
 
 }
+
+
+/// 「已停止」既显示给人看，也被拿来判断是不是用户主动停的；只在这里定义一次。
+enum SLStoppedText { static let value = String(localized: "已停止", bundle: .wgLocalized) }

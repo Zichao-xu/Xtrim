@@ -34,10 +34,10 @@ struct VPNView: View {
 
     private func switchNote(_ exit: WgExit) -> String {
         if let target = client.switchingExit {
-            return (client.exitProgress ?? "正在切换到 \(target.title)") + " …"
+            return (client.exitProgress ?? String(localized: "正在切换到 \(target.title)", bundle: .wgLocalized)) + " …"
         }
-        if client.status?.exit == nil { return "运行中的网络服务还不支持切换出口；点 mihomo 会先更新网络服务再切换" }
-        return "三个出口互斥，同一时刻只有一个接管流量。切换时先断开当前出口，空档内出站拦截照常生效。"
+        if client.status?.exit == nil { return String(localized: "运行中的网络服务还不支持切换出口；点 mihomo 会先更新网络服务再切换", bundle: .wgLocalized) }
+        return String(localized: "三个出口互斥，同一时刻只有一个接管流量。切换时先断开当前出口，空档内出站拦截照常生效。", bundle: .wgLocalized)
     }
 
     private var tailscalePlaceholder: some View {

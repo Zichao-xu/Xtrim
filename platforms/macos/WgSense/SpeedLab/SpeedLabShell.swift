@@ -130,7 +130,7 @@ struct SLShell {
     func collect(_ vars: [String: String]) async throws -> [SLEvent] {
         var events: [SLEvent] = []
         for try await event in stream(vars) {
-            if event.ev == "err" { throw Failure(message: event.msg ?? "执行端报错") }
+            if event.ev == "err" { throw Failure(message: event.msg ?? String(localized: "执行端报错", bundle: .wgLocalized)) }
             events.append(event)
         }
         return events
@@ -166,15 +166,15 @@ struct SLShell {
     /// 把 ssh 的英文报错翻成能照着处理的一句话。
     static func explain(_ stderr: String, status: Int32) -> String {
         let s = stderr.lowercased()
-        if s.contains("permission denied") { return "SSH 认证失败：这台 Mac 的公钥没有加到对方的 authorized_keys" }
-        if s.contains("connection refused") { return "SSH 端口拒绝连接：检查端口号" }
-        if s.contains("timed out") || s.contains("no route") { return "连不上这台机器（超时/无路由）" }
-        if s.contains("could not resolve") { return "主机名解析失败" }
+        if s.contains("permission denied") { return String(localized: "SSH 认证失败：这台 Mac 的公钥没有加到对方的 authorized_keys", bundle: .wgLocalized) }
+        if s.contains("connection refused") { return String(localized: "SSH 端口拒绝连接：检查端口号", bundle: .wgLocalized) }
+        if s.contains("timed out") || s.contains("no route") { return String(localized: "连不上这台机器（超时/无路由）", bundle: .wgLocalized) }
+        if s.contains("could not resolve") { return String(localized: "主机名解析失败", bundle: .wgLocalized) }
         if s.contains("host key verification failed") || s.contains("remote host identification has changed") {
-            return "对方主机指纹变了：先在终端 ssh-keygen -R 清掉旧记录"
+            return String(localized: "对方主机指纹变了：先在终端 ssh-keygen -R 清掉旧记录", bundle: .wgLocalized)
         }
         let line = stderr.split(separator: "\n").last.map(String.init) ?? ""
-        return line.isEmpty ? "执行端退出码 \(status)" : line
+        return line.isEmpty ? String(localized: "执行端退出码 \(status)", bundle: .wgLocalized) : line
     }
 }
 

@@ -27,6 +27,7 @@
 		3AE3936BA2CC7154DE9A16C7 /* TraceStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3746632F3F24FAAA82F8A29 /* TraceStage.swift */; };
 		3F5137C784574344F867063D /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = BD8D739D3B0B49B54B3F0C39 /* Localizable.xcstrings */; };
 		4150CA738E54AD565B5F2D9A /* PPOverviewPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E158E212B731D8EB3325B66 /* PPOverviewPage.swift */; };
+		415C543C26406CFD64A8F76F /* Daemon.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 0BDD74784080587B3ABF4C9D /* Daemon.xcstrings */; };
 		46F0735DC4E70670DF3FE481 /* WgSenseWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3750B94EFA321F4F3F8C19F3 /* WgSenseWidget.swift */; };
 		485605CDD96417A6F10723E0 /* TraceRadiation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02611306A3F020AE12A7424 /* TraceRadiation.swift */; };
 		48ADE081313F1751E1A488D2 /* ProxyAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88EC3834F9EE809E1C80F044 /* ProxyAPIClient.swift */; };
@@ -36,6 +37,7 @@
 		5788738D511517DE2321E8E8 /* DaemonAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B3455C78FB99740D40CFE98 /* DaemonAPIClient.swift */; };
 		5C89F8AE623FCFC4434B574E /* OpenWrtRuleSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 796A56DA9FD3124885280DD5 /* OpenWrtRuleSource.swift */; };
 		62D7AEBEBC61205E8B0ADBA3 /* MenuBarComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70096D6DF1BCFA12942C300 /* MenuBarComponents.swift */; };
+		63EA41169A70F91B9ADD8037 /* WgDaemonText.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3569EC7F13427742A6A778 /* WgDaemonText.swift */; };
 		65F94DE5427036A4F67E7751 /* OverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DF23D4A47461A7F12D1F16B /* OverviewView.swift */; };
 		6918E49EB490D2018E6CECCE /* speedlab.sh in Resources */ = {isa = PBXBuildFile; fileRef = F45A959BB63493FAC419B590 /* speedlab.sh */; };
 		6CF451D418724EBD5206420F /* SpeedLabHUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD3D5DC3E583F91BE8D50DF5 /* SpeedLabHUD.swift */; };
@@ -127,6 +129,7 @@
 		08446624B46672875126EF07 /* MihomoBackends.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MihomoBackends.swift; sourceTree = "<group>"; };
 		0AA301075B9E8FE140316B6D /* TraceGlobe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceGlobe.swift; sourceTree = "<group>"; };
 		0B9DCCE34E27D91EFD69FC1D /* PPGroupTable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PPGroupTable.swift; sourceTree = "<group>"; };
+		0BDD74784080587B3ABF4C9D /* Daemon.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Daemon.xcstrings; sourceTree = "<group>"; };
 		0C8CD7D8ADC89A97CD38C8D1 /* ProfileFileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileFileStore.swift; sourceTree = "<group>"; };
 		0DA2AA96BEDDA7AEF6C95F1B /* TraceRegions.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = TraceRegions.bin; sourceTree = "<group>"; };
 		13C4756EC6DAF2B9C8E8EC93 /* DaemonMaintenanceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaemonMaintenanceService.swift; sourceTree = "<group>"; };
@@ -202,6 +205,7 @@
 		D09D8E0489F86402A6AED1C6 /* MihomoSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MihomoSync.swift; sourceTree = "<group>"; };
 		D7229BEE2D642996184E5338 /* SpeedLabFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedLabFormat.swift; sourceTree = "<group>"; };
 		D88E5DBF28786A4E5E3E2DC3 /* TraceGeoData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceGeoData.swift; sourceTree = "<group>"; };
+		DF3569EC7F13427742A6A778 /* WgDaemonText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WgDaemonText.swift; sourceTree = "<group>"; };
 		E00108A90339FFC96F956660 /* TraceEarcut.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceEarcut.swift; sourceTree = "<group>"; };
 		E5A98FCC223E24076B4D92EF /* TraceMetalMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceMetalMap.swift; sourceTree = "<group>"; };
 		E75714667C21CE70B43A065A /* WgSense.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WgSense.entitlements; sourceTree = "<group>"; };
@@ -219,6 +223,7 @@
 			isa = PBXGroup;
 			children = (
 				8B6A7A3B044CB63E8D0EDE36 /* Assets.xcassets */,
+				0BDD74784080587B3ABF4C9D /* Daemon.xcstrings */,
 				2B3455C78FB99740D40CFE98 /* DaemonAPIClient.swift */,
 				866A0A396B7DBCD9D7355E66 /* DaemonClient.swift */,
 				C3B95572549041E76B3DBD63 /* DaemonControlAPIClient.swift */,
@@ -232,6 +237,7 @@
 				83C9AEACF015695C43E09540 /* ShellCommand.swift */,
 				B75C77A4A22AD3006EA7C804 /* TransferAPIClient.swift */,
 				54A3CE06A6A17BCEB2B3CE57 /* TransferModels.swift */,
+				DF3569EC7F13427742A6A778 /* WgDaemonText.swift */,
 				E75714667C21CE70B43A065A /* WgSense.entitlements */,
 				89A8FD83AD3FB5681EAE1110 /* WgSenseApp.swift */,
 				B327C41F92B977872F228B46 /* WgSurfaces.swift */,
@@ -410,6 +416,7 @@
 			buildPhases = (
 				8D1FBFFA443135427B858347 /* Build Bundled Daemon */,
 				64B8B75BC38FB87A28967F97 /* Sources */,
+				C18611E9FDACAAFF70B087A2 /* Localization */,
 				25F515F16F30819B79A9D9E2 /* Resources */,
 				B75502EE043B340B08D8935C /* Embed Foundation Extensions */,
 			);
@@ -479,6 +486,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FA09F9B661FA4BBEF66444BA /* Assets.xcassets in Resources */,
+				415C543C26406CFD64A8F76F /* Daemon.xcstrings in Resources */,
 				EA45E94FFA4E175DB33049A1 /* Localizable.xcstrings in Resources */,
 				FF0720246E8311E94ACD18D1 /* TraceGeo.bin in Resources */,
 				D1105B190420CE11C124425B /* TraceRegions.bin in Resources */,
@@ -516,6 +524,25 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "set -euo pipefail\nexport PATH=\"/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH\"\ncore_dir=\"$SRCROOT/../../core\"\npackaging_dir=\"$SRCROOT/../../packaging\"\nout_dir=\"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/libexec\"\npackaging_out=\"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/packaging\"\nmkdir -p \"$out_dir\" \"$packaging_out\"\n# 内置代理内核（自建 mihomo）：编好就以 mihomo_embed 标签嵌进 daemon，拿不到则不带\nmihomo_tags=\"$(\"$SRCROOT/vendor/build-mihomo.sh\" \"$core_dir\" | tail -n 1)\"\n(cd \"$core_dir\" && /usr/bin/env go build -trimpath ${mihomo_tags:+-tags \"$mihomo_tags\"} -o \"$out_dir/wgsense-daemon\" ./cmd/wgsense-daemon)\nchmod 0755 \"$out_dir/wgsense-daemon\"\ninstall -m 0755 \"$packaging_dir/wgsense-install-services.sh\" \"$packaging_out/wgsense-install-services.sh\"\ninstall -m 0755 \"$packaging_dir/wgsense-uninstall-services.sh\" \"$packaging_out/wgsense-uninstall-services.sh\"\ninstall -m 0755 \"$packaging_dir/wgsense-receive-mover.sh\" \"$packaging_out/wgsense-receive-mover.sh\"\ninstall -m 0644 \"$packaging_dir/com.wgsense.daemon.plist.template\" \"$packaging_out/com.wgsense.daemon.plist.template\"\ninstall -m 0644 \"$packaging_dir/com.wgsense.receive-mover.plist.template\" \"$packaging_out/com.wgsense.receive-mover.plist.template\"\n# 测速台：给缺 iperf3 的对端临时部署用的静态 iperf3（拉不到不影响构建）\n\"$SRCROOT/vendor/fetch-iperf3.sh\" \"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/iperf3\"\n";
+		};
+		C18611E9FDACAAFF70B087A2 /* Localization */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = Localization;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"$SRCROOT/scripts/l10n/build-phase.sh\"";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -593,6 +620,7 @@
 				6E1F049D995E07C2D53DCA04 /* TransferModels.swift in Sources */,
 				FB8F6D09DEDAB7A9F3C232F4 /* VPNView.swift in Sources */,
 				8D12E67693DE603409D1FD95 /* WgBrandIcon.swift in Sources */,
+				63EA41169A70F91B9ADD8037 /* WgDaemonText.swift in Sources */,
 				D0739DCF9224C40F63F72E11 /* WgDesign.swift in Sources */,
 				AB32F2537C17D1C30D08C651 /* WgExitSwitch.swift in Sources */,
 				DD547983D07C16536E2BE7B9 /* WgFrameProbe.swift in Sources */,
@@ -633,7 +661,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 44;
+				CURRENT_PROJECT_VERSION = 45;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = WgSenseWidget/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -642,7 +670,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 44;
+				MARKETING_VERSION = 45;
 				PRODUCT_BUNDLE_IDENTIFIER = com.wgsense.macos.widget;
 				PRODUCT_NAME = WgSenseWidget;
 				SDKROOT = macosx;
@@ -703,6 +731,7 @@
 				SDKROOT = macosx;
 				STRINGS_FILE_OUTPUT_ENCODING = binary;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 			};
@@ -716,7 +745,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 44;
+				CURRENT_PROJECT_VERSION = 45;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Xtrim;
@@ -727,7 +756,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 44;
+				MARKETING_VERSION = 45;
 				PRODUCT_BUNDLE_IDENTIFIER = com.wgsense.macos;
 				PRODUCT_MODULE_NAME = WgSense;
 				PRODUCT_NAME = Xtrim;
@@ -743,7 +772,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 44;
+				CURRENT_PROJECT_VERSION = 45;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = WgSenseWidget/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -752,7 +781,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 44;
+				MARKETING_VERSION = 45;
 				PRODUCT_BUNDLE_IDENTIFIER = com.wgsense.macos.widget;
 				PRODUCT_NAME = WgSenseWidget;
 				SDKROOT = macosx;
@@ -820,6 +849,7 @@
 				SDKROOT = macosx;
 				STRINGS_FILE_OUTPUT_ENCODING = binary;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
@@ -833,7 +863,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 44;
+				CURRENT_PROJECT_VERSION = 45;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Xtrim;
@@ -844,7 +874,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 44;
+				MARKETING_VERSION = 45;
 				PRODUCT_BUNDLE_IDENTIFIER = com.wgsense.macos;
 				PRODUCT_MODULE_NAME = WgSense;
 				PRODUCT_NAME = Xtrim;

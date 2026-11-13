@@ -19,7 +19,7 @@ final class PPRuleBrowserModel: ObservableObject {
 
     func fetchRules() async -> Bool {
         let store = MihomoBackendStore.shared
-        guard let backend = store.active else { error = "未配置后端"; return false }
+        guard let backend = store.active else { error = String(localized: "未配置后端", bundle: .wgLocalized); return false }
         do {
             rules = try await MihomoAPI(backend: backend, secret: store.secret(for: backend)).rules()
             return true
@@ -69,13 +69,13 @@ final class PPRuleBrowserModel: ObservableObject {
     }
 
     var cacheHint: String? {
-        if cache.isEmpty { return "本地规则缓存为空，请先更新规则缓存。" }
+        if cache.isEmpty { return String(localized: "本地规则缓存为空，请先更新规则缓存。", bundle: .wgLocalized) }
         var parts: [String] = []
         if !missingProviders.isEmpty {
-            parts.append("以下规则集未在本地缓存中找到：\(missingProviders.joined(separator: "、"))")
+            parts.append(String(localized: "以下规则集未在本地缓存中找到：\(missingProviders.joined(separator: "、"))", bundle: .wgLocalized))
         }
         if let unsupported = cache.snapshot?.unsupported, !unsupported.isEmpty {
-            parts.append("\(unsupported.count) 个 .mrs 规则集转换失败：\(unsupported.joined(separator: "、"))")
+            parts.append(String(localized: "\(unsupported.count) 个 .mrs 规则集转换失败：\(unsupported.joined(separator: "、"))", bundle: .wgLocalized))
         }
         return parts.isEmpty ? nil : parts.joined(separator: "\n")
     }
@@ -94,7 +94,7 @@ struct PPRuleTable: View {
             } else if let error = model.error {
                 PPInlineMessage(symbol: "exclamationmark.triangle.fill", text: error)
             } else if rows.isEmpty {
-                PPInlineMessage(symbol: "tray", text: "暂无匹配的规则明细")
+                PPInlineMessage(symbol: "tray", text: String(localized: "暂无匹配的规则明细", bundle: .wgLocalized))
             } else {
                 Table(rows, sortOrder: $model.sortOrder) {
                     TableColumn("类别", value: \.displayType) { Text(verbatim: $0.displayType) }
@@ -155,7 +155,7 @@ struct PPCacheHintBar: View {
                     Text(verbatim: hint).font(.system(size: WgType.body)).foregroundStyle(.secondary)
                 }
                 if let snap = cache.snapshot {
-                    Text(verbatim: "规则源 \(snap.plugin) · 更新于 \(snap.syncedAt.formatted(date: .abbreviated, time: .shortened))")
+                    Text(verbatim: String(localized: "规则源 \(snap.plugin) · 更新于 \(snap.syncedAt.formatted(date: .abbreviated, time: .shortened))", bundle: .wgLocalized))
                         .font(.system(size: WgType.body)).foregroundStyle(.tertiary)
                 }
                 if let error = cache.lastError {
@@ -196,7 +196,7 @@ struct PPRulePenetrationSheet: View {
             HStack {
                 VStack(alignment: .leading, spacing: WgSpace.zero) {
                     Text("域名穿透").font(.system(size: WgType.body, weight: .bold))
-                    Text(verbatim: "\(group) · 规则 \(model.totalRules) 条，明细 \(model.items.count) 条")
+                    Text(verbatim: String(localized: "\(group) · 规则 \(model.totalRules) 条，明细 \(model.items.count) 条", bundle: .wgLocalized))
                         .font(.system(size: WgType.sub)).foregroundStyle(.secondary)
                 }
                 Spacer()
@@ -272,7 +272,7 @@ struct PPDomainGroupView: View {
                 )) {
                     Text("全部规则集").tag("")
                     ForEach(options, id: \.self) { option in
-                        Text(option == RulePenetration.customSourceKey ? "自定义" : option).tag(option)
+                        Text(option == RulePenetration.customSourceKey ? String(localized: "自定义", bundle: .wgLocalized) : option).tag(option)
                     }
                 }
                 .labelsHidden()
@@ -304,9 +304,9 @@ struct PPDomainGroupView: View {
 
     private func title(_ name: String) -> String {
         switch name {
-        case RulePenetration.customPreKey: return "前置自定义"
-        case RulePenetration.customPostKey: return "后置自定义"
-        case "": return "选择组"
+        case RulePenetration.customPreKey: return String(localized: "前置自定义", bundle: .wgLocalized)
+        case RulePenetration.customPostKey: return String(localized: "后置自定义", bundle: .wgLocalized)
+        case "": return String(localized: "选择组", bundle: .wgLocalized)
         default: return name
         }
     }

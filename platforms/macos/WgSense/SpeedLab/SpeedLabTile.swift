@@ -55,13 +55,13 @@ struct SLSpeedTile: View {
             }
             return lab.note
         }
-        guard let last else { return "未测" }
+        guard let last else { return String(localized: "未测", bundle: .wgLocalized) }
         if let error = last.error { return error }
         // 小磁贴没有表盘：读数写在状态行；中、大磁贴读数在表盘上，状态行只写时间。
         if size == .small {
             return "↓\(SLFormat.compact(last.down?.stable, unit: unit)) ↑\(SLFormat.compact(last.up?.stable, unit: unit))"
         }
-        return "上次 " + last.date.formatted(.relative(presentation: .numeric, unitsStyle: .narrow))
+        return String(localized: "上次 ", bundle: .wgLocalized) + last.date.formatted(.relative(presentation: .numeric, unitsStyle: .narrow))
     }
 
     /// 两条通道的缩略：长度 = 吞吐 / 协商速率（和 HUD 两翼同一含义），右侧读数。

@@ -1,0 +1,7 @@
+{
+  "_说明": "产品专有名词的固定译法。翻译时强制使用，检查时逐条核对：原文含该词，译文必须含对应译名。",
+  "纯良": {
+    "en": "Purity", "zh-Hant": "純良", "ja": "純良", "ko": "Purity", "ru": "Purity",
+    "fa": "Purity", "ar": "Purity", "tr": "Purity", "vi": "Purity"
+  }
+}

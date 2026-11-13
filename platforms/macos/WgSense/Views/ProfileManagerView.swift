@@ -258,8 +258,8 @@ struct ImportConfView: View {
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
-        panel.title = "选择 WireGuard 配置文件"
-        panel.message = "选择 .conf 文件"
+        panel.title = String(localized: "选择 WireGuard 配置文件", bundle: .wgLocalized)
+        panel.message = String(localized: "选择 .conf 文件", bundle: .wgLocalized)
         // 不限制文件类型，.conf 没有标准 UTType，用 allowedFileTypes 过滤扩展名
         panel.allowedFileTypes = ["conf", "txt"]
         if panel.runModal() == .OK, let url = panel.url {
@@ -285,7 +285,7 @@ struct ImportConfView: View {
             profileName = url.deletingPathExtension().lastPathComponent
             error = nil
         } catch {
-            self.error = "读取文件失败: \(error.localizedDescription)"
+            self.error = String(localized: "读取文件失败: \(error.localizedDescription)", bundle: .wgLocalized)
         }
     }
 }
@@ -363,7 +363,7 @@ struct ManualWizardView: View {
     @State private var profile = WGProfile()
     let onComplete: (WGProfile) -> Void
 
-    private let steps = ["名称", "本机密钥", "对端信息", "确认"]
+    private let steps = [String(localized: "名称", bundle: .wgLocalized), String(localized: "本机密钥", bundle: .wgLocalized), String(localized: "对端信息", bundle: .wgLocalized), String(localized: "确认", bundle: .wgLocalized)]
 
     var body: some View {
         VStack(spacing: 0) {

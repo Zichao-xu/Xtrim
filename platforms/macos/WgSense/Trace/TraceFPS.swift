@@ -10,7 +10,7 @@ import SwiftUI
 enum TraceFPS {
     enum Layer: Int, CaseIterable {
         case globe, route
-        var name: String { ["地图", "航线"][rawValue] }
+        var name: String { [String(localized: "地图", bundle: .wgLocalized), String(localized: "航线", bundle: .wgLocalized)][rawValue] }
     }
 
     private static let lock = NSLock()

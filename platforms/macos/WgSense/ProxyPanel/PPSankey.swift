@@ -20,7 +20,7 @@ struct PPSankeyModel: Equatable {
     var nodes: [Node]
     var links: [Link]
 
-    static let layerTitles = ["源IP地址", "规则匹配", "代理链入口", "代理链出口"]
+    static let layerTitles = [String(localized: "源IP地址", bundle: .wgLocalized), String(localized: "规则匹配", bundle: .wgLocalized), String(localized: "代理链入口", bundle: .wgLocalized), String(localized: "代理链出口", bundle: .wgLocalized)]
 
     static func build(from connections: [MihomoConnection], label: (String) -> String) -> PPSankeyModel {
         var nodes: [String: Node] = [:]
@@ -373,7 +373,7 @@ struct PPSankeyView: View, Equatable {
         let layout = anim.to
         if let box = layout.nodes.values.first(where: { $0.rect.insetBy(dx: -4, dy: -1).contains(p) }) {
             focus = trajectory(fromNode: box.node.key, layout: layout)
-            tip = "\(box.node.name)\n节点类型：\(PPSankeyModel.layerTitles[box.node.layer]) · 连接数：\(box.total)"
+            tip = String(localized: "\(box.node.name)\n节点类型：\(PPSankeyModel.layerTitles[box.node.layer]) · 连接数：\(box.total)", bundle: .wgLocalized)
             return
         }
         if let ribbon = layout.ribbons.values.first(where: { ribbonPath($0, dx: 0).contains(p) }) {
@@ -383,7 +383,7 @@ struct PPSankeyView: View, Equatable {
             focus = set
             let s = layout.nodes[ribbon.link.source]?.node.name ?? ""
             let t = layout.nodes[ribbon.link.target]?.node.name ?? ""
-            tip = "\(s) → \(t)\n连接数：\(ribbon.link.count)"
+            tip = String(localized: "\(s) → \(t)\n连接数：\(ribbon.link.count)", bundle: .wgLocalized)
             return
         }
         focus = nil

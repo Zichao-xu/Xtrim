@@ -78,10 +78,10 @@ enum PPHistoryType: String, CaseIterable, Codable, Identifiable {
     }
     var columnTitle: String {
         switch self {
-        case .sourceIP: return "源IP"
-        case .destination: return "目标地址"
-        case .process: return "进程"
-        case .outbound: return "出站节点"
+        case .sourceIP: return String(localized: "源IP", bundle: .wgLocalized)
+        case .destination: return String(localized: "目标地址", bundle: .wgLocalized)
+        case .process: return String(localized: "进程", bundle: .wgLocalized)
+        case .outbound: return String(localized: "出站节点", bundle: .wgLocalized)
         }
     }
 }
@@ -487,7 +487,7 @@ final class PPOverviewStore: ObservableObject {
         historyStart = Date()
         historyDirty = true
         flushHistory()
-        ProxyPanelStore.shared.post(PPNotice(id: "history", title: "连接历史数据清空成功", detail: "", kind: .success), autoDismiss: 3)
+        ProxyPanelStore.shared.post(PPNotice(id: "history", title: String(localized: "连接历史数据清空成功", bundle: .wgLocalized), detail: "", kind: .success), autoDismiss: 3)
     }
 
     // MARK: 网络信息（O-N01…O-N04）
@@ -495,12 +495,12 @@ final class PPOverviewStore: ObservableObject {
     func checkIP() async {
         ipChecking = true
         defer { ipChecking = false }
-        chinaIP = PPIPResult(location: "获取中...", ip: "")
-        globalIP = PPIPResult(location: "获取中...", ip: "")
+        chinaIP = PPIPResult(location: String(localized: "获取中...", bundle: .wgLocalized), ip: "")
+        globalIP = PPIPResult(location: String(localized: "获取中...", bundle: .wgLocalized), ip: "")
         async let china = Self.fetchChinaIP()
         async let global = Self.fetchGlobalIP(api: ipInfoAPI)
-        chinaIP = await china ?? PPIPResult(location: "测速超时", ip: "")
-        globalIP = await global ?? PPIPResult(location: "测速超时", ip: "")
+        chinaIP = await china ?? PPIPResult(location: String(localized: "测速超时", bundle: .wgLocalized), ip: "")
+        globalIP = await global ?? PPIPResult(location: String(localized: "测速超时", bundle: .wgLocalized), ip: "")
     }
 
     private static func json(_ url: String) async -> [String: Any]? {

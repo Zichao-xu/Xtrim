@@ -25,12 +25,12 @@ enum TraceHopKind: Equatable {
 
     var label: String {
         switch self {
-        case .lan: return "内网"
-        case .tunnel: return "隧道"
-        case .carrier: return "运营商内网"
-        case .reserved: return "保留地址"
-        case .publicNet: return "公网"
-        case .silent: return "无响应"
+        case .lan: return String(localized: "内网", bundle: .wgLocalized)
+        case .tunnel: return String(localized: "隧道", bundle: .wgLocalized)
+        case .carrier: return String(localized: "运营商内网", bundle: .wgLocalized)
+        case .reserved: return String(localized: "保留地址", bundle: .wgLocalized)
+        case .publicNet: return String(localized: "公网", bundle: .wgLocalized)
+        case .silent: return String(localized: "无响应", bundle: .wgLocalized)
         }
     }
 }
@@ -171,7 +171,7 @@ final class TraceStore: ObservableObject {
             process = p
         } catch {
             running = false
-            self.error = "无法启动 traceroute：\(error.localizedDescription)"
+            self.error = String(localized: "无法启动 traceroute：\(error.localizedDescription)", bundle: .wgLocalized)
         }
     }
 
@@ -275,7 +275,7 @@ final class TraceStore: ObservableObject {
         running = false
         process = nil
         finishedAt = Date()
-        if !killed, status != 0, error == nil, hops.isEmpty { error = "traceroute 退出码 \(status)" }
+        if !killed, status != 0, error == nil, hops.isEmpty { error = String(localized: "traceroute 退出码 \(status)", bundle: .wgLocalized) }
         learnOrigin()
     }
 
@@ -345,19 +345,19 @@ final class TraceStore: ObservableObject {
         var path = path
         let fip = TraceFakeIPAdapter.shared
         if let hop = firstLocated, let geo = hop.geo {
-            fip.setOrigin(.ok, "本机实测已有公网跳 \(hop.ip ?? "") · \(geo.place)，不用学习记录")
+            fip.setOrigin(.ok, String(localized: "本机实测已有公网跳 \(hop.ip ?? "") · \(geo.place)，不用学习记录", bundle: .wgLocalized))
         } else if tunnelIface != nil {
-            fip.setOrigin(.skip, "经隧道：出口在隧道对端，不套用本网络的学习记录")
+            fip.setOrigin(.skip, String(localized: "经隧道：出口在隧道对端，不套用本网络的学习记录", bundle: .wgLocalized))
         } else if let network {
             if let o = origins[network] {
                 path.origin = o
                 let when = o.learnedAt.formatted(.dateTime.month(.twoDigits).day(.twoDigits).hour().minute())
-                fip.setOrigin(.ok, "学习记录：网络 \(network) 在 \(when) 直连追踪的首个公网跳 \(o.ip) · \(o.geo.place)")
+                fip.setOrigin(.ok, String(localized: "学习记录：网络 \(network) 在 \(when) 直连追踪的首个公网跳 \(o.ip) · \(o.geo.place)", bundle: .wgLocalized))
             } else {
-                fip.setOrigin(.miss, "网络 \(network) 还没有记录：先追一次直连目标（不经代理的地址）即可学到")
+                fip.setOrigin(.miss, String(localized: "网络 \(network) 还没有记录：先追一次直连目标（不经代理的地址）即可学到", bundle: .wgLocalized))
             }
         } else {
-            fip.setOrigin(.miss, "读不到网络指纹（默认网关），无法套用学习记录")
+            fip.setOrigin(.miss, String(localized: "读不到网络指纹（默认网关），无法套用学习记录", bundle: .wgLocalized))
         }
         return path
     }
@@ -545,9 +545,9 @@ final class TraceTileSummary: ObservableObject {
         let trace = TraceStore.shared
         let t: String?
         if trace.running {
-            t = String(format: "追踪中 · %02d 跳", trace.hops.last?.ttl ?? 0)
+            t = String(format: String(localized: "追踪中 · %02d 跳", bundle: .wgLocalized), trace.hops.last?.ttl ?? 0)
         } else if let place = trace.hops.last(where: { $0.geo != nil })?.geo?.place, trace.reached {
-            t = "\(trace.hops.count) 跳 · \(place)"
+            t = String(localized: "\(trace.hops.count) 跳 · \(place)", bundle: .wgLocalized)
         } else {
             t = nil
         }

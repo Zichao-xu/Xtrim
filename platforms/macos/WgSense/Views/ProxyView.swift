@@ -170,7 +170,7 @@ private struct ProxyPageHeader: View {
     /// 面板跟随出口自动换后端：标题写明当前连的是本机内核还是路由器。
     private var subtitle: String {
         guard let b = backends.active else { return "MIHOMO" }
-        return b.isLocal ? "MIHOMO · 本机内核 \(b.host):\(b.port)" : "MIHOMO · \(b.displayName) \(b.host):\(b.port)"
+        return b.isLocal ? String(localized: "MIHOMO · 本机内核 \(b.host):\(b.port)", bundle: .wgLocalized) : "MIHOMO · \(b.displayName) \(b.host):\(b.port)"
     }
 
     var body: some View {
@@ -267,17 +267,17 @@ private struct ProxyUnavailableView: View {
         VStack(spacing: WgSpace.l) {
             ContentUnavailableView {
                 Label(
-                    title: { Text(LocalizedStringKey(client.proxyServiceRunning ? "控制器未连接" : "后台服务未启动")) },
+                    title: { Text(LocalizedStringKey(client.proxyServiceRunning ? String(localized: "控制器未连接", bundle: .wgLocalized) : String(localized: "后台服务未启动", bundle: .wgLocalized))) },
                     icon: { Image(systemName: client.proxyServiceRunning ? "network.slash" : "gearshape.2") }
                 )
             } description: {
-                Text(LocalizedStringKey(client.proxyServiceRunning ? "请在设置中检查 Mihomo 地址与密钥" : "先启动 Xtrim 后台服务，再连接 Mihomo 控制器"))
+                Text(LocalizedStringKey(client.proxyServiceRunning ? String(localized: "请在设置中检查 Mihomo 地址与密钥", bundle: .wgLocalized) : String(localized: "先启动 Xtrim 后台服务，再连接 Mihomo 控制器", bundle: .wgLocalized)))
             }
             HStack(spacing: WgSpace.m) {
                 if let startDaemon, !client.proxyServiceRunning {
                     Button(action: startDaemon) {
                         Label {
-                            Text(LocalizedStringKey(client.isAuthorizingDaemon ? "等待授权" : "启动后台服务"))
+                            Text(LocalizedStringKey(client.isAuthorizingDaemon ? String(localized: "等待授权", bundle: .wgLocalized) : String(localized: "启动后台服务", bundle: .wgLocalized)))
                         } icon: {
                             Image(systemName: "play.circle")
                         }
@@ -395,15 +395,15 @@ private struct ProxyOverviewPage: View {
                             ProxyLineChart(
                                 title: "实时速度",
                                 series: [
-                                    ProxyChartSeries(name: "上传速度", color: .cyan, points: samples.map { ProxyChartPoint(time: $0.time, value: $0.uploadSpeed) }),
-                                    ProxyChartSeries(name: "下载速度", color: .indigo, points: samples.map { ProxyChartPoint(time: $0.time, value: $0.downloadSpeed) })
+                                    ProxyChartSeries(name: String(localized: "上传速度", bundle: .wgLocalized), color: .cyan, points: samples.map { ProxyChartPoint(time: $0.time, value: $0.uploadSpeed) }),
+                                    ProxyChartSeries(name: String(localized: "下载速度", bundle: .wgLocalized), color: .indigo, points: samples.map { ProxyChartPoint(time: $0.time, value: $0.downloadSpeed) })
                                 ],
                                 formatter: proxyFormatBytesPerSecond
                             )
                             ProxyLineChart(
                                 title: "内存使用",
                                 series: [
-                                    ProxyChartSeries(name: "内存使用", color: .indigo, points: samples.compactMap { sample in
+                                    ProxyChartSeries(name: String(localized: "内存使用", bundle: .wgLocalized), color: .indigo, points: samples.compactMap { sample in
                                         sample.memoryBytes.map { ProxyChartPoint(time: sample.time, value: Double($0)) }
                                     })
                                 ],
@@ -413,7 +413,7 @@ private struct ProxyOverviewPage: View {
                             ProxyLineChart(
                                 title: "连接",
                                 series: [
-                                    ProxyChartSeries(name: "连接", color: .indigo, points: samples.map { ProxyChartPoint(time: $0.time, value: Double($0.connectionCount)) })
+                                    ProxyChartSeries(name: String(localized: "连接", bundle: .wgLocalized), color: .indigo, points: samples.map { ProxyChartPoint(time: $0.time, value: Double($0.connectionCount)) })
                                 ],
                                 formatter: { String(format: "%.0f", $0) }
                             )
@@ -972,7 +972,7 @@ private enum ProxyNetworkProbe {
                 id: "ip.sb",
                 source: "ip.sb",
                 ip: response.ip,
-                description: description.isEmpty ? "未知出口" : description,
+                description: description.isEmpty ? String(localized: "未知出口", bundle: .wgLocalized) : description,
                 error: nil
             )
         } catch {
@@ -1015,9 +1015,9 @@ private enum ProxyNetworkProbe {
 
     private static func proxyNetworkErrorText(_ error: Error) -> String {
         if let urlError = error as? URLError, urlError.code == .timedOut {
-            return "检测超时"
+            return String(localized: "检测超时", bundle: .wgLocalized)
         }
-        return "检测失败"
+        return String(localized: "检测失败", bundle: .wgLocalized)
     }
 }
 
@@ -1462,7 +1462,7 @@ private struct ProxyTopologyGraph {
                 )
             }
             builtLayers.append(nodes.isEmpty ? [
-                ProxyTopologyNode(id: "\(layer)|暂无", layer: layer, label: "暂无", count: 0, bytes: 0, color: palettes[layer])
+                ProxyTopologyNode(id: String(localized: "\(layer)|暂无", bundle: .wgLocalized), layer: layer, label: String(localized: "暂无", bundle: .wgLocalized), count: 0, bytes: 0, color: palettes[layer])
             ] : nodes)
         }
 
@@ -1537,8 +1537,8 @@ private struct ProxyTopologyGraph {
         let limits = [7, 9, 8, 6]
         return rawLayers.enumerated().map { index, values in
             let top = topValues(values, limit: limits[index])
-            if top.isEmpty { return ["暂无"] }
-            return Set(values).subtracting(top).isEmpty ? top : top + ["其他"]
+            if top.isEmpty { return [String(localized: "暂无", bundle: .wgLocalized)] }
+            return Set(values).subtracting(top).isEmpty ? top : top + [String(localized: "其他", bundle: .wgLocalized)]
         }
     }
 
@@ -1554,12 +1554,12 @@ private struct ProxyTopologyGraph {
         case 1:
             raw = connection.rule?.isEmpty == false ? connection.rule! : "Match"
         case 2:
-            raw = connection.chains?.first?.isEmpty == false ? connection.chains!.first! : "策略"
+            raw = connection.chains?.first?.isEmpty == false ? connection.chains!.first! : String(localized: "策略", bundle: .wgLocalized)
         default:
             raw = connection.chains?.last?.isEmpty == false ? connection.chains!.last! : "DIRECT"
         }
-        guard let allowed, !allowed.contains(raw), allowed.contains("其他") else { return raw }
-        return "其他"
+        guard let allowed, !allowed.contains(raw), allowed.contains(String(localized: "其他", bundle: .wgLocalized)) else { return raw }
+        return String(localized: "其他", bundle: .wgLocalized)
     }
 }
 
@@ -1714,7 +1714,7 @@ private struct ProxySourceStatsTable: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            row(["源IP", "下载", "上传", "总流量", "连接数"], header: true)
+            row([String(localized: "源IP", bundle: .wgLocalized), String(localized: "下载", bundle: .wgLocalized), String(localized: "上传", bundle: .wgLocalized), String(localized: "总流量", bundle: .wgLocalized), String(localized: "连接数", bundle: .wgLocalized)], header: true)
             ForEach(stats.prefix(10)) { stat in
                 row([
                     stat.source,
@@ -2338,7 +2338,7 @@ private struct ProxyConnectionRow: View {
             VStack(alignment: .leading, spacing: WgSpace.xs) {
                 Text(primaryDestination).font(.subheadline.weight(.medium)).lineLimit(1)
                 HStack(spacing: WgSpace.s) {
-                    Text(connection.metadata.process ?? "未知进程")
+                    Text(connection.metadata.process ?? String(localized: "未知进程", bundle: .wgLocalized))
                     Text(connection.metadata.netWork?.uppercased() ?? "")
                     if let rule = connection.rule { Text(rule) }
                 }
@@ -2373,7 +2373,7 @@ private struct ProxyConnectionRow: View {
 
     private var primaryDestination: String {
         if let host = connection.metadata.host, !host.isEmpty { return host }
-        let ip = connection.metadata.destinationIP ?? "未知目标"
+        let ip = connection.metadata.destinationIP ?? String(localized: "未知目标", bundle: .wgLocalized)
         let port = connection.metadata.destinationPort ?? ""
         return port.isEmpty ? ip : "\(ip):\(port)"
     }
@@ -2542,7 +2542,8 @@ private enum ProxyLogFilter: String, CaseIterable, Identifiable {
     case warning = "Warning"
     case error = "Error"
     var id: String { rawValue }
-    var title: LocalizedStringKey { LocalizedStringKey(rawValue) }
+    /// 「全部」走翻译表；日志级别是 mihomo 的技术名，各语言一致。
+    var title: LocalizedStringKey { self == .all ? "全部" : LocalizedStringKey(stringLiteral: rawValue) }
 }
 
 private struct ProxyLogsPage: View {
@@ -2804,10 +2805,10 @@ private struct ProxyControllerSettingsEditor: View {
     }
 
     private var saveDisabledReason: String? {
-        if saving { return "正在保存并测试..." }
-        if address.isEmpty { return "请输入控制器地址" }
-        if testURL.isEmpty { return "请输入延迟测试 URL" }
-        if !client.proxyServiceRunning { return "请先启动后台服务" }
+        if saving { return String(localized: "正在保存并测试...", bundle: .wgLocalized) }
+        if address.isEmpty { return String(localized: "请输入控制器地址", bundle: .wgLocalized) }
+        if testURL.isEmpty { return String(localized: "请输入延迟测试 URL", bundle: .wgLocalized) }
+        if !client.proxyServiceRunning { return String(localized: "请先启动后台服务", bundle: .wgLocalized) }
         return nil
     }
 
@@ -2981,7 +2982,7 @@ private struct ProxyRuntimeSettingsEditor: View {
             "mixed-port": mixedPort
         ]
         Task {
-            _ = await client.patchProxyConfig(values, success: "运行配置已应用")
+            _ = await client.patchProxyConfig(values, success: String(localized: "运行配置已应用", bundle: .wgLocalized))
             applying = false
         }
     }
@@ -2996,16 +2997,16 @@ private struct ProxyMaintenanceSettings: View {
         ProxySectionBlock(title: "维护", icon: "wrench.and.screwdriver") {
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 170), spacing: WgSpace.s)], spacing: WgSpace.s) {
                 ProxyActionButton(title: "清除 DNS 缓存", icon: "network.badge.shield.half.filled", busy: busyAction == "flush-dns") {
-                    run("flush-dns", success: "DNS 缓存已清除")
+                    run("flush-dns", success: String(localized: "DNS 缓存已清除", bundle: .wgLocalized))
                 }
                 ProxyActionButton(title: "清除 FakeIP", icon: "eraser", busy: busyAction == "flush-fakeip") {
-                    run("flush-fakeip", success: "FakeIP 缓存已清除")
+                    run("flush-fakeip", success: String(localized: "FakeIP 缓存已清除", bundle: .wgLocalized))
                 }
                 ProxyActionButton(title: "重载配置", icon: "arrow.triangle.2.circlepath", busy: busyAction == "reload-configs") {
-                    run("reload-configs", success: "配置已重载")
+                    run("reload-configs", success: String(localized: "配置已重载", bundle: .wgLocalized))
                 }
                 ProxyActionButton(title: "更新 Geo 数据", icon: "globe", busy: busyAction == "update-geo") {
-                    run("update-geo", success: "Geo 数据已更新")
+                    run("update-geo", success: String(localized: "Geo 数据已更新", bundle: .wgLocalized))
                 }
                 ProxyActionButton(title: "重启核心", icon: "power", roleColor: .red, busy: busyAction == "restart-core") {
                     confirmRestart = true
@@ -3015,7 +3016,7 @@ private struct ProxyMaintenanceSettings: View {
         .disabled(!client.proxyRunning || busyAction != nil)
         .confirmationDialog("重启 Mihomo 核心？", isPresented: $confirmRestart) {
             Button("重启核心", role: .destructive) {
-                run("restart-core", success: "核心重启请求已发送")
+                run("restart-core", success: String(localized: "核心重启请求已发送", bundle: .wgLocalized))
             }
         }
     }
@@ -3174,22 +3175,22 @@ private func proxyDisplayName(_ rawName: String, emojiEnabled: Bool) -> String {
 
 	let lower = plainName.lowercased()
 	let markers: [(String, String)] = [
-		("香港", "🇭🇰"), ("hong kong", "🇭🇰"),
-		("台湾", "🇹🇼"), ("taiwan", "🇹🇼"),
-		("日本", "🇯🇵"), ("japan", "🇯🇵"),
-		("新加坡", "🇸🇬"), ("singapore", "🇸🇬"),
-		("美国", "🇺🇸"), ("united states", "🇺🇸"),
-		("英国", "🇬🇧"), ("united kingdom", "🇬🇧"),
-		("德国", "🇩🇪"), ("germany", "🇩🇪"),
-		("法国", "🇫🇷"), ("france", "🇫🇷"),
-		("加拿大", "🇨🇦"), ("canada", "🇨🇦"),
-		("澳大利亚", "🇦🇺"), ("australia", "🇦🇺"),
-		("人工智能", "🧠"), ("ai", "🧠"),
-		("github", "💻"), ("youtube", "▶️"), ("苹果", "🍎"),
-		("google", "🔎"), ("谷歌", "🔎"), ("微软", "🪟"),
-		("游戏", "🎮"), ("流媒体", "🎬"), ("测试", "🧪"),
-		("加密货币", "🪙"), ("默认", "🌐"), ("default", "🌐"),
-		("其他", "🧩")
+		(String(localized: "香港", bundle: .wgLocalized), "🇭🇰"), ("hong kong", "🇭🇰"),
+		(String(localized: "台湾", bundle: .wgLocalized), "🇹🇼"), ("taiwan", "🇹🇼"),
+		(String(localized: "日本", bundle: .wgLocalized), "🇯🇵"), ("japan", "🇯🇵"),
+		(String(localized: "新加坡", bundle: .wgLocalized), "🇸🇬"), ("singapore", "🇸🇬"),
+		(String(localized: "美国", bundle: .wgLocalized), "🇺🇸"), ("united states", "🇺🇸"),
+		(String(localized: "英国", bundle: .wgLocalized), "🇬🇧"), ("united kingdom", "🇬🇧"),
+		(String(localized: "德国", bundle: .wgLocalized), "🇩🇪"), ("germany", "🇩🇪"),
+		(String(localized: "法国", bundle: .wgLocalized), "🇫🇷"), ("france", "🇫🇷"),
+		(String(localized: "加拿大", bundle: .wgLocalized), "🇨🇦"), ("canada", "🇨🇦"),
+		(String(localized: "澳大利亚", bundle: .wgLocalized), "🇦🇺"), ("australia", "🇦🇺"),
+		(String(localized: "人工智能", bundle: .wgLocalized), "🧠"), ("ai", "🧠"),
+		("github", "💻"), ("youtube", "▶️"), (String(localized: "苹果", bundle: .wgLocalized), "🍎"),
+		("google", "🔎"), (String(localized: "谷歌", bundle: .wgLocalized), "🔎"), (String(localized: "微软", bundle: .wgLocalized), "🪟"),
+		(String(localized: "游戏", bundle: .wgLocalized), "🎮"), (String(localized: "流媒体", bundle: .wgLocalized), "🎬"), (String(localized: "测试", bundle: .wgLocalized), "🧪"),
+		(String(localized: "加密货币", bundle: .wgLocalized), "🪙"), (String(localized: "默认", bundle: .wgLocalized), "🌐"), ("default", "🌐"),
+		(String(localized: "其他", bundle: .wgLocalized), "🧩")
 	]
 	for (keyword, marker) in markers where lower.contains(keyword) {
 		return "\(marker) \(plainName)"
@@ -3269,7 +3270,7 @@ private func shortLabel(_ value: String, maxLength: Int = 22) -> String {
 }
 
 private func proxyFormatDate(_ raw: String?) -> String {
-    guard let raw, !raw.isEmpty, !raw.hasPrefix("0001-") else { return "未更新" }
+    guard let raw, !raw.isEmpty, !raw.hasPrefix("0001-") else { return String(localized: "未更新", bundle: .wgLocalized) }
     let formatter = ISO8601DateFormatter()
     guard let date = formatter.date(from: raw) else { return raw }
     return date.formatted(date: .abbreviated, time: .shortened)

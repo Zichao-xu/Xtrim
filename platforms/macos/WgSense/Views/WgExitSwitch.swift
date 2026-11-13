@@ -84,7 +84,7 @@ struct WgExitSwitch: View {
         return Button {
             if exit == .tailscale {
                 // Tailscale 还在开发：正常可点，只给一条提示，不灰显
-                client.showInAppToast(title: "Tailscale 开发中", detail: "暂不能切换到 Tailscale 出口", symbol: "hammer")
+                client.showInAppToast(title: String(localized: "Tailscale 开发中", bundle: .wgLocalized), detail: String(localized: "暂不能切换到 Tailscale 出口", bundle: .wgLocalized), symbol: "hammer")
                 return
             }
             Task { await client.setExit(exit) }
@@ -122,14 +122,14 @@ struct WgExitSwitch: View {
     }
 
     private func help(_ exit: WgExit, selected: Bool, available: Bool) -> String {
-        if selected { return "当前出口：\(exit.title)" }
+        if selected { return String(localized: "当前出口：\(exit.title)", bundle: .wgLocalized) }
         switch exit {
-        case .tailscale: return "Tailscale 开发中"
+        case .tailscale: return String(localized: "Tailscale 开发中", bundle: .wgLocalized)
         case .mihomo where !available:
-            return "这份网络服务没有内置 mihomo 内核"
+            return String(localized: "这份网络服务没有内置 mihomo 内核", bundle: .wgLocalized)
         case .mihomo where client.status?.exit == nil:
-            return "切换到 mihomo：先断开 WireGuard、更新网络服务，再启用 mihomo"
-        default: return "切换到 \(exit.title)：先断开当前出口，再启用它"
+            return String(localized: "切换到 mihomo：先断开 WireGuard、更新网络服务，再启用 mihomo", bundle: .wgLocalized)
+        default: return String(localized: "切换到 \(exit.title)：先断开当前出口，再启用它", bundle: .wgLocalized)
         }
     }
 }
