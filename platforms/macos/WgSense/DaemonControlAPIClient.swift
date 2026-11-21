@@ -52,6 +52,16 @@ struct DaemonControlAPIClient {
                              body: ["bundle": bundle, "origin": origin, "selections": selections], timeout: 180)
     }
 
+    func gateway() async throws -> GatewayState {
+        try await api.decode(GatewayState.self, path: "api/gateway")
+    }
+
+    /// action：trust（mac 为空 = 当前网关）/ untrust / rename / clear_seen / dismiss_legacy。
+    func gateway(action: String, mac: String = "", name: String = "") async throws -> GatewayState {
+        try await api.decode(GatewayState.self, path: "api/gateway", method: "POST",
+                             body: ["action": action, "mac": mac, "name": name])
+    }
+
     @discardableResult
     func setExit(_ exit: String) async throws -> Data {
         try await api.request("api/exit", method: "POST", body: ["exit": exit], timeout: 60)

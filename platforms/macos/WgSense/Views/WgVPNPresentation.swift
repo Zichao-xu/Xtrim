@@ -62,7 +62,13 @@ extension DaemonClient {
         }
         let guardOn = s.desired_guard_enabled ?? !s.paused
         if s.isTrustedNetwork && guardOn {
-            return .init(phase: .home, title: "在家", detail: "受信任网络，守护保持 VPN 断开",
+            let detail: LocalizedStringKey
+            if let name = s.gateway?.name, !name.isEmpty {
+                detail = "受信任网关「\(name)」，守护保持 VPN 断开"
+            } else {
+                detail = "受信任网络，守护保持 VPN 断开"
+            }
+            return .init(phase: .home, title: "在家", detail: detail,
                          symbol: "house.fill", tint: .teal)
         }
         if s.desired_vpn_enabled == true {

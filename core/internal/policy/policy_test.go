@@ -17,7 +17,7 @@ import (
 
 type mockLocation struct{ trusted bool }
 
-func (m mockLocation) IsHome([]string) bool { return m.trusted }
+func (m mockLocation) Trusted() bool { return m.trusted }
 func (m mockLocation) CurrentIPv4s() []string {
 	return nil
 }

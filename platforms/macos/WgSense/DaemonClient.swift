@@ -28,6 +28,11 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
     @Published var errorMsg: String?
     @Published var alertMsg: String?
     @Published var actionToast: ActionToast?
+    /// 受信任网关的完整列表（网关管理面板打开时才拉）。
+    @Published var gatewayState: GatewayState?
+    @Published var gatewayBusy = false
+    /// 页面内的卡片请求跳到另一个板块（如 VPN 页的守护卡 → 守护页），MainView 接手后清空。
+    @Published var pageRequest: SidebarTab?
     @Published var logLines: [LogLine] = []
     @Published var traffic: TrafficStats?
     /// 链路事件（握手、重绑、能收不能发），只读状态字段推导。
@@ -272,6 +277,7 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
                                tx: next.peer_tx_bytes, rx: next.peer_rx_bytes, rebinds: next.bind_rebinds, tunnelUp: isTunnelUp)
             let wantVPN = next.desired_vpn_enabled ?? (next.state == "Connected")
             if desiredVPNEnabled != wantVPN { desiredVPNEnabled = wantVPN }
+            noticeLegacyGatewayIfNeeded(next.gateway)
             let wantGuard = next.desired_guard_enabled ?? !next.paused
             if guardAutomationEnabled != wantGuard { guardAutomationEnabled = wantGuard }
             markDaemonUp()
@@ -626,6 +632,42 @@ class DaemonClient: NSObject, ObservableObject, UNUserNotificationCenterDelegate
         default:
             break
         }
+    }
+
+    // MARK: - 受信任网关
+
+    func fetchGateway() async {
+        do {
+            let next = try await controlAPI.gateway()
+            if gatewayState != next { gatewayState = next }
+        } catch {
+            // 旧版网络服务没有 /api/gateway：面板显示「需要更新网络服务」。
+            if gatewayState != nil { gatewayState = nil }
+        }
+    }
+
+    /// 信任 / 取消信任 / 改名 / 清空记录。改完立刻刷新状态：WireGuard 会按新判定连上或断开。
+    func gatewayAction(_ action: String, mac: String = "", name: String = "") async {
+        gatewayBusy = true
+        defer { gatewayBusy = false }
+        do {
+            gatewayState = try await controlAPI.gateway(action: action, mac: mac, name: name)
+            await fetchStatus()
+        } catch {
+            alertMsg = String(localized: "网关操作失败：\(error.localizedDescription)", bundle: .wgLocalized)
+        }
+    }
+
+    /// 从按网段信任升级上来、当前在旧网段里但网关还没被信任：提示一次（每台机器只提示一次）。
+    private func noticeLegacyGatewayIfNeeded(_ verdict: GatewayVerdict?) {
+        guard verdict?.legacy_match == true else { return }
+        let key = "gatewayLegacyNoticeShown"
+        guard !UserDefaults.standard.bool(forKey: key) else { return }
+        UserDefaults.standard.set(true, forKey: key)
+        showActionNotification(
+            title: String(localized: "受信任规则已改为网关 MAC", bundle: .wgLocalized),
+            detail: String(localized: "同网段的别人家不会再被当成在家。当前网关还没被信任，WireGuard 会照常连接；到 VPN 页「网关」卡打开开关即可恢复在家断开。", bundle: .wgLocalized),
+            category: "gateway", symbol: "house.and.flag", tint: .orange)
     }
 
     /// 只在 App 内弹一条轻提示（不发系统通知），3 秒后收起。

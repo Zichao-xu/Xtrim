@@ -19,6 +19,7 @@ import (
 	"github.com/wgsense/core/api"
 	"github.com/wgsense/core/internal/config"
 	"github.com/wgsense/core/internal/firewall"
+	"github.com/wgsense/core/internal/gateway"
 	"github.com/wgsense/core/internal/gatewayproxy"
 	"github.com/wgsense/core/internal/healthcheck"
 	"github.com/wgsense/core/internal/location"
@@ -165,7 +166,9 @@ func main() {
 		repairProfileOwnership(managedOwner.Home, cDir, managedOwner.UID, chownToUser)
 	}
 
-	loc := location.New()
+	// 受信任 = 网关 MAC 在受信任列表里。旧版的受信任网段只在首次升级时用来提示确认一次。
+	gateways := gateway.Open(filepath.Join(rtDir, "gateway.json"), cfg.TrustedNetworkPrefixes)
+	loc := gateway.Locator{Locator: location.New(), Store: gateways}
 	tun := tunnel.New(cDir)
 	ipv6Path := filepath.Join(rtDir, "tunnel-ipv6.json")
 	if configurable, ok := tun.(tunnel.IPv6Configurable); ok {
@@ -185,6 +188,7 @@ func main() {
 		log.Printf("未指定启动暂停状态，保留已有守护状态 paused=%t", p.IsPaused())
 	}
 	eng := policy.New(cfg, loc, tun, hc, p)
+	gateways.Logf = eng.Logf
 	eng.SetService("default") // 默认 profile，可从 /api/profiles 选
 	eng.SetPassive(*passive)
 	eng.SetAppOwned(*appOwned)
@@ -337,6 +341,7 @@ func main() {
 	log.Printf("WgSense daemon 启动 interval=%ds api=%s mihomo=%s passive=%t auto_connect_untrusted=%t app_owned=%t", cfg.IntervalSeconds, *apiAddr, proxyCfg.Address, *passive, cfg.AutoConnectUntrusted, *appOwned)
 	apiSrv := api.New(*apiAddr, eng, transSvc, proxySvc)
 	apiSrv.SetMihomo(mihomoMgr)
+	apiSrv.SetGateways(gateways)
 	if *managed {
 		apiSrv.SetService(func() service.Info { return service.RuntimeInfo(managedOwner, binaryHash) }, func(_ context.Context, req service.Request) (service.Request, error) {
 			req.Owner = managedOwner

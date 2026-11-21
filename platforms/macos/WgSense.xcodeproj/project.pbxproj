@@ -36,6 +36,7 @@
 		521899CB83778C9021CC3025 /* WgSenseWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7E48C549BB7D40A8B916CC0B /* WgSenseWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5788738D511517DE2321E8E8 /* DaemonAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B3455C78FB99740D40CFE98 /* DaemonAPIClient.swift */; };
 		5C89F8AE623FCFC4434B574E /* OpenWrtRuleSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 796A56DA9FD3124885280DD5 /* OpenWrtRuleSource.swift */; };
+		5FA0F6D1896A34A25CC72A51 /* GatewayManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9D8CA878E2D28E60A12CD0 /* GatewayManagerView.swift */; };
 		62D7AEBEBC61205E8B0ADBA3 /* MenuBarComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70096D6DF1BCFA12942C300 /* MenuBarComponents.swift */; };
 		63EA41169A70F91B9ADD8037 /* WgDaemonText.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3569EC7F13427742A6A778 /* WgDaemonText.swift */; };
 		65F94DE5427036A4F67E7751 /* OverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DF23D4A47461A7F12D1F16B /* OverviewView.swift */; };
@@ -216,6 +217,7 @@
 		F45A959BB63493FAC419B590 /* speedlab.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = speedlab.sh; sourceTree = "<group>"; };
 		F62D9EEE52A2092FAF858600 /* WgWindowVisibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WgWindowVisibility.swift; sourceTree = "<group>"; };
 		FB8BEADBFB4F30FEA8CAE2D2 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		FC9D8CA878E2D28E60A12CD0 /* GatewayManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GatewayManagerView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -296,6 +298,7 @@
 		7B4DD8305A92693258E523D8 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				FC9D8CA878E2D28E60A12CD0 /* GatewayManagerView.swift */,
 				EA034BB1EC7512467D785C99 /* MainView.swift */,
 				FB8BEADBFB4F30FEA8CAE2D2 /* MenuBarView.swift */,
 				A49C3F1D162FD1D0653822E6 /* MihomoView.swift */,
@@ -565,6 +568,7 @@
 				AFA93798730A8E6F44DC3473 /* DaemonControlAPIClient.swift in Sources */,
 				BE5EC6E099B4A5BDF8F2E894 /* DaemonMaintenanceService.swift in Sources */,
 				D625B3B980AFA0E6E41EF3EF /* DaemonModels.swift in Sources */,
+				5FA0F6D1896A34A25CC72A51 /* GatewayManagerView.swift in Sources */,
 				4C47BFC3EDD559AB83009878 /* MainView.swift in Sources */,
 				62D7AEBEBC61205E8B0ADBA3 /* MenuBarComponents.swift in Sources */,
 				80D283F2D9F26F374C273E94 /* MenuBarView.swift in Sources */,
@@ -661,7 +665,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 45;
+				CURRENT_PROJECT_VERSION = 46;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = WgSenseWidget/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -670,7 +674,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 45;
+				MARKETING_VERSION = 46;
 				PRODUCT_BUNDLE_IDENTIFIER = com.wgsense.macos.widget;
 				PRODUCT_NAME = WgSenseWidget;
 				SDKROOT = macosx;
@@ -745,7 +749,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 45;
+				CURRENT_PROJECT_VERSION = 46;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Xtrim;
@@ -756,7 +760,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 45;
+				MARKETING_VERSION = 46;
 				PRODUCT_BUNDLE_IDENTIFIER = com.wgsense.macos;
 				PRODUCT_MODULE_NAME = WgSense;
 				PRODUCT_NAME = Xtrim;
@@ -772,7 +776,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 45;
+				CURRENT_PROJECT_VERSION = 46;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = WgSenseWidget/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -781,7 +785,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 45;
+				MARKETING_VERSION = 46;
 				PRODUCT_BUNDLE_IDENTIFIER = com.wgsense.macos.widget;
 				PRODUCT_NAME = WgSenseWidget;
 				SDKROOT = macosx;
@@ -863,7 +867,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 45;
+				CURRENT_PROJECT_VERSION = 46;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Xtrim;
@@ -874,7 +878,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 45;
+				MARKETING_VERSION = 46;
 				PRODUCT_BUNDLE_IDENTIFIER = com.wgsense.macos;
 				PRODUCT_MODULE_NAME = WgSense;
 				PRODUCT_NAME = Xtrim;

@@ -79,7 +79,8 @@ func (e *Engine) exitLocked() string {
 }
 
 // ExitHealth 当前出口是否健康，给纯良的心跳用（每 3 秒）。
-// 所选出口不在时再看网关代理：在家守护按设计断开隧道时，网关的透明代理就是实际出口。
+// 所选出口不在时再看网关直出：在受信任网关下守护按设计断开隧道，网关的透明代理就是实际出口；
+// 网关不受信任时不看网关代理。
 // 不拿 opMu：切换出口时引擎正持锁，心跳也必须能算，否则就是自己等自己。
 func (e *Engine) ExitHealth() (exit string, online bool, detail string) {
 	exit, online, detail = e.selectedExitHealth()
@@ -90,10 +91,26 @@ func (e *Engine) ExitHealth() (exit string, online bool, detail string) {
 		e.gatewayProbe.Reset()
 		return exit, online, detail
 	}
+	// 网关直出算出口 = 网关是受信任网关（MAC 对上，是自家路由器）且网关上的代理活着。
+	// 只看代理：同样跑 fake-ip 代理的别人家也会被当成安全出口；只看 MAC：自家代理挂了也照样休眠。
+	trusted, name := e.gatewayTrusted()
+	if !trusted {
+		e.gatewayProbe.Reset()
+		return exit, online, detail
+	}
 	if r := e.gatewayProbe.Probe(); r.Online {
-		return ExitGateway, true, fmt.Sprintf("%s 不可用（%s）；%s", exitName(exit), detail, r.Detail)
+		return ExitGateway, true, fmt.Sprintf("%s 不可用（%s）；受信任网关「%s」%s", exitName(exit), detail, name, r.Detail)
 	}
 	return exit, online, detail
+}
+
+// gatewayTrusted 当前网关是否受信任（守护与纯良共用同一个判定）。
+func (e *Engine) gatewayTrusted() (bool, string) {
+	if r, ok := e.loc.(GatewayReporter); ok {
+		v := r.GatewayVerdict()
+		return v.Trusted, v.Name
+	}
+	return e.loc.Trusted(), ""
 }
 
 func exitName(exit string) string {

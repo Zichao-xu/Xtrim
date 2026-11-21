@@ -13877,6 +13877,64 @@
         }
       }
     },
+    "上次见到 " : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "آخر ظهور "
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last seen "
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "آخرین مشاهده "
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最終検出 "
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마지막 감지 "
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Последнее обнаружение "
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Son görülme "
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lần cuối thấy "
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上次出現 "
+          }
+        }
+      }
+    },
     "上行" : {
       "localizations" : {
         "ar" : {
@@ -14881,6 +14939,64 @@
         }
       }
     },
+    "不再提示" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Don't show again"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不再提示"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今後表示しない"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다시 표시 안 함"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Больше не показывать"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "دیگر نشان نده"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "عدم الإظهار مجددًا"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir daha gösterme"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không nhắc lại"
+          }
+        }
+      }
+    },
     "不可用" : {
       "localizations" : {
         "ar" : {
@@ -15051,6 +15167,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "不必回家的地區（如在香港）：本機核心直接出境"
+          }
+        }
+      }
+    },
+    "不是家" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ليس المنزل"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not home"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "خانه نیست"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自宅ではない"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집 아님"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не дома"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ev değil"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không phải nhà"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不是家"
           }
         }
       }
@@ -17812,6 +17987,65 @@
         }
       }
     },
+    "以前按网段判定在家，同网段的别人家也会被当成在家。当前网关还没被信任，所以 WireGuard 照常连接。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "كان المنزل يُحدَّد بالشبكة الفرعية، فتُحسب منازل أخرى على الشبكة نفسها كمنزلك. البوابة الحالية غير موثوقة بعد، لذا يتصل WireGuard كالمعتاد."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Home detection used the subnet, so other homes on the same subnet also counted as home. This gateway isn't trusted yet, so WireGuard connects as usual."
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "قبلاً خانه با زیرشبکه تشخیص داده می‌شد، پس خانه‌های دیگر در همان زیرشبکه هم خانه محسوب می‌شدند. دروازهٔ فعلی هنوز مورد اعتماد نیست، پس WireGuard طبق معمول وصل می‌شود."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以前はサブネットで自宅を判定していたため、同じサブネットの別の家も自宅と判定されました。現在のゲートウェイは未信頼のため、WireGuard は通常どおり接続します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이전에는 서브넷으로 집을 판단해 같은 서브넷의 다른 집도 집으로 인식했습니다. 현재 게이트웨이는 아직 신뢰되지 않아 WireGuard가 평소대로 연결됩니다."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Раньше дом определялся по подсети, поэтому чужой дом в той же подсети тоже считался своим. Текущий шлюз ещё не доверенный, поэтому WireGuard подключается как обычно."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Önceden ev, alt ağa göre belirleniyordu; aynı alt ağdaki başka evler de ev sayılıyordu. Mevcut ağ geçidi henüz güvenilir değil, bu yüzden WireGuard normal bağlanır."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trước đây nhận diện nhà theo mạng con nên nhà khác cùng mạng con cũng bị coi là nhà. Cổng hiện tại chưa được tin cậy, nên WireGuard vẫn kết nối như thường."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以前依網段判定在家，相同網段的別人家也會被當成在家。目前閘道尚未受信任，因此 WireGuard 照常連線。"
+          }
+        }
+      }
+    },
     "休眠" : {
       "localizations" : {
         "ar" : {
@@ -18791,6 +19025,7 @@
       }
     },
     "例：10.0.0., 192.168.1." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -19808,6 +20043,64 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "保留位址"
+          }
+        }
+      }
+    },
+    "信任" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "وثوق"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trust"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اعتماد"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信頼"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신뢰"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доверять"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güven"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tin cậy"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信任"
           }
         }
       }
@@ -22136,6 +22429,64 @@
         }
       }
     },
+    "关掉：这里不再算家，守护会连上 VPN" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Off: no longer home; daemon connects VPN"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "關閉：這裡不再視為家，daemon 會連上 VPN"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "オフ：自宅扱いを解除し、daemon が VPN に接続"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "끄기: 집으로 간주하지 않으며 daemon이 VPN 연결"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выкл.: больше не дома, daemon подключит VPN"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "خاموش: دیگر خانه نیست؛ daemon به VPN وصل می‌شود"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "إيقاف: لم يعد المنزل؛ سيتصل daemon بـ VPN"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kapalı: artık ev sayılmaz, daemon VPN'e bağlanır"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tắt: không còn là nhà, daemon sẽ kết nối VPN"
+          }
+        }
+      }
+    },
     "关键字" : {
       "localizations" : {
         "ar" : {
@@ -23930,6 +24281,64 @@
         }
       }
     },
+    "出口 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exit %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "出口 %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "出口 %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "출구 %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выход %@"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "خروجی %@"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "المخرج %@"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Çıkış %@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đầu ra %@"
+          }
+        }
+      }
+    },
     "出口 %@ 不可用（%@）：境外直连一律拒绝，国内与局域网照常" : {
       "localizations" : {
         "ar" : {
@@ -23990,6 +24399,64 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "出口 %@ 不可用（%@）：境外直連一律拒絕，國內與區域網路照常"
+          }
+        }
+      }
+    },
+    "出口 %@ 在线 · 纯良休眠" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exit %@ online · Purity asleep"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "出口 %@ 上線 · 純良休眠"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "出口 %@ オンライン · 純良休止中"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "출구 %@ 온라인 · Purity 휴면"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выход %@ в сети · Purity спит"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "خروجی %@ آنلاین · Purity در خواب"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "المخرج %@ متصل · Purity في سكون"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Çıkış %@ çevrimiçi · Purity uykuda"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đầu ra %@ trực tuyến · Purity ngủ"
           }
         }
       }
@@ -24460,6 +24927,64 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "出口在線（%@），不干預；出口一中斷立即接管"
+          }
+        }
+      }
+    },
+    "出口调度" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exit scheduling"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "出口排程"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "出口振り分け"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "출구 스케줄링"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбор выхода"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "زمان‌بندی خروجی"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "جدولة المخارج"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Çıkış planlama"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Điều phối đầu ra"
           }
         }
       }
@@ -26267,6 +26792,122 @@
         }
       }
     },
+    "判定只看网关 MAC；不在列表、读不到或没有网关都按外部网络处理。记录只存在本机。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uses only the gateway MAC. Unlisted, unreadable or missing gateways count as external networks. Records stay on this Mac."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "僅依閘道 MAC 判定；不在清單、無法讀取或沒有閘道，一律視為外部網路。紀錄僅存於本機。"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゲートウェイの MAC のみで判定。未登録・取得不可・ゲートウェイなしは外部ネットワーク扱い。記録はこの Mac にのみ保存。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게이트웨이 MAC으로만 판단합니다. 목록에 없거나 읽을 수 없거나 게이트웨이가 없으면 외부 네트워크로 처리합니다. 기록은 이 Mac에만 저장됩니다."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверяется только MAC шлюза. Нет в списке, не читается или нет шлюза — внешняя сеть. Записи хранятся только на этом Mac."
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تشخیص فقط با MAC دروازه است؛ دروازهٔ ثبت‌نشده، ناخوانا یا ناموجود، شبکهٔ خارجی محسوب می‌شود. سوابق فقط در این Mac ذخیره می‌شوند."
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يُعتمد فقط على MAC البوابة؛ إذا لم تكن مدرجة أو تعذرت قراءتها أو لم توجد، تُعد الشبكة خارجية. تُحفظ السجلات على هذا الـ Mac فقط."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yalnızca ağ geçidi MAC'i kullanılır; listede yoksa, okunamıyorsa veya ağ geçidi yoksa dış ağ sayılır. Kayıtlar yalnızca bu Mac'te tutulur."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chỉ xét MAC cổng mạng; không có trong danh sách, không đọc được hoặc không có cổng mạng đều tính là mạng ngoài. Bản ghi chỉ lưu trên máy này."
+          }
+        }
+      }
+    },
+    "判定记录" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "سجل التحديد"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detection log"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "گزارش تشخیص"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "判定履歴"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "판단 기록"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Журнал определений"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Algılama kaydı"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhật ký nhận diện"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "判定紀錄"
+          }
+        }
+      }
+    },
     "到期时间 %@" : {
       "localizations" : {
         "ar" : {
@@ -27567,6 +28208,123 @@
         }
       }
     },
+    "升级后待确认 · 是家就打开开关" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm after upgrade · At home? Turn on"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "升級後待確認 · 是家就開啟開關"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更新後の確認待ち · 自宅ならオンに"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "업데이트 후 확인 필요 · 집이면 켜세요"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверка после обновления · Дома? Включите"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "پس از ارتقا تأیید کنید · اگر خانه است، روشن کنید"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "بانتظار التأكيد بعد التحديث · فعّله إن كنت بالمنزل"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güncelleme sonrası onay gerekli · Evdeyseniz açın"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chờ xác nhận sau nâng cấp · Ở nhà thì bật"
+          }
+        }
+      }
+    },
+    "升级后待确认 · 点「信任」恢复在家断开" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "بانتظار التأكيد بعد التحديث · اضغط «وثوق» لاستئناف الفصل في المنزل"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm after update · Click “Trust” to disconnect at home again"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "پس از به‌روزرسانی نیاز به تأیید دارد · برای قطع دوباره در خانه «اعتماد» را بزنید"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更新後の確認待ち · 「信頼」で自宅での切断を再開"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "업데이트 후 확인 필요 · ‘신뢰’를 눌러 집에서 연결 해제 재개"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нужно подтверждение после обновления · Нажмите «Доверять» для отключения дома"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güncelleme sonrası onay gerekli · Evde bağlantıyı kesmek için “Güven”e tıklayın"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cần xác nhận sau cập nhật · Nhấn “Tin cậy” để lại ngắt kết nối ở nhà"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "升級後待確認 · 點「信任」恢復在家中斷連線"
+          }
+        }
+      }
+    },
     "半双工" : {
       "localizations" : {
         "ar" : {
@@ -28406,16 +29164,22 @@
     },
     "原文" : {
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "النص الأصلي"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Original text"
           }
         },
-        "zh-Hant" : {
+        "fa" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "原文"
+            "value" : "متن اصلی"
           }
         },
         "ja" : {
@@ -28436,18 +29200,6 @@
             "value" : "Исходный текст"
           }
         },
-        "fa" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "متن اصلی"
-          }
-        },
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "النص الأصلي"
-          }
-        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -28458,6 +29210,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Văn bản gốc"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "原文"
           }
         }
       }
@@ -30081,6 +30839,65 @@
         }
       }
     },
+    "取消信任" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "إلغاء الوثوق"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Untrust"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لغو اعتماد"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信頼を解除"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신뢰 해제"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отменить доверие"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güveni kaldır"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bỏ tin cậy"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消信任"
+          }
+        }
+      }
+    },
     "取消发送" : {
       "localizations" : {
         "ar" : {
@@ -30396,6 +31213,414 @@
         }
       }
     },
+    "受信任「%@」· VPN 断开" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trusted “%@” · VPN disconnected"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信任「%@」· VPN 已中斷"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」は信頼済み · VPN 切断"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신뢰됨 ‘%@’ · VPN 연결 해제"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доверенная «%@» · VPN отключён"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» مورد اعتماد · VPN قطع است"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» موثوقة · VPN مفصول"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güvenilir “%@” · VPN bağlantısı kesildi"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tin cậy “%@” · VPN đã ngắt"
+          }
+        }
+      }
+    },
+    "受信任「%@」· 守护保持 VPN 断开" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "موثوق «%@» · يُبقي daemon اتصال VPN مفصولًا"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trusted “%@” · daemon keeps VPN disconnected"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "مورد اعتماد «%@» · daemon اتصال VPN را قطع نگه می‌دارد"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信頼済み「%@」· daemon が VPN の切断を維持"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신뢰됨 ‘%@’ · daemon이 VPN 연결 해제 유지"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доверенный «%@» · daemon держит VPN отключённым"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güvenilir “%@” · daemon VPN bağlantısını kesik tutar"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tin cậy “%@” · daemon giữ VPN ngắt kết nối"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已信任「%@」· 常駐程式保持 VPN 中斷"
+          }
+        }
+      }
+    },
+    "受信任时守护保持 VPN 断开；不在列表、读不到 MAC 或没有网关时一律按外部网络处理。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "عند الوثوق بالبوابة، يُبقي daemon اتصال VPN مفصولًا؛ وتُعد الشبكة خارجية إذا لم تكن البوابة مدرجة، أو تعذرت قراءة MAC، أو لم توجد بوابة."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For trusted gateways, the daemon keeps VPN disconnected. Unlisted gateways, unreadable MACs or no gateway are treated as external networks."
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "در حالت مورد اعتماد، daemon اتصال VPN را قطع نگه می‌دارد؛ نبودن در فهرست، ناخوانا بودن MAC یا نبود دروازه همیشه شبکهٔ خارجی محسوب می‌شود."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信頼済みの場合、daemon は VPN の切断を維持します。一覧にない、MAC を取得できない、ゲートウェイがない場合は外部ネットワークとして扱います。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신뢰 시 daemon이 VPN 연결 해제를 유지합니다. 목록에 없거나 MAC을 읽을 수 없거나 게이트웨이가 없으면 외부 네트워크로 처리합니다."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для доверенных шлюзов daemon держит VPN отключённым. Если шлюза нет в списке, MAC недоступен или шлюз отсутствует, сеть считается внешней."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güvenilirken daemon VPN bağlantısını kesik tutar. Listede yoksa, MAC okunamıyorsa veya ağ geçidi yoksa harici ağ sayılır."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Khi tin cậy, daemon giữ VPN ngắt kết nối; nếu không có trong danh sách, không đọc được MAC hoặc không có cổng, luôn coi là mạng ngoài."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "受信任時常駐程式保持 VPN 中斷；不在清單、無法讀取 MAC 或沒有閘道時，一律視為外部網路。"
+          }
+        }
+      }
+    },
+    "受信任网关" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "البوابات الموثوقة"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trusted gateways"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "دروازه‌های مورد اعتماد"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信頼済みゲートウェイ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신뢰하는 게이트웨이"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доверенные шлюзы"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güvenilir ağ geçitleri"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cổng tin cậy"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "受信任閘道"
+          }
+        }
+      }
+    },
+    "受信任网关「%@」直出 · 纯良休眠" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trusted gateway “%@” direct · Purity asleep"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信任閘道「%@」直連 · 純良休眠"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信頼済みゲートウェイ「%@」から直接接続 · 純良休止中"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신뢰하는 게이트웨이 ‘%@’ 직접 연결 · Purity 휴면"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Напрямую через доверенный шлюз «%@» · Purity спит"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اتصال مستقیم از دروازهٔ مورد اعتماد «%@» · Purity در خواب"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اتصال مباشر عبر البوابة الموثوقة «%@» · Purity في سكون"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güvenilir ağ geçidi “%@” ile doğrudan · Purity uykuda"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kết nối thẳng qua cổng tin cậy “%@” · Purity ngủ"
+          }
+        }
+      }
+    },
+    "受信任网关「%@」，守护保持 VPN 断开" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "بوابة موثوقة «%@»، يُبقي daemon اتصال VPN مفصولًا"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trusted gateway “%@”; daemon keeps VPN disconnected"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "دروازهٔ مورد اعتماد «%@»، daemon اتصال VPN را قطع نگه می‌دارد"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信頼済みゲートウェイ「%@」、daemon が VPN の切断を維持"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신뢰하는 게이트웨이 ‘%@’, daemon이 VPN 연결 해제 유지"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доверенный шлюз «%@», daemon держит VPN отключённым"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güvenilir ağ geçidi “%@”, daemon VPN bağlantısını kesik tutar"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cổng tin cậy “%@”, daemon giữ VPN ngắt kết nối"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "受信任閘道「%@」，常駐程式保持 VPN 中斷"
+          }
+        }
+      }
+    },
+    "受信任网关下断开 VPN，其余网络自动连接" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disconnect VPN on trusted gateways; auto-connect elsewhere"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用信任閘道時中斷 VPN，其餘網路自動連線"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信頼済みゲートウェイでは VPN を切断、他のネットワークでは自動接続"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신뢰하는 게이트웨이에서는 VPN 해제, 다른 네트워크에서는 자동 연결"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На доверенном шлюзе VPN отключается, в других сетях — подключается"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "قطع VPN در دروازه‌های مورد اعتماد؛ اتصال خودکار در سایر شبکه‌ها"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "فصل VPN عند بوابة موثوقة، والاتصال تلقائيًا في الشبكات الأخرى"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güvenilir ağ geçidinde VPN kesilir, diğer ağlarda otomatik bağlanır"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ngắt VPN ở cổng tin cậy, tự kết nối ở mạng khác"
+          }
+        }
+      }
+    },
     "受信任网络" : {
       "localizations" : {
         "ar" : {
@@ -30635,6 +31860,7 @@
       }
     },
     "受信任网络前缀" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -30756,6 +31982,122 @@
         }
       }
     },
+    "受信任规则已改为网关 MAC" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "أصبحت قواعد الوثوق تعتمد على MAC البوابة"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trust rules now use gateway MAC"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "قواعد اعتماد اکنون بر پایهٔ MAC دروازه است"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信頼ルールをゲートウェイの MAC に変更しました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신뢰 규칙이 게이트웨이 MAC 기준으로 변경됨"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доверие теперь определяется по MAC шлюза"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güven kuralları artık ağ geçidi MAC adresini kullanıyor"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quy tắc tin cậy đã chuyển sang MAC của cổng"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信任規則已改用閘道 MAC"
+          }
+        }
+      }
+    },
+    "受信任规则已改为网关 MAC，旧网段不再算在家。是家就打开开关。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trust now uses gateway MACs. Old subnets no longer count as home. At home? Turn on the switch."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信任規則已改用閘道 MAC，舊網段不再視為家。是家就開啟開關。"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信頼ルールをゲートウェイの MAC に変更しました。以前のサブネットは自宅扱いになりません。自宅ならスイッチをオンにしてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신뢰 규칙이 게이트웨이 MAC으로 변경되었습니다. 이전 서브넷은 더 이상 집으로 간주하지 않습니다. 집이면 스위치를 켜세요."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доверие теперь определяется по MAC шлюза. Прежние подсети больше не считаются домом. Если вы дома, включите переключатель."
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "قانون اعتماد به MAC دروازه تغییر کرده است؛ زیرشبکه‌های قبلی دیگر خانه محسوب نمی‌شوند. اگر خانه است، کلید را روشن کنید."
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "أصبحت الثقة تعتمد على MAC البوابة؛ لم تعد الشبكات الفرعية السابقة تُعد منزلًا. فعّل المفتاح إن كنت بالمنزل."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güven kuralı artık ağ geçidi MAC'ini kullanıyor. Eski alt ağlar ev sayılmıyor. Evdeyseniz anahtarı açın."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quy tắc tin cậy đã chuyển sang MAC cổng mạng; dải mạng cũ không còn được tính là nhà. Ở nhà thì bật công tắc."
+          }
+        }
+      }
+    },
     "只启动后台服务，不连接 VPN" : {
       "localizations" : {
         "ar" : {
@@ -30816,6 +32158,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "只啓動後台服務，不連接 VPN"
+          }
+        }
+      }
+    },
+    "只存在本机，最多 20 个。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تُحفظ على هذا الـ Mac فقط، بحد أقصى 20."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stored only on this Mac, up to 20."
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "فقط در این Mac ذخیره می‌شود، حداکثر ۲۰ مورد."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この Mac にのみ保存、最大20件。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 Mac에만 저장되며 최대 20개입니다."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Хранятся только на этом Mac, не более 20."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yalnızca bu Mac’te saklanır, en fazla 20."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chỉ lưu trên máy này, tối đa 20."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "僅儲存於本機，最多 20 個。"
           }
         }
       }
@@ -31164,6 +32565,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "只能統計面板開啟期間的連線。記錄開始時間：%@"
+          }
+        }
+      }
+    },
+    "可以加多个，比如第二套网络。名字只给你看，判定只看 MAC。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يمكن إضافة عدة بوابات، مثل شبكة ثانية. الاسم للعرض فقط؛ يعتمد التحديد على MAC وحده."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add more than one, such as a second network. Names are just for you; detection uses only MAC."
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "می‌توانید چند مورد، مثل شبکهٔ دوم، اضافه کنید. نام فقط برای نمایش است؛ تشخیص فقط با MAC انجام می‌شود."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "別のネットワークなど、複数追加できます。名前は表示用で、判定には MAC のみを使います。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "두 번째 네트워크 등 여러 개를 추가할 수 있습니다. 이름은 표시용이며 MAC으로만 판단합니다."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Можно добавить несколько, например вторую сеть. Имя — только для вас, определение идёт лишь по MAC."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İkinci bir ağ gibi birden fazlasını ekleyebilirsiniz. Adlar yalnızca sizin içindir; algılama sadece MAC kullanır."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Có thể thêm nhiều cổng, như mạng thứ hai. Tên chỉ để bạn xem, nhận diện chỉ dựa vào MAC."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可加入多個，例如第二組網路。名稱僅供你辨識，判定只看 MAC。"
           }
         }
       }
@@ -31716,6 +33176,123 @@
         }
       }
     },
+    "同网段的别人家不会再被当成在家。当前网关还没被信任，WireGuard 会照常连接；到 VPN 页「网关」卡打开开关即可恢复在家断开。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Other homes on the same subnet no longer count as home. This gateway isn't trusted yet, so WireGuard connects as usual. Turn on the switch in the VPN page's “Gateway” card to disconnect at home again."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同網段的別人家不會再被視為在家。目前閘道尚未受信任，WireGuard 會照常連線；到 VPN 頁「閘道」卡片開啟開關，即可恢復在家中斷。"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同じサブネットの他の家を自宅と誤認しなくなりました。現在のゲートウェイは未信頼のため、WireGuard は通常どおり接続します。VPN ページの「ゲートウェイ」カードでスイッチをオンにすると、自宅での自動切断が復元されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "같은 서브넷의 다른 집을 내 집으로 간주하지 않습니다. 현재 게이트웨이는 아직 신뢰하지 않아 WireGuard가 평소처럼 연결됩니다. VPN 페이지의 ‘게이트웨이’ 카드에서 스위치를 켜면 집에서 자동 해제가 복원됩니다."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Чужие дома в той же подсети больше не считаются вашим домом. Текущий шлюз ещё не доверенный, поэтому WireGuard подключается как обычно. Включите переключатель в карточке «Шлюз» на странице VPN, чтобы снова отключать VPN дома."
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "خانه‌های دیگر با زیرشبکهٔ یکسان دیگر خانهٔ شما محسوب نمی‌شوند. دروازهٔ فعلی هنوز مورد اعتماد نیست و WireGuard طبق معمول وصل می‌شود؛ برای قطع دوباره در خانه، کلید کارت «دروازه» در صفحهٔ VPN را روشن کنید."
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لن تُعد منازل الآخرين ذات الشبكة الفرعية نفسها منزلك. البوابة الحالية غير موثوقة بعد، لذا يتصل WireGuard كالمعتاد؛ فعّل المفتاح في بطاقة «البوابة» بصفحة VPN لاستعادة الفصل في المنزل."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aynı alt ağı kullanan başka evler artık eviniz sayılmaz. Geçerli ağ geçidi henüz güvenilir değil; WireGuard normal şekilde bağlanır. Evde bağlantının kesilmesini geri getirmek için VPN sayfasındaki “Ağ geçidi” kartında anahtarı açın."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhà khác dùng cùng dải mạng không còn bị nhận nhầm là nhà bạn. Cổng hiện tại chưa được tin cậy nên WireGuard vẫn kết nối như thường; bật công tắc ở thẻ “Cổng mạng” trên trang VPN để khôi phục ngắt kết nối ở nhà."
+          }
+        }
+      }
+    },
+    "同网段的别人家不会再被当成在家。当前网关还没被信任，WireGuard 会照常连接；到 VPN 页「网关」卡点「信任」即可恢复在家断开。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لن تُحسب منازل أخرى على الشبكة الفرعية نفسها كمنزلك. البوابة الحالية غير موثوقة بعد، لذا يتصل WireGuard كالمعتاد؛ اضغط «وثوق» في بطاقة «البوابة» بصفحة VPN لاستئناف الفصل في المنزل."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Other homes on the same subnet no longer count as home. This gateway isn't trusted yet, so WireGuard connects as usual. Click “Trust” in the “Gateway” card on the VPN page to disconnect at home again."
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "خانه‌های دیگر در همان زیرشبکه دیگر خانه محسوب نمی‌شوند. دروازهٔ فعلی هنوز مورد اعتماد نیست و WireGuard طبق معمول وصل می‌شود؛ برای قطع دوباره در خانه، در کارت «دروازه» در صفحهٔ VPN روی «اعتماد» بزنید."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同じサブネットの別の家を自宅と誤判定しなくなりました。現在のゲートウェイは未信頼のため、WireGuard は通常どおり接続します。VPN ページの「ゲートウェイ」カードで「信頼」を押すと、自宅での切断を再開できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "같은 서브넷의 다른 집을 더 이상 집으로 인식하지 않습니다. 현재 게이트웨이는 아직 신뢰되지 않아 WireGuard가 평소대로 연결됩니다. VPN 페이지의 ‘게이트웨이’ 카드에서 ‘신뢰’를 누르면 집에서 연결 해제가 재개됩니다."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Чужие дома в той же подсети больше не считаются своим. Текущий шлюз ещё не доверенный, поэтому WireGuard подключается как обычно. Нажмите «Доверять» в карточке «Шлюз» на странице VPN, чтобы снова отключаться дома."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aynı alt ağdaki başka evler artık ev sayılmaz. Mevcut ağ geçidi henüz güvenilir değil, WireGuard normal bağlanır. Evde bağlantıyı kesmeyi sürdürmek için VPN sayfasındaki “Ağ geçidi” kartında “Güven”e tıklayın."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhà khác cùng mạng con sẽ không còn bị coi là nhà. Cổng hiện tại chưa được tin cậy, nên WireGuard vẫn kết nối như thường; nhấn “Tin cậy” trong thẻ “Cổng” ở trang VPN để lại ngắt kết nối ở nhà."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "相同網段的別人家不會再被當成在家。目前閘道尚未受信任，WireGuard 會照常連線；到 VPN 頁「閘道」卡片點「信任」，即可恢復在家中斷連線。"
+          }
+        }
+      }
+    },
     "同跳其他地址：" : {
       "localizations" : {
         "ar" : {
@@ -31828,6 +33405,64 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "名冊為空：先探索或新增端點"
+          }
+        }
+      }
+    },
+    "名字" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "الاسم"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "نام"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "名前"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이름"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Имя"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ad"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tên"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "名稱"
           }
         }
       }
@@ -33639,6 +35274,7 @@
       }
     },
     "命中这些前缀视为在家，守护会保持 VPN 断开" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -34399,6 +36035,64 @@
         }
       }
     },
+    "在家 · %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Home · %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在家 · %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自宅 · %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집 · %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дома · %@"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "خانه · %@"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "في المنزل · %@"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Evde · %@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ở nhà · %@"
+          }
+        }
+      }
+    },
     "在家 · 无出口" : {
       "localizations" : {
         "ar" : {
@@ -34458,6 +36152,7 @@
       }
     },
     "在家断开，外出自动连接" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -34511,6 +36206,123 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在家中斷，外出自動連線"
+          }
+        }
+      }
+    },
+    "在家时打开上面的开关，或从最近见过的网关里加" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "At home, turn on the switch above or add a recent gateway"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在家時開啟上方開關，或從最近出現的閘道中新增"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自宅で上のスイッチをオンにするか、最近のゲートウェイから追加"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집에서 위 스위치를 켜거나 최근 감지된 게이트웨이에서 추가"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дома включите переключатель выше или добавьте недавний шлюз"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "در خانه کلید بالا را روشن کنید یا از دروازه‌های اخیر اضافه کنید"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "في المنزل، فعّل المفتاح أعلاه أو أضف بوابة من البوابات الأخيرة"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Evdeyken yukarıdaki anahtarı açın veya son görülen ağ geçitlerinden ekleyin"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ở nhà, bật công tắc trên hoặc thêm từ các cổng mạng gần đây"
+          }
+        }
+      }
+    },
+    "在家时点「信任」，或从下面见过的网关里补加" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اضغط «وثوق» في المنزل، أو أضف بوابة ظهرت سابقًا أدناه"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click “Trust” at home, or add a previously seen gateway below"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "در خانه «اعتماد» را بزنید، یا از دروازه‌های دیده‌شدهٔ زیر اضافه کنید"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自宅で「信頼」を押すか、下の検出済みゲートウェイから追加"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집에서 ‘신뢰’를 누르거나 아래 감지된 게이트웨이에서 추가"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нажмите «Доверять» дома или добавьте шлюз из обнаруженных ниже"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Evdeyken “Güven”e tıklayın veya aşağıdaki görülen ağ geçitlerinden ekleyin"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhấn “Tin cậy” khi ở nhà, hoặc thêm từ các cổng đã thấy bên dưới"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在家時點「信任」，或從下方曾出現的閘道中加入"
           }
         }
       }
@@ -35817,6 +37629,7 @@
       }
     },
     "处境" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -40838,6 +42651,65 @@
         }
       }
     },
+    "已信任" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "موثوق"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trusted"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "مورد اعتماد"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信頼済み"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신뢰됨"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доверенный"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güvenilir"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã tin cậy"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已信任"
+          }
+        }
+      }
+    },
     "已停止" : {
       "localizations" : {
         "ar" : {
@@ -44495,6 +46367,122 @@
         }
       }
     },
+    "当前网关" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "البوابة الحالية"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current gateway"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "دروازهٔ فعلی"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現在のゲートウェイ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현재 게이트웨이"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Текущий шлюз"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mevcut ağ geçidi"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cổng hiện tại"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前閘道"
+          }
+        }
+      }
+    },
+    "当前网关未受信任" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current gateway untrusted"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前閘道未受信任"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現在のゲートウェイは未信頼"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현재 게이트웨이 신뢰 안 함"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Текущий шлюз не доверенный"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "دروازهٔ فعلی مورد اعتماد نیست"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "البوابة الحالية غير موثوقة"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geçerli ağ geçidi güvenilir değil"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cổng hiện tại chưa được tin cậy"
+          }
+        }
+      }
+    },
     "当前网络服务不支持，诊断探测仍被拦截" : {
       "localizations" : {
         "ar" : {
@@ -45885,6 +47873,64 @@
         }
       }
     },
+    "所有出口只放行国内" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All exits allow domestic traffic only"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所有出口僅放行中國境內流量"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全出口で中国国内の通信のみ許可"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 출구에서 중국 내 트래픽만 허용"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Все выходы разрешают трафик только внутри Китая"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "همهٔ خروجی‌ها فقط ترافیک داخلی چین را مجاز می‌دانند"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "كل المخارج تسمح بحركة البيانات داخل الصين فقط"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tüm çıkışlar yalnızca Çin içi trafiğe izin verir"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mọi đầu ra chỉ cho phép lưu lượng nội địa Trung Quốc"
+          }
+        }
+      }
+    },
     "所有出口（含隧道和代理）只放行国内" : {
       "localizations" : {
         "ar" : {
@@ -46754,6 +48800,64 @@
         }
       }
     },
+    "打开：这里是家（信任当前网关），守护会保持 VPN 断开" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On: this is home (trust this gateway); daemon keeps VPN disconnected"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開啟：這裡是家（信任目前閘道），daemon 會保持 VPN 中斷"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "オン：自宅に設定（現在のゲートウェイを信頼）、daemon が VPN の切断を維持"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "켜기: 집으로 설정(현재 게이트웨이 신뢰), daemon이 VPN 해제 유지"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вкл.: это дом (доверять текущему шлюзу), daemon оставит VPN отключённым"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "روشن: اینجا خانه است (اعتماد به دروازهٔ فعلی)؛ daemon اتصال VPN را قطع نگه می‌دارد"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تشغيل: هذا هو المنزل (الوثوق بالبوابة الحالية)؛ سيُبقي daemon اتصال VPN مفصولًا"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Açık: burası ev (geçerli ağ geçidine güven); daemon VPN'i kapalı tutar"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bật: đây là nhà (tin cậy cổng hiện tại), daemon giữ VPN ngắt kết nối"
+          }
+        }
+      }
+    },
     "执行" : {
       "localizations" : {
         "ar" : {
@@ -47484,6 +49588,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "掃描或手動添加設備"
+          }
+        }
+      }
+    },
+    "把当前网关加入受信任列表：守护会在这里保持 VPN 断开" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "أضف البوابة الحالية إلى الموثوقة: سيُبقي daemon اتصال VPN مفصولًا هنا"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trust this gateway: the daemon will keep VPN disconnected here"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "دروازهٔ فعلی را به فهرست مورد اعتماد اضافه کنید: daemon اینجا VPN را قطع نگه می‌دارد"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現在のゲートウェイを信頼リストに追加：ここでは daemon が VPN の切断を維持"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현재 게이트웨이를 신뢰 목록에 추가: 여기서는 daemon이 VPN 연결 해제 유지"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавьте текущий шлюз в доверенные: здесь daemon будет держать VPN отключённым"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mevcut ağ geçidini güvenilir listeye ekleyin: daemon burada VPN bağlantısını kesik tutar"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thêm cổng hiện tại vào danh sách tin cậy: daemon sẽ giữ VPN ngắt kết nối tại đây"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "將目前閘道加入信任清單：常駐程式會在此保持 VPN 中斷"
           }
         }
       }
@@ -53129,7 +55292,6 @@
       }
     },
     "无" : {
-      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -54066,6 +56228,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "無法連接服務器。"
+          }
+        }
+      }
+    },
+    "无网关" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لا توجد بوابة"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No gateway"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "بدون دروازه"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゲートウェイなし"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게이트웨이 없음"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет шлюза"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ağ geçidi yok"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không có cổng"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無閘道"
           }
         }
       }
@@ -55092,6 +57313,65 @@
         }
       }
     },
+    "旧版网络服务按网段判定，更新后改看网关 MAC" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "كانت خدمة الشبكة القديمة تعتمد على الشبكة الفرعية؛ بعد التحديث تعتمد على MAC البوابة"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The old network service used subnets; after updating, it uses gateway MAC"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "سرویس شبکهٔ قدیمی از زیرشبکه استفاده می‌کرد؛ پس از به‌روزرسانی از MAC دروازه استفاده می‌کند"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "旧版ネットワークサービスはサブネットで判定、更新後はゲートウェイの MAC を使用"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이전 네트워크 서비스는 서브넷으로 판단하며, 업데이트 후 게이트웨이 MAC 사용"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Старая сетевая служба использовала подсеть, после обновления — MAC шлюза"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eski ağ hizmeti alt ağı kullanıyordu; güncelleme sonrası ağ geçidi MAC adresini kullanır"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dịch vụ mạng cũ nhận diện theo mạng con, sau cập nhật dùng MAC của cổng"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "舊版網路服務依網段判定，更新後改看閘道 MAC"
+          }
+        }
+      }
+    },
     "时区：%@" : {
       "localizations" : {
         "ar" : {
@@ -55262,6 +57542,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "要刪除 [%@] 記錄嗎？刪除只會寫入設定檔，點擊右上角重新啟動後生效"
+          }
+        }
+      }
+    },
+    "是家，信任" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "هذا المنزل، وثوق"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Home, trust"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "خانه است، اعتماد"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自宅として信頼"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집으로 신뢰"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Это дом, доверять"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ev, güven"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Là nhà, tin cậy"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "是家，信任"
           }
         }
       }
@@ -55692,16 +58031,22 @@
     },
     "显示后台服务写下的原文，不翻译" : {
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "عرض النص الأصلي المسجّل بواسطة خدمة الخلفية دون ترجمة"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Show original text from the background service, untranslated"
           }
         },
-        "zh-Hant" : {
+        "fa" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "顯示背景服務寫入的原文，不翻譯"
+            "value" : "نمایش متن اصلی ثبت‌شده توسط سرویس پس‌زمینه، بدون ترجمه"
           }
         },
         "ja" : {
@@ -55722,18 +58067,6 @@
             "value" : "Показывать исходный текст фоновой службы без перевода"
           }
         },
-        "fa" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "نمایش متن اصلی ثبت‌شده توسط سرویس پس‌زمینه، بدون ترجمه"
-          }
-        },
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "عرض النص الأصلي المسجّل بواسطة خدمة الخلفية دون ترجمة"
-          }
-        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -55744,6 +58077,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hiện văn bản gốc do dịch vụ nền ghi lại, không dịch"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "顯示背景服務寫入的原文，不翻譯"
           }
         }
       }
@@ -56733,6 +59072,64 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "暫無訂閱"
+          }
+        }
+      }
+    },
+    "暂无记录" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لا سجلات بعد"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No records yet"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "هنوز سابقه‌ای نیست"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "履歴なし"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 기록 없음"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пока нет записей"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Henüz kayıt yok"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa có bản ghi"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚無紀錄"
           }
         }
       }
@@ -57818,6 +60215,64 @@
         }
       }
     },
+    "最近见过的网关" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "البوابات التي ظهرت مؤخرًا"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recently seen gateways"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "دروازه‌های اخیراً دیده‌شده"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近検出したゲートウェイ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최근 감지된 게이트웨이"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Недавно обнаруженные шлюзы"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Son görülen ağ geçitleri"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cổng đã thấy gần đây"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近出現的閘道"
+          }
+        }
+      }
+    },
     "最近追踪过" : {
       "localizations" : {
         "ar" : {
@@ -58477,6 +60932,182 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "未發現 WgSense 高風險殘留"
+          }
+        }
+      }
+    },
+    "未受信任" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "غير موثوق"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Untrusted"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "غیرقابل اعتماد"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未信頼"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신뢰되지 않음"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Недоверенный"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güvenilir değil"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa tin cậy"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未受信任"
+          }
+        }
+      }
+    },
+    "未受信任 · 按外部网络" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Untrusted · External network"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未受信任 · 視為外部網路"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未信頼 · 外部ネットワーク扱い"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신뢰 안 함 · 외부 네트워크로 처리"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет доверия · Внешняя сеть"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "نامطمئن · شبکهٔ خارجی"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "غير موثوقة · تُعد شبكة خارجية"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güvenilir değil · Dış ağ sayılır"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa tin cậy · Tính là mạng ngoài"
+          }
+        }
+      }
+    },
+    "未受信任 · 按外部网络处理" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "غير موثوق · تُعامل كشبكة خارجية"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Untrusted · Treated as external"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "غیرقابل اعتماد · شبکهٔ خارجی محسوب می‌شود"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未信頼 · 外部ネットワーク扱い"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신뢰되지 않음 · 외부 네트워크로 처리"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Недоверенный · Внешняя сеть"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güvenilir değil · Harici ağ sayılır"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa tin cậy · Coi là mạng ngoài"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未受信任 · 視為外部網路"
           }
         }
       }
@@ -66044,6 +68675,239 @@
         }
       }
     },
+    "没有可用出口 · 纯良拒绝境外直连（已拒绝 %llu 包）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No exits available · Purity blocks direct overseas traffic (%llu packets blocked)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無可用出口 · 純良封鎖境外直連（已封鎖 %llu 個封包）"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "利用可能な出口なし · 純良が海外への直接接続を遮断（%llu パケット遮断済み）"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사용 가능한 출구 없음 · Purity가 해외 직접 연결 차단(%llu개 패킷 차단됨)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет доступных выходов · Purity блокирует прямой зарубежный трафик (пакетов: %llu)"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "خروجی در دسترس نیست · Purity اتصال مستقیم خارجی را مسدود می‌کند (%llu بسته مسدود شده)"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لا مخارج متاحة · Purity يحظر الاتصال المباشر بالخارج (حُظرت %llu حزمة)"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kullanılabilir çıkış yok · Purity doğrudan yurt dışı trafiğini engeller (%llu paket engellendi)"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không có đầu ra khả dụng · Purity chặn kết nối thẳng ra nước ngoài (đã chặn %llu gói)"
+          }
+        }
+      }
+    },
+    "没有网关" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No gateway"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "沒有閘道"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゲートウェイなし"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게이트웨이 없음"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет шлюза"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "بدون دروازه"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لا توجد بوابة"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ağ geçidi yok"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không có cổng mạng"
+          }
+        }
+      }
+    },
+    "没有网关 · 按外部网络" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No gateway · External network"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "沒有閘道 · 視為外部網路"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゲートウェイなし · 外部ネットワーク扱い"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게이트웨이 없음 · 외부 네트워크로 처리"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет шлюза · Внешняя сеть"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "بدون دروازه · شبکهٔ خارجی"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لا توجد بوابة · تُعد شبكة خارجية"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ağ geçidi yok · Dış ağ sayılır"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không có cổng mạng · Tính là mạng ngoài"
+          }
+        }
+      }
+    },
+    "没有网关 · 按外部网络处理" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لا توجد بوابة · تُعامل كشبكة خارجية"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No gateway · Treated as external"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "بدون دروازه · شبکهٔ خارجی محسوب می‌شود"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゲートウェイなし · 外部ネットワーク扱い"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게이트웨이 없음 · 외부 네트워크로 처리"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет шлюза · Внешняя сеть"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ağ geçidi yok · Harici ağ sayılır"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không có cổng · Coi là mạng ngoài"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "沒有閘道 · 視為外部網路"
+          }
+        }
+      }
+    },
     "没有订阅" : {
       "localizations" : {
         "ar" : {
@@ -66098,6 +68962,123 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "沒有訂閱"
+          }
+        }
+      }
+    },
+    "没有走物理网卡的默认路由" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لا يوجد مسار افتراضي عبر واجهة شبكة فعلية"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No default route via a physical interface"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "مسیر پیش‌فرضی از رابط فیزیکی وجود ندارد"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "物理ネットワークインターフェイス経由のデフォルトルートなし"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "물리 네트워크 인터페이스를 통한 기본 경로 없음"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет маршрута по умолчанию через физический адаптер"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fiziksel ağ arabirimi üzerinden varsayılan rota yok"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không có tuyến mặc định qua card mạng vật lý"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "沒有經由實體網卡的預設路由"
+          }
+        }
+      }
+    },
+    "没有走物理网卡的默认路由，按外部网络处理" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No default route via a physical interface; treated as external"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "沒有經由實體網卡的預設路由，視為外部網路"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "物理ネットワークインターフェース経由のデフォルトルートなし。外部ネットワーク扱い"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "물리 네트워크 카드의 기본 경로가 없어 외부 네트워크로 처리"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет маршрута по умолчанию через физический адаптер — внешняя сеть"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "مسیر پیش‌فرض از کارت شبکهٔ فیزیکی وجود ندارد؛ شبکهٔ خارجی محسوب می‌شود"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لا يوجد مسار افتراضي عبر بطاقة شبكة فعلية؛ تُعد شبكة خارجية"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fiziksel ağ kartı üzerinden varsayılan rota yok; dış ağ sayılır"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không có tuyến mặc định qua card mạng vật lý, tính là mạng ngoài"
           }
         }
       }
@@ -68456,6 +71437,64 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "清空本地日誌視圖"
+          }
+        }
+      }
+    },
+    "清空记录" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "مسح السجل"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear log"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "پاک کردن سوابق"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "履歴を消去"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기록 지우기"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Очистить журнал"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kaydı temizle"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xóa nhật ký"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清除紀錄"
           }
         }
       }
@@ -72406,6 +75445,7 @@
       }
     },
     "离开受信任网络时自动连上 VPN" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -72588,6 +75628,64 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "秒"
+          }
+        }
+      }
+    },
+    "移出受信任列表" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "إزالة من قائمة الموثوقة"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove from trusted"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "حذف از فهرست مورد اعتماد"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信頼リストから削除"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신뢰 목록에서 제거"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить из доверенных"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güvenilir listeden kaldır"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xóa khỏi danh sách tin cậy"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移出信任清單"
           }
         }
       }
@@ -76694,6 +79792,64 @@
         }
       }
     },
+    "纯良兜底" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purity fallback"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "純良備援"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "純良フォールバック"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purity 폴백"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Резерв Purity"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "پشتیبان Purity"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "حماية Purity الاحتياطية"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purity yedek koruması"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dự phòng Purity"
+          }
+        }
+      }
+    },
     "纯良未启用" : {
       "localizations" : {
         "ar" : {
@@ -76748,6 +79904,64 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "純良未啟用"
+          }
+        }
+      }
+    },
+    "纯良未启用：出口不在时境外连接可直接出去" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purity off: overseas traffic may go direct when no exit is available"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "純良未啟用：無出口時，境外連線可直接連出"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "純良無効：出口がない場合、海外への直接接続が可能"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purity 꺼짐: 출구가 없으면 해외로 직접 연결 가능"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purity выключен: без выхода зарубежные подключения могут идти напрямую"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purity غیرفعال است: بدون خروجی، اتصال خارجی می‌تواند مستقیم باشد"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purity معطّل: يمكن الاتصال بالخارج مباشرةً عند غياب المخرج"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purity kapalı: çıkış yokken yurt dışına doğrudan bağlanılabilir"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purity chưa bật: khi không có đầu ra, có thể kết nối thẳng ra nước ngoài"
           }
         }
       }
@@ -78000,6 +81214,238 @@
         }
       }
     },
+    "网关" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "البوابة"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gateway"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "دروازه"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゲートウェイ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게이트웨이"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Шлюз"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ağ geçidi"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cổng"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "閘道"
+          }
+        }
+      }
+    },
+    "网关 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gateway %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "閘道 %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゲートウェイ %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게이트웨이 %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Шлюз %@"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "دروازهٔ %@"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "البوابة %@"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ağ geçidi %@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cổng mạng %@"
+          }
+        }
+      }
+    },
+    "网关 %@ 读不到 MAC" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't read MAC for gateway %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法讀取閘道 %@ 的 MAC"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゲートウェイ %@ の MAC を取得できません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게이트웨이 %@의 MAC을 읽을 수 없음"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось прочитать MAC шлюза %@"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAC دروازهٔ %@ خوانده نمی‌شود"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تعذرت قراءة MAC للبوابة %@"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ağ geçidinin MAC'i okunamıyor"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không đọc được MAC cổng mạng %@"
+          }
+        }
+      }
+    },
+    "网关不在受信任列表时自动连上 VPN；受信任网关在 VPN 页「网关」卡管理" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يتصل VPN تلقائيًا إذا لم تكن البوابة موثوقة؛ أدر البوابات الموثوقة من بطاقة «البوابة» بصفحة VPN"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto-connect VPN when the gateway isn't trusted. Manage trusted gateways in the “Gateway” card on the VPN page"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اگر دروازه در فهرست مورد اعتماد نباشد، VPN خودکار وصل می‌شود؛ دروازه‌های مورد اعتماد را در کارت «دروازه» در صفحهٔ VPN مدیریت کنید"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゲートウェイが信頼リストにない場合は VPN に自動接続。信頼済みゲートウェイは VPN ページの「ゲートウェイ」カードで管理"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게이트웨이가 신뢰 목록에 없으면 VPN 자동 연결. 신뢰하는 게이트웨이는 VPN 페이지의 ‘게이트웨이’ 카드에서 관리"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Автоподключение VPN, если шлюз не доверенный. Управление доверенными шлюзами — в карточке «Шлюз» на странице VPN"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ağ geçidi güvenilir listede değilse VPN otomatik bağlanır; güvenilir ağ geçitlerini VPN sayfasındaki “Ağ geçidi” kartında yönetin"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tự kết nối VPN khi cổng không có trong danh sách tin cậy; quản lý cổng tin cậy trong thẻ “Cổng” ở trang VPN"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "閘道不在信任清單時自動連上 VPN；受信任閘道可在 VPN 頁「閘道」卡片管理"
+          }
+        }
+      }
+    },
     "网关代理" : {
       "localizations" : {
         "ar" : {
@@ -78054,6 +81500,181 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "閘道代理"
+          }
+        }
+      }
+    },
+    "网关操作失败：%@" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "فشلت عملية البوابة: %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gateway action failed: %@"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "عملیات دروازه ناموفق بود: %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゲートウェイの操作に失敗：%@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게이트웨이 작업 실패: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ошибка операции со шлюзом: %@"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ağ geçidi işlemi başarısız: %@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thao tác cổng thất bại: %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "閘道操作失敗：%@"
+          }
+        }
+      }
+    },
+    "网关每变化一次记一条，最多 50 条。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "سجل لكل تغيير للبوابة، بحد أقصى 50."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One entry per gateway change, up to 50."
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "برای هر تغییر دروازه یک رکورد، حداکثر ۵۰ مورد."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゲートウェイの変更ごとに1件記録、最大50件。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게이트웨이가 바뀔 때마다 기록하며 최대 50개입니다."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Одна запись на смену шлюза, не более 50."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Her ağ geçidi değişiminde bir kayıt, en fazla 50."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mỗi lần đổi cổng ghi một mục, tối đa 50 mục."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "閘道每變更一次記一筆，最多 50 筆。"
+          }
+        }
+      }
+    },
+    "网关直出" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Direct via gateway"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "閘道直連"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゲートウェイ経由で直接接続"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게이트웨이 직접 연결"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Напрямую через шлюз"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اتصال مستقیم از دروازه"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اتصال مباشر عبر البوابة"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ağ geçidinden doğrudan"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kết nối thẳng qua cổng mạng"
           }
         }
       }
@@ -78472,6 +82093,64 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "網路卡片"
+          }
+        }
+      }
+    },
+    "网络服务还不支持受信任网关，更新网络服务后可用。" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "خدمة الشبكة لا تدعم البوابات الموثوقة بعد. حدّثها لإتاحة الميزة."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The network service doesn't support trusted gateways yet. Update it to enable this."
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "سرویس شبکه هنوز از دروازه‌های مورد اعتماد پشتیبانی نمی‌کند؛ پس از به‌روزرسانی قابل استفاده است."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ネットワークサービスが信頼済みゲートウェイに未対応です。更新後に利用できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "네트워크 서비스가 아직 신뢰하는 게이트웨이를 지원하지 않습니다. 업데이트 후 사용할 수 있습니다."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сетевая служба пока не поддерживает доверенные шлюзы. Обновите её для использования."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ağ hizmeti henüz güvenilir ağ geçitlerini desteklemiyor. Kullanmak için ağ hizmetini güncelleyin."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dịch vụ mạng chưa hỗ trợ cổng tin cậy. Cập nhật dịch vụ mạng để sử dụng."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "網路服務尚不支援受信任閘道，更新網路服務後即可使用。"
           }
         }
       }
@@ -83728,6 +87407,181 @@
         }
       }
     },
+    "读不到 MAC" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تعذرت قراءة MAC"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't read MAC"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAC خوانده نمی‌شود"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAC を取得できません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAC을 읽을 수 없음"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось прочитать MAC"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAC okunamıyor"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không đọc được MAC"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法讀取 MAC"
+          }
+        }
+      }
+    },
+    "读不到 MAC · 按外部网络" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't read MAC · External network"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法讀取 MAC · 視為外部網路"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAC 取得不可 · 外部ネットワーク扱い"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAC 읽기 불가 · 외부 네트워크로 처리"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAC не читается · Внешняя сеть"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAC ناخوانا · شبکهٔ خارجی"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تعذرت قراءة MAC · تُعد شبكة خارجية"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAC okunamıyor · Dış ağ sayılır"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không đọc được MAC · Tính là mạng ngoài"
+          }
+        }
+      }
+    },
+    "读不到 MAC · 按外部网络处理" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تعذرت قراءة MAC · تُعامل كشبكة خارجية"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't read MAC · Treated as external"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAC خوانده نمی‌شود · شبکهٔ خارجی محسوب می‌شود"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAC 取得不可 · 外部ネットワーク扱い"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAC을 읽을 수 없음 · 외부 네트워크로 처리"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAC недоступен · Внешняя сеть"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAC okunamıyor · Harici ağ sayılır"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không đọc được MAC · Coi là mạng ngoài"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法讀取 MAC · 視為外部網路"
+          }
+        }
+      }
+    },
     "读不到网络指纹（默认网关），无法套用学习记录" : {
       "localizations" : {
         "ar" : {
@@ -87018,6 +90872,64 @@
         }
       }
     },
+    "还没有" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "None yet"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚無"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "まだありません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 없음"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пока нет"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "هنوز نیست"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لا يوجد بعد"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Henüz yok"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa có"
+          }
+        }
+      }
+    },
     "还没有 Profile" : {
       "localizations" : {
         "ar" : {
@@ -87136,6 +91048,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "尚未發現裝置"
+          }
+        }
+      }
+    },
+    "还没有受信任网关" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لا توجد بوابات موثوقة بعد"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No trusted gateways yet"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "هنوز دروازهٔ مورد اعتمادی نیست"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信頼済みゲートウェイなし"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 신뢰하는 게이트웨이 없음"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пока нет доверенных шлюзов"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Henüz güvenilir ağ geçidi yok"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa có cổng tin cậy"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚無受信任閘道"
           }
         }
       }
@@ -94484,6 +98455,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "需要新版網路服務：目前服務不支援"
+          }
+        }
+      }
+    },
+    "需要更新网络服务" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يلزم تحديث خدمة الشبكة"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Network service update required"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "سرویس شبکه باید به‌روزرسانی شود"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ネットワークサービスの更新が必要"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "네트워크 서비스 업데이트 필요"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Требуется обновление сетевой службы"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ağ hizmeti güncellenmeli"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cần cập nhật dịch vụ mạng"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要更新網路服務"
           }
         }
       }

@@ -242,7 +242,7 @@
       }
     },
     "%@ 不可用（%@）；%@" : {
-      "extractionState" : "manual",
+      "extractionState" : "stale",
       "comment" : "守护进程日志 / 接口提示（Go 源码句式）",
       "localizations" : {
         "en" : {
@@ -9542,7 +9542,7 @@
       }
     },
     "命中受信任网络，断开 WireGuard" : {
-      "extractionState" : "manual",
+      "extractionState" : "stale",
       "comment" : "守护进程日志 / 接口提示（Go 源码句式）",
       "localizations" : {
         "en" : {
@@ -12302,7 +12302,7 @@
       }
     },
     "当前网络不在受信任前缀内，自动连接 WireGuard" : {
-      "extractionState" : "manual",
+      "extractionState" : "stale",
       "comment" : "守护进程日志 / 接口提示（Go 源码句式）",
       "localizations" : {
         "en" : {
@@ -12362,7 +12362,7 @@
       }
     },
     "当前网络不在受信任前缀内，自动连接未启用" : {
-      "extractionState" : "manual",
+      "extractionState" : "stale",
       "comment" : "守护进程日志 / 接口提示（Go 源码句式）",
       "localizations" : {
         "en" : {
@@ -23042,7 +23042,7 @@
       }
     },
     "配置已更新: 间隔=%@s 宽限=%@s 探测=%@ 受信任网络前缀=%@ 自动连接非受信任网络=%@" : {
-      "extractionState" : "manual",
+      "extractionState" : "stale",
       "comment" : "守护进程日志 / 接口提示（Go 源码句式）",
       "localizations" : {
         "en" : {
@@ -24248,6 +24248,906 @@
     "请先断开当前 WgSense VPN，或等待当前安装完成" : {
       "extractionState" : "stale",
       "comment" : "守护进程日志 / 接口提示（Go 源码句式）"
+    },
+    "MAC 地址格式不对" : {
+      "extractionState" : "manual",
+      "comment" : "守护进程日志 / 接口提示（Go 源码句式）",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invalid MAC address format"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAC 位址格式錯誤"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAC アドレス形式が不正"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAC 주소 형식 오류"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Неверный формат MAC-адреса"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "قالب آدرس MAC نامعتبر است"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تنسيق عنوان MAC غير صالح"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAC adresi biçimi geçersiz"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sai định dạng địa chỉ MAC"
+          }
+        }
+      }
+    },
+    "不在受信任列表里" : {
+      "extractionState" : "manual",
+      "comment" : "守护进程日志 / 接口提示（Go 源码句式）",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not in trusted list"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不在信任清單中"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信頼リストにありません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신뢰 목록에 없음"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет в списке доверенных"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "در فهرست مورد اعتماد نیست"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "غير موجود في قائمة الثقة"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güvenilenler listesinde değil"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không có trong danh sách tin cậy"
+          }
+        }
+      }
+    },
+    "受信任网关不可用" : {
+      "extractionState" : "manual",
+      "comment" : "守护进程日志 / 接口提示（Go 源码句式）",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trusted gateway unavailable"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信任的閘道無法使用"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信頼済みゲートウェイが利用不可"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신뢰하는 게이트웨이 사용 불가"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доверенный шлюз недоступен"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "دروازه مورد اعتماد در دسترس نیست"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "البوابة الموثوقة غير متاحة"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güvenilen ağ geçidi kullanılamıyor"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cổng mạng tin cậy không khả dụng"
+          }
+        }
+      }
+    },
+    "已信任网关「%@」（%@）" : {
+      "extractionState" : "manual",
+      "comment" : "守护进程日志 / 接口提示（Go 源码句式）",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trusted gateway “%@” (%@)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已信任閘道「%@」（%@）"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゲートウェイ「%@」（%@）を信頼しました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게이트웨이 ‘%@’(%@) 신뢰 설정됨"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Шлюз «%@» (%@) добавлен в доверенные"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "دروازه «%@» (%@) مورد اعتماد شد"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تم الوثوق بالبوابة «%@» (%@)"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” (%@) ağ geçidine güvenildi"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã tin cậy cổng mạng “%@” (%@)"
+          }
+        }
+      }
+    },
+    "已取消信任网关「%@」（%@）" : {
+      "extractionState" : "manual",
+      "comment" : "守护进程日志 / 接口提示（Go 源码句式）",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Removed trust for gateway “%@” (%@)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已取消信任閘道「%@」（%@）"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゲートウェイ「%@」（%@）の信頼を解除しました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게이트웨이 ‘%@’(%@) 신뢰 해제됨"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Шлюз «%@» (%@) удалён из доверенных"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اعتماد به دروازه «%@» (%@) لغو شد"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "أُلغيت الثقة بالبوابة «%@» (%@)"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” (%@) ağ geçidine güven kaldırıldı"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã bỏ tin cậy cổng mạng “%@” (%@)"
+          }
+        }
+      }
+    },
+    "当前网关受信任，断开 WireGuard" : {
+      "extractionState" : "manual",
+      "comment" : "守护进程日志 / 接口提示（Go 源码句式）",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current gateway trusted, disconnecting WireGuard"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前閘道受信任，中斷 WireGuard"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現在のゲートウェイは信頼済み、WireGuard を切断"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현재 게이트웨이 신뢰됨, WireGuard 연결 해제"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Текущий шлюз доверенный, отключение WireGuard"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "دروازه فعلی مورد اعتماد است، قطع WireGuard"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "البوابة الحالية موثوقة، جارٍ قطع WireGuard"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geçerli ağ geçidi güvenilir, WireGuard bağlantısı kesiliyor"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cổng mạng hiện tại tin cậy, ngắt WireGuard"
+          }
+        }
+      }
+    },
+    "当前网关未受信任，自动连接 WireGuard" : {
+      "extractionState" : "manual",
+      "comment" : "守护进程日志 / 接口提示（Go 源码句式）",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current gateway untrusted, auto-connecting WireGuard"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前閘道未受信任，自動連線 WireGuard"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現在のゲートウェイは未信頼、WireGuard に自動接続"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현재 게이트웨이 신뢰 안 됨, WireGuard 자동 연결"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Текущий шлюз недоверенный, автоподключение WireGuard"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "دروازه فعلی مورد اعتماد نیست، اتصال خودکار WireGuard"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "البوابة الحالية غير موثوقة، جارٍ الاتصال تلقائيًا بـ WireGuard"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geçerli ağ geçidi güvenilir değil, WireGuard otomatik bağlanıyor"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cổng mạng hiện tại không tin cậy, tự động kết nối WireGuard"
+          }
+        }
+      }
+    },
+    "当前网关未受信任，自动连接未启用" : {
+      "extractionState" : "manual",
+      "comment" : "守护进程日志 / 接口提示（Go 源码句式）",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current gateway untrusted, auto-connect disabled"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前閘道未受信任，自動連線未啟用"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現在のゲートウェイは未信頼、自動接続は無効"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현재 게이트웨이 신뢰 안 됨, 자동 연결 비활성화"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Текущий шлюз недоверенный, автоподключение отключено"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "دروازه فعلی مورد اعتماد نیست، اتصال خودکار غیرفعال است"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "البوابة الحالية غير موثوقة، الاتصال التلقائي معطّل"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geçerli ağ geçidi güvenilir değil, otomatik bağlantı kapalı"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cổng mạng hiện tại không tin cậy, tự động kết nối chưa bật"
+          }
+        }
+      }
+    },
+    "当前读不到网关 MAC" : {
+      "extractionState" : "manual",
+      "comment" : "守护进程日志 / 接口提示（Go 源码句式）",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cannot read gateway MAC now"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前無法讀取閘道 MAC"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現在ゲートウェイの MAC を取得できません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현재 게이트웨이 MAC 읽기 불가"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сейчас не удалось получить MAC шлюза"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اکنون خواندن MAC دروازه ممکن نیست"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تعذّرت قراءة MAC البوابة حاليًا"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ağ geçidi MAC adresi şu an okunamıyor"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hiện không đọc được MAC cổng mạng"
+          }
+        }
+      }
+    },
+    "网关判定：网关 %@ 读不到 MAC，按未受信任处理" : {
+      "extractionState" : "manual",
+      "comment" : "守护进程日志 / 接口提示（Go 源码句式）",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gateway check: cannot read MAC for gateway %@, treating as untrusted"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "閘道判定：無法讀取閘道 %@ 的 MAC，視為未受信任"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゲートウェイ判定：ゲートウェイ %@ の MAC を取得できず、未信頼として処理"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게이트웨이 판정: 게이트웨이 %@의 MAC 읽기 불가, 신뢰 안 됨으로 처리"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверка шлюза: MAC шлюза %@ недоступен, считаем недоверенным"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "بررسی دروازه: MAC دروازه %@ خوانده نشد، نامطمئن تلقی می‌شود"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "فحص البوابة: تعذّرت قراءة MAC للبوابة %@، تُعامل كغير موثوقة"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ağ geçidi denetimi: %@ ağ geçidinin MAC adresi okunamıyor, güvenilmeyen sayılıyor"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kiểm tra cổng mạng: không đọc được MAC của cổng mạng %@, coi là không tin cậy"
+          }
+        }
+      }
+    },
+    "网关判定：网关 %@（%@）不在受信任列表，按未受信任处理" : {
+      "extractionState" : "manual",
+      "comment" : "守护进程日志 / 接口提示（Go 源码句式）",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gateway check: gateway %@ (%@) not in trusted list, treating as untrusted"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "閘道判定：閘道 %@（%@）不在信任清單，視為未受信任"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゲートウェイ判定：ゲートウェイ %@（%@）は信頼リストになく、未信頼として処理"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게이트웨이 판정: 게이트웨이 %@(%@)가 신뢰 목록에 없음, 신뢰 안 됨으로 처리"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверка шлюза: шлюза %@ (%@) нет в списке доверенных, считаем недоверенным"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "بررسی دروازه: دروازه %@ (%@) در فهرست مورد اعتماد نیست، نامطمئن تلقی می‌شود"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "فحص البوابة: البوابة %@ (%@) ليست في قائمة الثقة، تُعامل كغير موثوقة"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ağ geçidi denetimi: %@ (%@) ağ geçidi güvenilenler listesinde değil, güvenilmeyen sayılıyor"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kiểm tra cổng mạng: cổng mạng %@ (%@) không có trong danh sách tin cậy, coi là không tin cậy"
+          }
+        }
+      }
+    },
+    "网关判定：网关 %@（%@）是受信任网关「%@」" : {
+      "extractionState" : "manual",
+      "comment" : "守护进程日志 / 接口提示（Go 源码句式）",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gateway check: gateway %@ (%@) is trusted gateway “%@”"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "閘道判定：閘道 %@（%@）是信任的閘道「%@」"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゲートウェイ判定：ゲートウェイ %@（%@）は信頼済みゲートウェイ「%@」"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게이트웨이 판정: 게이트웨이 %@(%@)는 신뢰하는 게이트웨이 ‘%@’"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверка шлюза: шлюз %@ (%@) — доверенный шлюз «%@»"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "بررسی دروازه: دروازه %@ (%@) همان دروازه مورد اعتماد «%@» است"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "فحص البوابة: البوابة %@ (%@) هي البوابة الموثوقة «%@»"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ağ geçidi denetimi: %@ (%@) ağ geçidi, güvenilen “%@” ağ geçididir"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kiểm tra cổng mạng: cổng mạng %@ (%@) là cổng mạng tin cậy “%@”"
+          }
+        }
+      }
+    },
+    "网关判定：读不到默认网关，按未受信任处理" : {
+      "extractionState" : "manual",
+      "comment" : "守护进程日志 / 接口提示（Go 源码句式）",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gateway check: cannot read default gateway, treating as untrusted"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "閘道判定：無法讀取預設閘道，視為未受信任"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゲートウェイ判定：デフォルトゲートウェイを取得できず、未信頼として処理"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게이트웨이 판정: 기본 게이트웨이 읽기 불가, 신뢰 안 됨으로 처리"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверка шлюза: не удалось определить шлюз по умолчанию, считаем недоверенным"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "بررسی دروازه: دروازه پیش‌فرض خوانده نشد، نامطمئن تلقی می‌شود"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "فحص البوابة: تعذّرت قراءة البوابة الافتراضية، تُعامل كغير موثوقة"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ağ geçidi denetimi: varsayılan ağ geçidi okunamıyor, güvenilmeyen sayılıyor"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kiểm tra cổng mạng: không đọc được cổng mạng mặc định, coi là không tin cậy"
+          }
+        }
+      }
+    },
+    "配置已更新: 间隔=%@s 宽限=%@s 探测=%@ 自动连接非受信任网络=%@" : {
+      "extractionState" : "manual",
+      "comment" : "守护进程日志 / 接口提示（Go 源码句式）",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Config updated: interval=%@s grace=%@s probe=%@ auto-connect untrusted networks=%@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定已更新：間隔=%@s 寬限=%@s 探測=%@ 自動連線不受信任網路=%@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定更新：間隔=%@s 猶予=%@s 検出=%@ 未信頼ネットワークへの自動接続=%@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정 업데이트: 간격=%@s 유예=%@s 탐지=%@ 신뢰하지 않는 네트워크 자동 연결=%@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки обновлены: интервал=%@s отсрочка=%@s проверка=%@ автоподключение в недоверенных сетях=%@"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تنظیمات به‌روز شد: فاصله=%@s مهلت=%@s بررسی=%@ اتصال خودکار در شبکه‌های نامطمئن=%@"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "حُدّث الإعداد: الفاصل=%@s المهلة=%@s الفحص=%@ الاتصال التلقائي في الشبكات غير الموثوقة=%@"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ayarlar güncellendi: aralık=%@s ek süre=%@s yoklama=%@ güvenilmeyen ağlarda otomatik bağlantı=%@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã cập nhật cấu hình: chu kỳ=%@s thời gian chờ=%@s thăm dò=%@ tự động kết nối mạng không tin cậy=%@"
+          }
+        }
+      }
+    },
+    "%@ 不可用（%@）；受信任网关「%@」%@" : {
+      "extractionState" : "manual",
+      "comment" : "守护进程日志 / 接口提示（Go 源码句式）",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ unavailable (%@); trusted gateway “%@”%@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 無法使用（%@）；受信任閘道「%@」%@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 利用不可（%@）；信頼済みゲートウェイ「%@」%@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 사용 불가(%@); 신뢰하는 게이트웨이 ‘%@’%@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ недоступен (%@); доверенный шлюз «%@»%@"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ در دسترس نیست (%@)؛ دروازه مورد اعتماد «%@»%@"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ غير متاح (%@)؛ البوابة الموثوقة «%@»%@"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ kullanılamıyor (%@); güvenilir ağ geçidi “%@”%@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ không khả dụng (%@); cổng tin cậy “%@”%@"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

@@ -48,7 +48,7 @@ func (m *serviceTestTunnel) InterfaceBytes(string) (uint64, uint64)    { return 
 
 type serviceTestLocation struct{}
 
-func (serviceTestLocation) IsHome([]string) bool                   { return false }
+func (serviceTestLocation) Trusted() bool                          { return false }
 func (serviceTestLocation) CurrentIPv4s() []string                 { return nil }
 func (serviceTestLocation) ActiveInterfaces() []location.Interface { return nil }
 

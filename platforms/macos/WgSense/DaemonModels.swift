@@ -30,6 +30,8 @@ struct DaemonStatus: Codable, Equatable {
     var coverage: TunnelCoverage?
     /// 当前出口：wireguard / mihomo（tailscale 预留）。旧版网络服务没有这个字段 = 只有 WireGuard。
     var exit: String?
+    /// 当前网关与信任判定（受信任 = 网关 MAC 在受信任列表里）。旧版网络服务没有这个字段。
+    var gateway: GatewayVerdict?
 
     var isTrustedNetwork: Bool { trusted_network ?? at_home }
 
@@ -201,5 +203,77 @@ struct WGProfile: Codable {
         AllowedIPs = \(allowedIPs)
         PersistentKeepalive = \(keepalive)
         """
+    }
+}
+
+// MARK: - 受信任网关
+
+/// 当前物理网卡的默认网关。mac 为空表示读不到（按未受信任处理）。
+struct GatewayCurrent: Codable, Equatable {
+    var interface: String
+    var hardware_port: String?
+    var ip: String
+    var mac: String?
+}
+
+struct GatewayVerdict: Codable, Equatable {
+    var current: GatewayCurrent?
+    var trusted: Bool
+    /// 命中的受信任网关名。
+    var name: String?
+    /// 从按网段信任的旧版升级上来、还没确认任何网关，而当前 IP 在旧网段里。
+    var legacy_match: Bool?
+}
+
+struct TrustedGateway: Codable, Equatable, Identifiable {
+    var mac: String
+    var name: String
+    var added_at: String
+    var last_seen: String?
+    var id: String { mac }
+}
+
+struct SeenGateway: Codable, Equatable, Identifiable {
+    var mac: String
+    var ip: String
+    var interface: String
+    var hardware_port: String?
+    var first_seen: String
+    var last_seen: String
+    var id: String { mac }
+}
+
+struct GatewayDecision: Codable, Equatable, Identifiable {
+    var at: String
+    var ip: String?
+    var mac: String?
+    var interface: String?
+    var name: String?
+    var trusted: Bool
+    var id: String { at + (mac ?? "") }
+}
+
+/// /api/gateway 的完整内容。
+struct GatewayState: Codable, Equatable {
+    var current: GatewayCurrent?
+    var trusted: Bool
+    var name: String?
+    var legacy_match: Bool?
+    var trusted_list: [TrustedGateway]
+    var seen: [SeenGateway]
+    var decisions: [GatewayDecision]
+}
+
+enum WgGatewayTime {
+    private static let fractional: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return f
+    }()
+    private static let plain = ISO8601DateFormatter()
+
+    static func date(_ text: String?) -> Date? {
+        guard let text, !text.isEmpty else { return nil }
+        return fractional.date(from: text) ?? plain.date(from: text)
     }
 }

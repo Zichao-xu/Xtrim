@@ -14,6 +14,7 @@ import (
 
 	"github.com/wgsense/core/internal/config"
 	"github.com/wgsense/core/internal/firewall"
+	"github.com/wgsense/core/internal/gateway"
 	"github.com/wgsense/core/internal/healthcheck"
 	"github.com/wgsense/core/internal/location"
 	"github.com/wgsense/core/internal/logbuf"
@@ -189,7 +190,7 @@ func (e *Engine) saveCurrentConfig() error {
 
 // RunOnce 执行一次巡检。
 // 逻辑：
-//   - 受信任网络 → 断开 WG
+//   - 受信任网络（网关 MAC 在受信任列表里）→ 断开 WG
 //   - 非受信任网络 + 已暂停 → 跳过
 //   - 非受信任网络 + Disconnected + AutoConnectUntrusted → 自动连上
 //   - 非受信任网络 + Connected → 假连接检测，失效则强制 stop/start
@@ -234,7 +235,7 @@ func (e *Engine) runOnNetworkChangeLocked() error {
 	e.lastNetwork = current
 	e.lastHealthCheck = time.Time{}
 
-	trusted := e.loc.IsHome(e.cfg.TrustedNetworkPrefixes)
+	trusted := e.loc.Trusted()
 	state, _ := e.tun.Status(e.service)
 	if e.exitLocked() == ExitWireGuard && !trusted && state == tunnel.StateConnected && e.shouldKeepVPNUp(trusted) {
 		e.Logf("网络变化后验证隧道健康")
@@ -283,7 +284,7 @@ func (e *Engine) applyPolicyLocked() error {
 		if e.pause.IsPaused() {
 			reason = "已暂停"
 		}
-		trusted := e.loc.IsHome(e.cfg.TrustedNetworkPrefixes)
+		trusted := e.loc.Trusted()
 		key := fmt.Sprintf("%v|%s|%s|%s", trusted, state, e.service, reason)
 		if e.shouldLogTick(key) {
 			e.Logf("巡检 trusted=%v state=%s service=%s（%s，跳过自动策略）",
@@ -292,7 +293,7 @@ func (e *Engine) applyPolicyLocked() error {
 		return nil
 	}
 
-	trusted := e.loc.IsHome(e.cfg.TrustedNetworkPrefixes)
+	trusted := e.loc.Trusted()
 	state, _ := e.tun.Status(e.service)
 	e.logTick(trusted, state)
 
@@ -300,7 +301,7 @@ func (e *Engine) applyPolicyLocked() error {
 	// 要求 VPN 保持开启的意图。
 	if trusted {
 		if state != tunnel.StateDisconnected && !e.shouldKeepVPNUp(trusted) {
-			e.Logf("命中受信任网络，断开 WireGuard")
+			e.Logf("当前网关受信任，断开 WireGuard")
 			return e.tun.Disconnect(e.service)
 		}
 		return nil
@@ -311,7 +312,7 @@ func (e *Engine) applyPolicyLocked() error {
 	case tunnel.StateDisconnected:
 		e.healthFailures = 0
 		if !e.shouldKeepVPNUp(trusted) {
-			e.Logf("当前网络不在受信任前缀内，自动连接未启用")
+			e.Logf("当前网关未受信任，自动连接未启用")
 			return nil
 		}
 		if e.recentAutoUp() {
@@ -322,7 +323,7 @@ func (e *Engine) applyPolicyLocked() error {
 			e.Logf("自动连接退避中，等待下次尝试")
 			return nil
 		}
-		e.Logf("当前网络不在受信任前缀内，自动连接 WireGuard")
+		e.Logf("当前网关未受信任，自动连接 WireGuard")
 		if err := e.tun.Connect(e.service); err != nil {
 			e.recordAutoFailure()
 			return err
@@ -557,13 +558,28 @@ type StatusSnapshot struct {
 	Firewall          *firewall.Status     `json:"firewall,omitempty"`
 	// Exit 当前出口：wireguard / mihomo（tailscale 预留）。三者互斥。
 	Exit string `json:"exit"`
+	// Gateway 当前网关与信任判定（受信任 = 网关 MAC 在受信任列表里）。
+	Gateway *gateway.Verdict `json:"gateway,omitempty"`
+}
+
+// GatewayReporter 由带网关判定的 Locator 实现（gateway.Locator），状态接口据此报告网关。
+type GatewayReporter interface {
+	GatewayVerdict() gateway.Verdict
 }
 
 // Status 返回当前状态快照。
 func (e *Engine) Status() StatusSnapshot {
 	state, _ := e.tun.Status(e.service)
-	trusted := e.loc.IsHome(e.cfg.TrustedNetworkPrefixes)
+	var verdict *gateway.Verdict
+	trusted := false
+	if r, ok := e.loc.(GatewayReporter); ok {
+		v := r.GatewayVerdict()
+		verdict, trusted = &v, v.Trusted
+	} else {
+		trusted = e.loc.Trusted()
+	}
 	snapshot := StatusSnapshot{
+		Gateway:              verdict,
 		TrustedNetwork:       trusted,
 		AtHome:               trusted,
 		State:                string(state),
@@ -806,8 +822,8 @@ func (e *Engine) UpdateConfig(cfg config.Config) error {
 	e.healthFailures = 0
 	e.autoFailures = 0
 	e.nextAutoAttempt = time.Time{}
-	e.Logf("配置已更新: 间隔=%ds 宽限=%ds 探测=%s 受信任网络前缀=%v 自动连接非受信任网络=%t",
-		cfg.IntervalSeconds, cfg.AutoUpGraceSeconds, cfg.HealthCheckTarget, cfg.TrustedNetworkPrefixes, cfg.AutoConnectUntrusted)
+	e.Logf("配置已更新: 间隔=%ds 宽限=%ds 探测=%s 自动连接非受信任网络=%t",
+		cfg.IntervalSeconds, cfg.AutoUpGraceSeconds, cfg.HealthCheckTarget, cfg.AutoConnectUntrusted)
 	return nil
 }
 

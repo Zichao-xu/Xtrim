@@ -1,5 +1,5 @@
-// Package location 提供网络位置感知：检测当前是否命中受信任网络前缀。
-// 智能管理的基础：受信任网络断开 WG，非受信任网络按策略自动连接。
+// Package location 提供网络位置感知：当前有效的物理网卡与地址。
+// 是否受信任由 gateway 包按网关 MAC 判定（以前按 IP 前缀，同网段的别人家会被误判）。
 package location
 
 import (
@@ -32,8 +32,8 @@ type Interface struct {
 
 // Locator 检测网络位置。
 type Locator interface {
-	// IsHome 返回当前是否命中任一受信任前缀(如 "10.0.0.")。
-	IsHome(prefixes []string) bool
+	// Trusted 返回当前网络是否受信任（守护据此断开 WireGuard）。
+	Trusted() bool
 	// CurrentIPv4s 返回当前有效物理网络接口的 IPv4。
 	CurrentIPv4s() []string
 	// ActiveInterfaces 返回当前参与位置判断的有效物理网络接口。
@@ -57,20 +57,8 @@ func (defaultLocator) ActiveInterfaces() []Interface {
 	return currentActiveInterfaces()
 }
 
-func (l defaultLocator) IsHome(prefixes []string) bool {
-	return interfacesMatchPrefix(l.ActiveInterfaces(), prefixes)
-}
-
-func interfacesMatchPrefix(ifaces []Interface, prefixes []string) bool {
-	for _, iface := range ifaces {
-		for _, ip := range iface.IPv4s {
-			if matchesPrefix(ip, prefixes) {
-				return true
-			}
-		}
-	}
-	return false
-}
+// Trusted 位置模块本身不判定信任：没接网关判定（gateway.Locator）时一律不受信任。
+func (defaultLocator) Trusted() bool { return false }
 
 // NetworkFingerprint returns the effective physical network identity used to
 // detect home/away transitions. It intentionally ignores utun and local Apple
@@ -199,15 +187,6 @@ func collectIPv4s() (map[string][]string, string) {
 		}
 	}
 	return ips, key.String()
-}
-
-func matchesPrefix(ip string, prefixes []string) bool {
-	for _, p := range prefixes {
-		if p != "" && strings.HasPrefix(ip, p) {
-			return true
-		}
-	}
-	return false
 }
 
 type interfaceMeta struct {

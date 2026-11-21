@@ -3,7 +3,7 @@ import SwiftUI
 // 概览：一眼看清三件事 —— 现在是什么状态、为什么、能做什么。
 //
 //   主视觉   状态光球 + 标题 + 原因 + 唯一的主操作
-//   信息卡   网络 / 守护（可直接开关）/ 流量 / 隧道
+//   信息卡   网络（含「这是家」开关）/ 守护（出口调度 + 纯良，点开进守护页）/ 流量 / 隧道
 //   模块     系统设置式分组列表
 struct OverviewView: View {
     @EnvironmentObject var client: DaemonClient
@@ -24,8 +24,8 @@ struct OverviewView: View {
                 columns: [GridItem(.flexible(), spacing: WgSpace.m), GridItem(.flexible(), spacing: WgSpace.m)],
                 spacing: WgSpace.m
             ) {
-                networkCard
-                guardCard
+                NetworkCard()
+                GuardSwitchCard()
                 trafficCard
                 tunnelCard
             }
@@ -115,52 +115,6 @@ struct OverviewView: View {
     }
 
     // MARK: - 信息卡
-
-    private var networkCard: some View {
-        let s = client.status
-        let trusted = s?.isTrustedNetwork ?? false
-        return InfoCard(
-            symbol: trusted ? "house.fill" : "wifi",
-            tint: s == nil ? .gray : (trusted ? .teal : .blue),
-            title: "网络",
-            value: s == nil ? Text("未知") : Text(trusted ? "在家" : "外部网络"),
-            detail: networkDetail(s)
-        )
-    }
-
-    private func networkDetail(_ s: DaemonStatus?) -> Text {
-        guard let s else { return Text("等待后台服务") }
-        let iface = s.network_interfaces?.first
-        let name = iface?.hardware_port ?? iface?.name
-        let ip = s.primaryIPv4
-        switch (name, ip) {
-        case let (n?, i?): return Text(verbatim: "\(n) · \(i)")
-        case let (n?, nil): return Text(verbatim: n)
-        case let (nil, i?): return Text(verbatim: i)
-        default: return Text(s.isTrustedNetwork ? "受信任网络" : "非受信任网络")
-        }
-    }
-
-    private var guardCard: some View {
-        let online = client.status != nil
-        let on = online && client.isGuardOn
-        return InfoCard(
-            symbol: on ? "shield.fill" : "shield.slash.fill",
-            tint: on ? .blue : .gray,
-            title: "守护",
-            value: online ? Text(on ? "运行中" : "已关闭") : Text(verbatim: "—"),
-            detail: online ? Text(on ? "在家断开，外出自动连接" : "不会自动连接或断开") : Text("等待后台服务")
-        ) {
-            Toggle("", isOn: Binding(
-                get: { on },
-                set: { value in Task { await client.setGuardEnabled(value) } }
-            ))
-            .toggleStyle(.switch)
-            .labelsHidden()
-            .controlSize(.small)
-            .disabled(client.pendingGuardRunning != nil)
-        }
-    }
 
     private var trafficCard: some View {
         let up = client.isTunnelUp

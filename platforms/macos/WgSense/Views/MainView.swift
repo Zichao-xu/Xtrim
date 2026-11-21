@@ -368,6 +368,11 @@ struct MainView: View {
             toggleSidebar()
         }
         // 收起状态跟着宽度走（拖到最窄也算收起），重启后照样
+        .onChange(of: client.pageRequest) { _, page in
+            guard let page else { return }
+            withAnimation(.easeInOut(duration: 0.15)) { selection = page }
+            client.pageRequest = nil
+        }
         .onChange(of: sidebarWidth) { _, w in
             let collapsed = w <= SidebarView.railWidth + 0.5
             if sidebarCollapsed != collapsed { sidebarCollapsed = collapsed }
@@ -629,7 +634,7 @@ enum SidebarTab: String, CaseIterable, Identifiable {
         case .about: return "关于"
         case .speedtest: return "测速"
         case .trace: return "路由追踪"
-        case .purity: return "纯良"
+        case .purity: return "守护"
         case .vpn: return "VPN"
         }
     }
@@ -659,7 +664,7 @@ enum TileKind: String, CaseIterable, Identifiable, Codable {
         case .connection: return "流量"
         case .speedtest: return "测速"
         case .trace: return "路由追踪"
-        case .purity: return "纯良"
+        case .purity: return "守护"
         }
     }
 
@@ -677,7 +682,7 @@ enum TileKind: String, CaseIterable, Identifiable, Codable {
         case .connection: return "arrow.up.arrow.down"
         case .speedtest: return "gauge.with.dots.needle.67percent"
         case .trace: return "point.3.connected.trianglepath.dotted"
-        case .purity: return "hand.raised.fill"
+        case .purity: return "shield.lefthalf.filled"
         }
     }
 
@@ -696,7 +701,7 @@ enum TileKind: String, CaseIterable, Identifiable, Codable {
         case .connection: return "NET"
         case .speedtest: return "SPD"
         case .trace: return "TRC"
-        case .purity: return "PUR"
+        case .purity: return "GRD"
         }
     }
 
@@ -1118,10 +1123,10 @@ struct SidebarView: View {
             return ModuleInfo(symbol: kind.icon, tint: kind.activeColor, isOn: tile.running,
                               status: tile.text.map { Text(verbatim: $0) } ?? Text("世界航线"))
         case .purity:
-            // 状态行只给结论（休眠 / 接管中 / 未启用），与页面主视觉同源；接管中或未启用着警示色
-            let purity = PurityPresentation(status: client.status, tunnelUp: client.isTunnelUp)
-            return ModuleInfo(symbol: kind.icon, tint: WgInk.warn, isOn: purity.mode != .off && purity.mode != .unavailable,
-                              status: Text(purity.verdict), highlight: purity.needsAttention)
+            // 守护（出口调度 + 纯良兜底）：状态行只给结论，与守护页主视觉同源；接管中或未启用着警示色
+            let guardState = GuardPresentation(client: client)
+            return ModuleInfo(symbol: kind.icon, tint: WgInk.warn, isOn: guardState.isOn,
+                              status: Text(guardState.title), highlight: guardState.needsAttention)
         case .vpn, .connection, .speedtest:
             return ModuleInfo(symbol: kind.icon, tint: kind.activeColor, isOn: false, status: Text(""))
         }
@@ -1212,7 +1217,8 @@ struct SidebarView: View {
             }
         case .purity:
             let purity = PurityPresentation(status: client.status, tunnelUp: client.isTunnelUp)
-            detailLine(String(localized: "处境", bundle: .wgLocalized), purity.code)
+            detailLine(String(localized: "出口", bundle: .wgLocalized), purity.exitOnline ? purity.exitTitle : String(localized: "无", bundle: .wgLocalized))
+            detailLine(String(localized: "纯良", bundle: .wgLocalized), purity.code)
             detailLine(String(localized: "已拒绝", bundle: .wgLocalized), String(localized: "\(purity.blocked) 包", bundle: .wgLocalized))
             if tile.size == .large {
                 detailLine(String(localized: "网卡", bundle: .wgLocalized), client.status?.firewall?.interfaces?.joined(separator: " ") ?? "—")

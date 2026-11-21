@@ -284,18 +284,11 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: WgSpace.s) {
             WgSection(title: "守护与网络") {
                 WgRow(symbol: "shield.fill", tint: .blue, title: "非受信任网络自动连接",
-                      subtitle: Text("离开受信任网络时自动连上 VPN")) {
+                      subtitle: Text("网关不在受信任列表时自动连上 VPN；受信任网关在 VPN 页「网关」卡管理")) {
                     Toggle("", isOn: $client.autoConnectUntrusted)
                         .toggleStyle(.switch)
                         .labelsHidden()
                         .controlSize(.small)
-                }
-                WgRowDivider()
-                WgRow(symbol: "house.fill", tint: .teal, title: "受信任网络前缀",
-                      subtitle: Text("命中这些前缀视为在家，守护会保持 VPN 断开")) {
-                    TextField("例：10.0.0., 192.168.1.", text: $client.trustedNetworkPrefixes)
-                        .textFieldStyle(.roundedBorder)
-                        .frame(width: 200)
                 }
                 WgRowDivider()
                 stepperRow("巡检间隔", symbol: "timer", tint: .orange, value: $client.intervalSeconds, range: 5...300, step: 5, unit: "秒")

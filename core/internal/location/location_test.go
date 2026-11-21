@@ -31,28 +31,7 @@ func TestSelectActiveInterfacesPrefersFastWiredBeforeWiFi(t *testing.T) {
 	}
 }
 
-func TestTrustedPrefixMatchesAnyEffectivePhysicalInterface(t *testing.T) {
-	ifaces := selectActiveInterfaces(
-		map[string][]string{
-			"en0":  {"10.125.171.66"},
-			"en12": {"10.10.1.220"},
-		},
-		map[string]interfaceMeta{
-			"en0":  {active: true, sawStatus: true},
-			"en12": {active: true, sawStatus: true, speedMbps: 1000},
-		},
-		map[string]string{
-			"en0":  "Wi-Fi",
-			"en12": "USB 10/100/1000 LAN",
-		},
-	)
-
-	if !interfacesMatchPrefix(ifaces, []string{"10.10.1."}) {
-		t.Fatalf("trusted prefix should match while wired home network is still present: %#v", ifaces)
-	}
-}
-
-func TestTrustedPrefixRequiresAtLeastOneEffectivePhysicalMatch(t *testing.T) {
+func TestActiveInterfacesIgnoreTunnels(t *testing.T) {
 	ifaces := selectActiveInterfaces(
 		map[string][]string{
 			"en0":   {"10.125.171.66"},
@@ -66,9 +45,8 @@ func TestTrustedPrefixRequiresAtLeastOneEffectivePhysicalMatch(t *testing.T) {
 			"en0": "Wi-Fi",
 		},
 	)
-
-	if interfacesMatchPrefix(ifaces, []string{"10.10.1."}) {
-		t.Fatalf("trusted prefix must not match only through ignored tunnel interfaces: %#v", ifaces)
+	if len(ifaces) != 1 || ifaces[0].Name != "en0" {
+		t.Fatalf("tunnel interfaces must not count as physical networks: %#v", ifaces)
 	}
 }
 

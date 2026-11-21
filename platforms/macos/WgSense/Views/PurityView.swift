@@ -1,5 +1,10 @@
 import SwiftUI
 
+// 守护：守同一条线——去境外的包要么走可信出口，要么不出去。分两层：
+//   · 出口调度（守护开关）：受信任网关（自家路由器）下断开 WireGuard、由网关直出，其余自动连上 WireGuard；
+//   · 纯良兜底：出口不在的那一刻拒绝境外直连。
+// 「网关直出」算出口 = 网关 MAC 在受信任列表里 + 网关上的代理活着，守护与纯良共用这一个判定。
+//
 // 纯良：与 op 上的纯良同一语义——出口在线时完全休眠，全听出口的；出口不在了才接管。
 //   · 休眠：当前出口（WireGuard / mihomo）健康，网络服务不下发任何拦截规则；
 //   · 接管：没有出口、出口掉线或切换空档，物理网卡只放行国内、局域网与出口服务器，境外直连立即拒绝；
@@ -113,16 +118,21 @@ struct PurityView: View {
 
     var body: some View {
         let p = purity
+        let g = GuardPresentation(client: client)
+        let columns = [GridItem(.flexible(), spacing: WgSpace.m), GridItem(.flexible(), spacing: WgSpace.m)]
         return VStack(alignment: .leading, spacing: WgSpace.m) {
-            WgPageHeader(title: "纯良", subtitleText: "WGSENSE · PURITY", word: "PURITY") { EmptyView() }
-            hero(p)
-            PurityEgressDiagram(purity: p, interfaces: status?.interfaces ?? [])
-            LazyVGrid(
-                columns: [GridItem(.flexible(), spacing: WgSpace.m), GridItem(.flexible(), spacing: WgSpace.m)],
-                spacing: WgSpace.m
-            ) {
-                purityCard(p)
+            WgPageHeader(title: "守护", subtitleText: "WGSENSE · GUARD", word: "GUARD") { EmptyView() }
+            hero(g, p)
+            sectionLabel("出口调度")
+            LazyVGrid(columns: columns, spacing: WgSpace.m) {
+                GuardSwitchCard(navigates: false)
+                NetworkCard()
                 exitCard(p)
+                purityCard(p)
+            }
+            sectionLabel("纯良兜底")
+            PurityEgressDiagram(purity: p, interfaces: status?.interfaces ?? [])
+            LazyVGrid(columns: columns, spacing: WgSpace.m) {
                 optionCards
             }
             allowList(p)
@@ -136,13 +146,21 @@ struct PurityView: View {
 
     // MARK: - 主视觉条
 
-    private func hero(_ p: PurityPresentation) -> some View {
+    private func sectionLabel(_ title: LocalizedStringKey) -> some View {
+        Text(title)
+            .font(.system(size: WgType.sub, weight: .semibold))
+            .foregroundStyle(.secondary)
+            .wgPadding(.leading, .xs)
+            .wgPadding(.top, .s)
+    }
+
+    private func hero(_ g: GuardPresentation, _ p: PurityPresentation) -> some View {
         HStack(spacing: WgSpace.m) {
-            StatusOrb(symbol: p.mode == .dormant ? "moon.zzz.fill" : "hand.raised.fill",
+            StatusOrb(symbol: g.symbol,
                       tint: p.needsAttention ? .orange : .green,
-                      isActive: p.mode != .off && p.mode != .unavailable, isBusy: saving)
+                      isActive: g.isOn, isBusy: saving)
             VStack(alignment: .leading, spacing: WgSpace.xs) {
-                Text(p.verdict)
+                Text(g.title)
                     .font(.system(size: WgType.readout, weight: .semibold))
                     .foregroundStyle(p.needsAttention ? WgInk.warn : WgInk.ink)
                     .contentTransition(.opacity)
@@ -186,7 +204,7 @@ struct PurityView: View {
     // MARK: - 卡片
 
     private func purityCard(_ p: PurityPresentation) -> some View {
-        InfoCard(symbol: "hand.raised", tint: .gray, title: "纯良",
+        InfoCard(symbol: "hand.raised", tint: p.needsAttention ? .orange : .gray, title: "纯良",
                  value: p.needsAttention ? Text(p.verdict).foregroundColor(WgInk.warn) : Text(p.verdict),
                  detail: Text("出口在线时休眠，出口不在时拒绝境外直连")) {
             if let block = binding(\.auto_block) { toggle(block) }
@@ -554,5 +572,98 @@ struct PurityEgressDiagram: View {
         case .reject: return "拒绝"
         case .idle: return "未用"
         }
+    }
+}
+
+
+// MARK: - 守护（出口调度 + 纯良兜底）的结论
+
+/// 守护页主视觉、侧栏磁贴、VPN 页守护卡共用的结论。
+struct GuardPresentation {
+    let guardOn: Bool
+    let purity: PurityPresentation
+    let gatewayName: String?
+
+    @MainActor
+    init(client: DaemonClient) {
+        guardOn = client.isGuardOn
+        purity = PurityPresentation(status: client.status, tunnelUp: client.isTunnelUp)
+        gatewayName = client.status?.gateway?.trusted == true ? client.status?.gateway?.name : nil
+    }
+
+    var isOn: Bool { guardOn || (purity.mode != .off && purity.mode != .unavailable) }
+    var needsAttention: Bool { purity.needsAttention }
+
+    var symbol: String {
+        switch purity.mode {
+        case .guarding: return "hand.raised.fill"
+        case .dormant: return purity.exit == "gateway" ? "house.fill" : "lock.shield.fill"
+        default: return guardOn ? "shield.lefthalf.filled" : "shield.slash.fill"
+        }
+    }
+
+    /// 结论：现在由谁在守。
+    var title: LocalizedStringKey {
+        switch purity.mode {
+        case .guarding: return "接管中"
+        case .domestic: return "国内模式"
+        case .off: return guardOn ? "纯良未启用" : "已关闭"
+        case .unavailable: return guardOn ? "运行中" : "已关闭"
+        case .dormant:
+            if purity.exit == "gateway" { return "网关直出" }
+            return "出口 \(purity.exitTitle)"
+        }
+    }
+
+    /// 一行说明：出口与纯良各在做什么。
+    var summary: String {
+        switch purity.mode {
+        case .dormant:
+            if purity.exit == "gateway", let name = gatewayName {
+                return String(localized: "受信任网关「\(name)」直出 · 纯良休眠", bundle: .wgLocalized)
+            }
+            return String(localized: "出口 \(purity.exitTitle) 在线 · 纯良休眠", bundle: .wgLocalized)
+        case .guarding:
+            return String(localized: "没有可用出口 · 纯良拒绝境外直连（已拒绝 \(purity.blocked) 包）", bundle: .wgLocalized)
+        case .off:
+            return String(localized: "纯良未启用：出口不在时境外连接可直接出去", bundle: .wgLocalized)
+        case .domestic:
+            return String(localized: "所有出口只放行国内", bundle: .wgLocalized)
+        case .unavailable:
+            return guardOn ? String(localized: "受信任网关下断开 VPN，其余网络自动连接", bundle: .wgLocalized)
+                           : String(localized: "不会自动连接或断开", bundle: .wgLocalized)
+        }
+    }
+}
+
+/// 守护总开关卡：VPN 页（点开进守护页）与守护页共用。
+struct GuardSwitchCard: View {
+    @EnvironmentObject var client: DaemonClient
+    /// VPN 页上点卡片跳到守护页；守护页里本身就是这页，不跳。
+    var navigates = true
+
+    var body: some View {
+        let online = client.status != nil
+        let on = online && client.isGuardOn
+        let g = GuardPresentation(client: client)
+        InfoCard(
+            symbol: on ? "shield.lefthalf.filled" : "shield.slash.fill",
+            tint: g.needsAttention ? .orange : (on ? .blue : .gray),
+            title: "守护",
+            value: online ? (navigates ? Text(g.title) : Text(on ? "运行中" : "已关闭")) : Text(verbatim: "—"),
+            detail: online ? Text(verbatim: navigates ? g.summary : String(localized: "受信任网关下断开 VPN，其余网络自动连接", bundle: .wgLocalized))
+                           : Text("等待后台服务")
+        ) {
+            Toggle("", isOn: Binding(
+                get: { on },
+                set: { value in Task { await client.setGuardEnabled(value) } }
+            ))
+            .toggleStyle(.switch)
+            .labelsHidden()
+            .controlSize(.small)
+            .disabled(client.pendingGuardRunning != nil)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture { if navigates { client.pageRequest = .purity } }
     }
 }

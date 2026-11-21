@@ -204,9 +204,19 @@ type stubGateway struct {
 func (s *stubGateway) Probe() gatewayproxy.Result { s.probes++; return s.result }
 func (s *stubGateway) Reset()                     { s.resets++ }
 
-// 所选出口不在时，网关代理在线也算出口；所选出口在线时不去探测网关。
+// 网关不受信任时（别人家、没信任过的网络），网关代理在线也不算出口，也不去探测。
+func TestExitHealthIgnoresGatewayProxyWhenUntrusted(t *testing.T) {
+	e, _, _, _ := newExitEngine(t, false)
+	gw := &stubGateway{result: gatewayproxy.Result{Online: true, Detail: "网关 10.10.1.1 代理在线"}}
+	e.SetGatewayProbe(gw)
+	if exit, online, _ := e.ExitHealth(); exit == ExitGateway || online || gw.probes != 0 {
+		t.Fatalf("untrusted gateway must not count as an egress: %s %v probes=%d", exit, online, gw.probes)
+	}
+}
+
+// 所选出口不在时，受信任网关上的代理在线也算出口；所选出口在线时不去探测网关。
 func TestExitHealthFallsBackToGatewayProxy(t *testing.T) {
-	e, _, ex, _ := newExitEngine(t, false)
+	e, _, ex, _ := newExitEngine(t, true)
 	gw := &stubGateway{result: gatewayproxy.Result{Online: true, Detail: "网关 10.10.1.1 代理在线"}}
 	e.SetGatewayProbe(gw)
 

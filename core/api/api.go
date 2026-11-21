@@ -15,6 +15,7 @@ import (
 
 	"github.com/wgsense/core/internal/config"
 	"github.com/wgsense/core/internal/firewall"
+	"github.com/wgsense/core/internal/gateway"
 	"github.com/wgsense/core/internal/mihomo"
 	"github.com/wgsense/core/internal/policy"
 	"github.com/wgsense/core/internal/proxy"
@@ -33,7 +34,11 @@ type Server struct {
 	updateService  func(context.Context, service.Request) (service.Request, error)
 	restartService func()
 	mihomo         *mihomo.Manager
+	gateways       *gateway.Store
 }
+
+// SetGateways 接上受信任网关；不接时 /api/gateway 报不可用。
+func (s *Server) SetGateways(g *gateway.Store) { s.gateways = g }
 
 // SetMihomo 接上内置代理内核；不接时 /api/mihomo 报不可用。
 func (s *Server) SetMihomo(m *mihomo.Manager) { s.mihomo = m }
@@ -79,6 +84,7 @@ func (s *Server) Serve(listener net.Listener) error {
 	mux.HandleFunc("/api/tunnel/ipv6", s.handleTunnelIPv6)
 	mux.HandleFunc("/api/mihomo", s.handleMihomo)
 	mux.HandleFunc("/api/exit", s.handleExit)
+	mux.HandleFunc("/api/gateway", s.handleGateway)
 	mux.HandleFunc("/api/mihomo/import", s.handleMihomoImport)
 	mux.HandleFunc("/api/mihomo/controller", s.handleMihomoController)
 	mux.HandleFunc("/api/logs", s.handleLogs)
@@ -474,6 +480,55 @@ func (s *Server) handleExit(w http.ResponseWriter, r *http.Request) {
 		available = append(available, policy.ExitMihomo)
 	}
 	writeJSON(w, map[string]interface{}{"exit": s.eng.Exit(), "available": available})
+}
+
+// handleGateway GET 返回当前网关、判定、受信任列表、见过的网关与判定记录；
+// POST {"action":"trust"|"untrust"|"rename"|"clear_seen"|"dismiss_legacy","mac":"","name":""}。
+// trust 不带 mac 表示信任当前网关。改动后立即跑一次策略，让 WireGuard 马上按新判定连上或断开。
+func (s *Server) handleGateway(w http.ResponseWriter, r *http.Request) {
+	if s.gateways == nil {
+		http.Error(w, "受信任网关不可用", http.StatusServiceUnavailable)
+		return
+	}
+	switch r.Method {
+	case http.MethodGet:
+	case http.MethodPost:
+		var req struct {
+			Action string `json:"action"`
+			MAC    string `json:"mac"`
+			Name   string `json:"name"`
+		}
+		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4<<10)).Decode(&req); err != nil {
+			writeError(w, err)
+			return
+		}
+		var err error
+		switch req.Action {
+		case "trust":
+			_, err = s.gateways.Trust(req.MAC, req.Name)
+		case "untrust":
+			err = s.gateways.Untrust(req.MAC)
+		case "rename":
+			err = s.gateways.Rename(req.MAC, req.Name)
+		case "clear_seen":
+			s.gateways.ClearSeen()
+		case "dismiss_legacy":
+			s.gateways.DismissLegacy()
+		default:
+			err = fmt.Errorf("未知操作: %q", req.Action)
+		}
+		if err != nil {
+			writeError(w, err)
+			return
+		}
+		if req.Action == "trust" || req.Action == "untrust" {
+			go func() { _ = s.eng.RunOnce() }()
+		}
+	default:
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	writeJSON(w, s.gateways.Snapshot())
 }
 
 // handleTunnelIPv6 GET 返回全局隧道的公网 IPv6 设置，POST 更新并立即生效

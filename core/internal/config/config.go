@@ -25,8 +25,8 @@ type Config struct {
 	// is unaffected.
 	AutoConnectUntrusted bool `json:"auto_connect_untrusted"`
 
-	// TrustedNetworkPrefixes are local network prefixes where WireGuard should be
-	// kept disconnected, for example office/home LAN prefixes.
+	// TrustedNetworkPrefixes 已废弃：受信任改为看网关 MAC（gateway 包，存 gateway.json）。
+	// 同网段的别人家会被误判成受信任。只在首次升级时读一次，用来提示确认当前网关。
 	TrustedNetworkPrefixes []string `json:"trusted_network_prefixes"`
 
 	// Deprecated compatibility fields. Keep accepting/emitting them so existing
