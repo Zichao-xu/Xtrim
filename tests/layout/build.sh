@@ -14,7 +14,7 @@ with open(sys.argv[1], 'wb') as f:
                       LayoutLabAutostart=os.environ.get('LAYOUT_LAB_AUTOSTART') == '1'), f)
 PY
 xcrun swiftc -O -parse-as-library \
-  "$ROOT/platforms/macos/WgSense/Views/WgTokens.swift" \
+  "$ROOT/platforms/macos/WgSense/Views/WgTokens.swift" "$ROOT/platforms/macos/WgSense/WgLocalization.swift" \
   "$ROOT/platforms/macos/WgSense/Views/WgInk.swift" \
   "$ROOT/platforms/macos/WgSense/Views/WgRegionColor.swift" \
   "$ROOT/platforms/macos/WgSense/Views/RetainedGrid.swift" "$ROOT/tests/layout/VisibleNativePage.swift" "$ROOT/tests/layout/LayoutLab.swift" \

@@ -27,7 +27,7 @@ Path(sys.argv[3]).write_bytes(plistlib.dumps({
     'LSMinimumSystemVersion': '14.0',
 }))
 PY
-SOURCES=("$ROOT/platforms/macos/WgSense/Views/WgTokens.swift" "$ROOT/platforms/macos/WgSense/Views/WgInk.swift" "$ROOT/platforms/macos/WgSense/Views/WgRegionColor.swift" "$ROOT/platforms/macos/WgSense/Views/WgLinkMonitor.swift")
+SOURCES=("$ROOT/platforms/macos/WgSense/Views/WgTokens.swift" "$ROOT/platforms/macos/WgSense/WgLocalization.swift" "$ROOT/platforms/macos/WgSense/Views/WgInk.swift" "$ROOT/platforms/macos/WgSense/Views/WgRegionColor.swift" "$ROOT/platforms/macos/WgSense/Views/WgLinkMonitor.swift")
 for EXTRA in WgHUDMotion WgLinkMotion WgHUDClock WgHUDDisplayClock; do
   if [[ -f "$ROOT/platforms/macos/WgSense/Views/$EXTRA.swift" ]]; then
     SOURCES+=("$ROOT/platforms/macos/WgSense/Views/$EXTRA.swift")

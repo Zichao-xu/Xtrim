@@ -9,7 +9,7 @@ TEMP="$(mktemp -d "${TMPDIR:-/tmp}/wgsense-speedlab-render.XXXXXX")"
 trap 'rm -rf "$TEMP"' EXIT
 SL="$ROOT/platforms/macos/WgSense/SpeedLab"
 xcrun swiftc -parse-as-library \
-  "$ROOT/platforms/macos/WgSense/Views/WgTokens.swift" \
+  "$ROOT/platforms/macos/WgSense/Views/WgTokens.swift" "$ROOT/platforms/macos/WgSense/WgLocalization.swift" \
   "$ROOT/platforms/macos/WgSense/Views/WgRegionColor.swift" \
   "$SL/SpeedLabModels.swift" "$SL/SpeedLabFormat.swift" "$SL/SpeedLabHUD.swift" \
   "$ROOT/tests/speedlab/render.swift" -o "$TEMP/render"

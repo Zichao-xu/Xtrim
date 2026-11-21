@@ -51,6 +51,7 @@
 		8060823AEE7C39F03BB54D23 /* SpeedLabTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91EB61A900F3588E951CF76B /* SpeedLabTile.swift */; };
 		80955297821C82C39FE5C9A8 /* TraceMetalMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A98FCC223E24076B4D92EF /* TraceMetalMap.swift */; };
 		80D283F2D9F26F374C273E94 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB8BEADBFB4F30FEA8CAE2D2 /* MenuBarView.swift */; };
+		85999E74209E319C6E92A67A /* WgLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8113E930BC9AA8D041D82FB1 /* WgLocalization.swift */; };
 		85FC1CBD1AC639C275B65736 /* ProxyModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C415A763228416E61BA81E86 /* ProxyModels.swift */; };
 		882F34D0761960552EDAA758 /* MihomoBackends.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08446624B46672875126EF07 /* MihomoBackends.swift */; };
 		886B72719A189B081AB800E8 /* PPOverviewStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 940829B6D2F7309278E8000C /* PPOverviewStore.swift */; };
@@ -165,6 +166,7 @@
 		7E48C549BB7D40A8B916CC0B /* WgSenseWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WgSenseWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		805B104167A8BA3A2EF94FBF /* WgLinkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WgLinkMonitor.swift; sourceTree = "<group>"; };
 		808710A2E6EAD06A54381677 /* WgSense.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WgSense.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8113E930BC9AA8D041D82FB1 /* WgLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WgLocalization.swift; sourceTree = "<group>"; };
 		83C9AEACF015695C43E09540 /* ShellCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellCommand.swift; sourceTree = "<group>"; };
 		840FF9EAB81A5780AC273FE6 /* PPCustomRuleViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PPCustomRuleViews.swift; sourceTree = "<group>"; };
 		842AA6F3E44BEA9F7D66B894 /* ProxyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyView.swift; sourceTree = "<group>"; };
@@ -240,6 +242,7 @@
 				B75C77A4A22AD3006EA7C804 /* TransferAPIClient.swift */,
 				54A3CE06A6A17BCEB2B3CE57 /* TransferModels.swift */,
 				DF3569EC7F13427742A6A778 /* WgDaemonText.swift */,
+				8113E930BC9AA8D041D82FB1 /* WgLocalization.swift */,
 				E75714667C21CE70B43A065A /* WgSense.entitlements */,
 				89A8FD83AD3FB5681EAE1110 /* WgSenseApp.swift */,
 				B327C41F92B977872F228B46 /* WgSurfaces.swift */,
@@ -633,6 +636,7 @@
 				B0ED1641322EEAFE01F82312 /* WgInk.swift in Sources */,
 				A9FC1E8C8EA90AE0F05953B2 /* WgLinkMonitor.swift in Sources */,
 				2D32A2D89D6779DBB72483FF /* WgLinkStage.swift in Sources */,
+				85999E74209E319C6E92A67A /* WgLocalization.swift in Sources */,
 				D566C0534547A0C2DB44525A /* WgRegionColor.swift in Sources */,
 				B724C8AC51CB0161D11D631B /* WgScrollView.swift in Sources */,
 				C6D8922CDA57B0668AAA41F2 /* WgSenseApp.swift in Sources */,
